@@ -912,6 +912,13 @@
           0.62rem ui-monospace,
           monospace;
       }
+      .microscope-notes p strong {
+        color: var(--paper);
+        font-size: 0.67rem;
+        font-weight: 650;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
 
       .game-section {
         display: grid;
@@ -930,8 +937,32 @@
       .game-intro h2 {
         font-size: clamp(3rem, 5.8vw, 6.5rem);
       }
-      .game-intro > p:last-child {
+      .game-intro > p:last-of-type {
         color: var(--muted);
+      }
+      .game-key {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin: 34px 0 0;
+        border: 1px solid var(--line);
+        background: var(--line);
+      }
+      .game-key div {
+        padding: 12px;
+        background: #0a0a0d;
+      }
+      .game-key dt {
+        color: var(--lime);
+        font:
+          0.61rem ui-monospace,
+          monospace;
+        text-transform: uppercase;
+      }
+      .game-key dd {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.68rem;
       }
       .inbox-game {
         align-self: start;
@@ -1085,6 +1116,28 @@
       }
       .inbox-finish p {
         color: var(--muted);
+      }
+      .game-results {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin: 30px 0;
+        padding: 1px;
+        background: var(--line);
+        list-style: none;
+      }
+      .game-results li {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px;
+        background: var(--ink-soft);
+        font:
+          0.66rem ui-monospace,
+          monospace;
+      }
+      .game-results strong {
+        color: var(--lime);
       }
 
       .machine-section {
@@ -1354,6 +1407,45 @@
         letter-spacing: 0.08em;
         overflow-wrap: anywhere;
       }
+      .axis-ledger {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        margin: 0;
+        padding: 1px;
+        background: var(--line);
+        list-style: none;
+      }
+      .axis-ledger li {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr);
+        gap: 10px;
+        min-height: 62px;
+        padding: 11px;
+        background: #0a0a0d;
+      }
+      .axis-ledger li > span {
+        color: #66635c;
+        font:
+          0.57rem ui-monospace,
+          monospace;
+      }
+      .axis-ledger strong {
+        display: block;
+        color: var(--paper);
+        font:
+          0.61rem ui-monospace,
+          monospace;
+        text-transform: uppercase;
+      }
+      .axis-ledger p {
+        margin: 5px 0 0;
+        color: var(--lime);
+        font:
+          0.65rem/1.35 ui-monospace,
+          monospace;
+      }
       .derived-metrics {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1380,7 +1472,9 @@
       }
       .output-actions {
         display: flex;
+        align-items: center;
         justify-content: flex-end;
+        gap: 12px;
         padding: 18px;
       }
       .static-specimens {
@@ -1492,6 +1586,32 @@
       }
       .cost-result p {
         color: var(--muted);
+      }
+      .cost-breakdown {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin: 28px 0 0;
+        padding: 1px;
+        background: var(--line);
+      }
+      .cost-breakdown div {
+        padding: 13px;
+        background: #0a0a0d;
+      }
+      .cost-breakdown dt {
+        color: var(--muted);
+        font:
+          0.58rem ui-monospace,
+          monospace;
+        text-transform: uppercase;
+      }
+      .cost-breakdown dd {
+        margin: 5px 0 0;
+        color: var(--lime);
+        font:
+          0.78rem ui-monospace,
+          monospace;
       }
 
       .atlas-section {
@@ -2304,6 +2424,10 @@
       .definition-builder label.selected {
         background: var(--lime);
       }
+      .definition-builder label.limit-disabled {
+        cursor: not-allowed;
+        opacity: 0.42;
+      }
       .definition-builder label input {
         align-self: flex-end;
         accent-color: var(--violet);
@@ -2315,6 +2439,14 @@
       .definition-builder label span {
         color: #646159;
         font-size: 0.72rem;
+      }
+      .facet-limit-status {
+        grid-column: 1 / -1;
+        margin: 18px 0 0;
+        color: #646159;
+        font:
+          0.65rem/1.5 ui-monospace,
+          monospace;
       }
       .built-definition {
         display: flex;
@@ -2637,6 +2769,12 @@
         }
         .choice-grid {
           grid-template-columns: 1fr 1fr;
+        }
+        .game-key,
+        .game-results,
+        .axis-ledger,
+        .cost-breakdown {
+          grid-template-columns: 1fr;
         }
         .machine-aperture {
           grid-template-columns: 1fr;
@@ -3094,12 +3232,23 @@
         ><a href="#verteilertopologie">Topologie</a
         ><a href="#glossar">Glossar</a>
       </nav>
-      <button class="navigator-trigger" type="button">
+      <button
+        class="navigator-trigger"
+        id="navigator-trigger"
+        type="button"
+        aria-controls="chapter-navigator"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
         <span>Kapitel</span><kbd>⌘K</kbd>
       </button>
-      <dialog class="navigator-dialog">
+      <dialog
+        class="navigator-dialog"
+        id="chapter-navigator"
+        aria-labelledby="navigator-title"
+      >
         <div class="dialog-head">
-          <span>SLOPMAIL / NAVIGATOR</span>
+          <span id="navigator-title">SLOPMAIL / NAVIGATOR</span>
           <form method="dialog">
             <button type="submit" aria-label="Navigator schließen">×</button>
           </form>
@@ -3407,24 +3556,28 @@
             ><button
               class="layer-button active violet"
               type="button"
+              data-layer="warmup"
               aria-pressed="true"
             >
               Warmlauf</button
             ><button
               class="layer-button active orange"
               type="button"
+              data-layer="hedge"
               aria-pressed="true"
             >
               Absicherung</button
             ><button
               class="layer-button active blue"
               type="button"
+              data-layer="abstract"
               aria-pressed="true"
             >
               Abstraktion</button
             ><button
               class="layer-button active lime"
               type="button"
+              data-layer="actor"
               aria-pressed="true"
             >
               Handlungsträger
@@ -3432,29 +3585,76 @@
           </div>
           <div class="microscope-grid">
             <article class="specimen-mail">
+              <p class="overline">Für Stephan, Torben und Sarah.</p>
               <header>
                 <span>Von: Projektteam</span><span>An: Verteiler</span>
               </header>
               <h3>Betreff: Einordnung zur weiteren Vorgehensweise</h3>
               <div class="specimen-copy">
                 <span>Guten Morgen zusammen, </span
-                ><mark class="layer-warmup"
-                  >ich hoffe, diese Nachricht erreicht euch gut und ihr konntet
-                  die bisherigen Entwicklungen in Ruhe einordnen. </mark
-                ><mark class="layer-abstract"
-                  >Im Rahmen unserer fortlaufenden Abstimmung </mark
-                ><mark class="layer-hedge layer-actor"
-                  >erscheint es grundsätzlich sinnvoll, </mark
-                ><mark class="layer-abstract"
-                  >die relevanten Perspektiven noch einmal ganzheitlich
-                  zusammenzuführen und eine gemeinsame Einordnung vorzunehmen. </mark
-                ><mark class="layer-hedge layer-actor"
-                  >Gegebenenfalls könnten darauf aufbauend mögliche nächste
-                  Schritte priorisiert werden. </mark
-                ><mark class="layer-abstract"
-                  >Lasst uns dazu zeitnah in einen kurzen Austausch gehen. Viele
-                  Grüße</mark
-                >
+                ><mark
+                  class="layer-warmup"
+                  data-layer="warmup"
+                  data-note="Die erste Höflichkeitsschleife bestätigt Beziehung, noch nicht den Anlass."
+                  >ich hoffe, ihr seid gut in die Woche gestartet. </mark
+                ><mark
+                  class="layer-warmup"
+                  data-layer="warmup"
+                  data-note="Der Dank verlängert die soziale Vorzone, bevor der Gegenstand erscheint."
+                  >Vielen Dank noch einmal für den konstruktiven Austausch der
+                  vergangenen Tage. </mark
+                ><mark
+                  class="layer-hedge"
+                  data-layer="hedge"
+                  data-note="„Nach dem derzeitigen Eindruck“ begrenzt die Geltung der folgenden Aussage."
+                  >Nach dem derzeitigen Eindruck </mark
+                ><span>ist es </span
+                ><mark
+                  class="layer-hedge"
+                  data-layer="hedge"
+                  data-note="„grundsätzlich“ lässt Ausnahmen offen, ohne sie zu benennen."
+                  >grundsätzlich </mark
+                ><span>sinnvoll, </span
+                ><mark
+                  class="layer-abstract"
+                  data-layer="abstract"
+                  data-note="„Relevante Perspektiven“ ersetzt konkrete Positionen, Namen und Einwände."
+                  >die relevanten Perspektiven in einer übergreifenden
+                  Einordnung zusammenzuführen. </mark
+                ><mark
+                  class="layer-actor"
+                  data-layer="actor"
+                  data-note="Das Passiv nennt die Priorisierung, aber keine Person, die sie vornimmt."
+                  >Eine Priorisierung der offenen Punkte wird anschließend auf
+                  den beteiligten Ebenen vorgenommen. </mark
+                ><mark
+                  class="layer-hedge"
+                  data-layer="hedge"
+                  data-note="„Gegebenenfalls“ macht den nächsten Satz von einer ungenannten Bedingung abhängig."
+                  >Gegebenenfalls </mark
+                ><mark
+                  class="layer-actor"
+                  data-layer="actor"
+                  data-note="„Erfolgt“ beschreibt einen Vorgang; die rückmeldende Person bleibt unsichtbar."
+                  >erfolgt danach eine Rückmeldung aus den zuständigen
+                  Bereichen. </mark
+                ><mark
+                  class="layer-abstract"
+                  data-layer="abstract"
+                  data-note="„Anschlussfähigkeit des weiteren Vorgehens“ macht eine Beziehung zwischen Handlungen zum Gegenstand."
+                  >Auf dieser Basis rückt die Anschlussfähigkeit des weiteren
+                  Vorgehens in den Blick. </mark
+                ><mark
+                  class="layer-hedge"
+                  data-layer="hedge"
+                  data-note="„Aus heutiger Sicht könnte“ verbindet Zeitvorbehalt und Möglichkeitsform."
+                  >Aus heutiger Sicht könnte </mark
+                ><mark
+                  class="layer-actor"
+                  data-layer="actor"
+                  data-note="Auch der abschließende Termin wird angesetzt, ohne dass jemand dafür einsteht."
+                  >ein weiterer Austausch angesetzt werden. </mark
+                ><span>Viele Grüße</span>
               </div>
             </article>
             <aside
@@ -3462,28 +3662,8 @@
               aria-labelledby="microscope-notes-title"
               aria-live="polite"
             >
-              <h3 id="microscope-notes-title">Randnotizen / 6</h3>
-              <p><span>01</span>Der Anlass wartet noch vor der Tür.</p>
-              <p>
-                <span>02</span>Ein Vorgang wird benannt, aber noch kein
-                Ergebnis.
-              </p>
-              <p>
-                <span>03</span>Wer hält es für sinnvoll? Die Konstruktion bleibt
-                unpersönlich.
-              </p>
-              <p>
-                <span>04</span>Viele Vorgangswörter, wenig beobachtbare
-                Handlung.
-              </p>
-              <p>
-                <span>05</span>Drei Schutzschichten und weiterhin keine
-                zuständige Person.
-              </p>
-              <p>
-                <span>06</span>Die greifbarste Handlung ist ein weiterer Termin
-                ohne Zeitpunkt.
-              </p>
+              <h3 id="microscope-notes-title">Aktive Funde / 11</h3>
+              <p>Die Ebenen werden aus der Nachricht gelesen.</p>
             </aside>
           </div>
         </div>
@@ -3495,22 +3675,41 @@
       >
         <div class="game-intro">
           <span class="section-number">04 / Postfach unter Zeitdruck</span>
-          <p class="overline lime">Sechs Nachrichten · vier Antwortformen</p>
+          <p class="overline lime">Acht Nachrichten · vier Antwortformen</p>
           <h2 id="game-title">
-            Information, Handlung, Entscheidung — oder offen?
+            Information, Aufgabe, Entscheidung — oder unbestimmt?
           </h2>
           <p>
-            Information, Handlung, Entscheidung und Offenheit liegen im selben
-            Postfach. Betreff, Verb und Frist verschieben die Grenze zwischen
-            diesen vier Zuständen mit jeder Nachricht erneut.
+            Kenntnisnahme, Ausführung, Auswahl und eine offene Erwartung liegen
+            im selben Postfach. Betreff, Verb und Frist verschieben die Grenze
+            zwischen diesen vier Zuständen mit jeder Nachricht erneut.
           </p>
+          <dl class="game-key">
+            <div>
+              <dt>Information</dt>
+              <dd>Lesen genügt.</dd>
+            </div>
+            <div>
+              <dt>Aufgabe</dt>
+              <dd>Etwas ist auszuführen.</dd>
+            </div>
+            <div>
+              <dt>Entscheidung</dt>
+              <dd>Eine Auswahl ist verlangt.</dd>
+            </div>
+            <div>
+              <dt>Unbestimmt</dt>
+              <dd>Die Erwartung bleibt offen.</dd>
+            </div>
+          </dl>
         </div>
         <div class="inbox-game">
           <div class="inbox-rail">
-            <span>POSTEINGANG</span><b>1/6</b>
+            <span>POSTEINGANG</span><b>1/8</b>
             <div>
               <i class="current"></i><i class=""></i><i class=""></i
-              ><i class=""></i><i class=""></i><i class=""></i>
+              ><i class=""></i><i class=""></i><i class=""></i><i class=""></i
+              ><i class=""></i>
             </div>
           </div>
           <article class="inbox-message">
@@ -3530,12 +3729,13 @@
             <p>Was erwartet diese Nachricht?</p>
             <div class="choice-grid">
               <button type="button" class="">Information</button
-              ><button type="button" class="">Handlung</button
+              ><button type="button" class="">Aufgabe</button
               ><button type="button" class="">Entscheidung</button
-              ><button type="button" class="">Unklar</button>
+              ><button type="button" class="">Unbestimmt</button>
             </div>
           </div>
         </div>
+        <p id="game-status" class="sr-only" aria-live="polite"></p>
       </section>
       <section
         class="machine-section"
@@ -3793,51 +3993,79 @@
 
             <div class="synth-actions">
               <button class="button button-solid" type="submit">
-                Neue Konfiguration
+                Neue Fassung
               </button>
               <button class="mini-button" id="mutate-mail" type="button">
-                Nachbarvariante
+                Nachbarstufe
               </button>
-              <button class="mini-button" type="reset">Nullstellung</button>
+              <button class="mini-button" type="reset">Ausgangslage</button>
             </div>
           </form>
 
           <section class="synth-output" aria-labelledby="generated-subject">
             <header class="output-header">
-              <span id="synth-seed">SM/11 · 0017</span>
+              <span id="synth-seed">SM/11 · 0017 / 00AI4Y7</span>
               <span id="synth-status" role="status" aria-live="polite"
                 >Vektor stabil</span
               >
             </header>
             <article class="generated-mail">
               <p class="mail-routing">
-                VON / PROJEKTRAUM &nbsp; → &nbsp; AN / TEAM &nbsp; · &nbsp;
-                STATUS / OFFEN
+                KONTEXT / PROJEKT &nbsp; → &nbsp; EMPFÄNGER / TEAM &nbsp; ·
+                &nbsp; MODUS / ZWISCHENSTAND &nbsp; · &nbsp; ZUORDNUNG OFFEN
               </p>
-              <h3 id="generated-subject">
-                Gemeinsame Einordnung zum weiteren Vorgehen
-              </h3>
+              <h3 id="generated-subject">Aktueller Stand</h3>
               <div id="generated-body">
                 <p>Hallo zusammen,</p>
                 <p>
-                  vor dem Hintergrund der aktuellen Dynamik und anknüpfend an
-                  die bereits zusammengetragenen Perspektiven erscheint es
-                  grundsätzlich sinnvoll, den vorliegenden Zwischenstand noch
-                  einmal ganzheitlich einzuordnen.
+                  Ganz herzlichen Dank euch für die aufmerksame Unterstützung.
+                  Unsere gemeinsame Vorgeschichte wird als vertrauter Rahmen
+                  aufgegriffen.
                 </p>
                 <p>
-                  Auf dieser Grundlage könnten die relevanten Handlungsfelder
-                  gebündelt und mögliche Anschlussoptionen in eine tragfähige
-                  Reihenfolge überführt werden. Gegebenenfalls wäre dabei auch
-                  zu prüfen, welche Ebenen perspektivisch in den weiteren
-                  Prozess einbezogen werden sollten.
+                  Diese Nachricht bündelt den Zwischenstand zum aktuellen
+                  Projektstand. Vor diesem Hintergrund werden die relevanten
+                  Handlungsfelder entlang der bestehenden Rahmenbedingungen
+                  zusammengeführt. Die anschlussfähigen Optionen des aktuellen
+                  Projektstands rücken in den Fokus. Der bisherige Verlauf
+                  bleibt dabei als Hintergrund erhalten. Zusätzlich werden die
+                  bereits bekannten Berührungspunkte mitgeführt. Auch die in
+                  früheren Runden genannten Hinweise bleiben Teil des Bildes.
+                  Die verschiedenen Blickrichtungen werden dabei nicht isoliert
+                  voneinander gelesen. Neben dem unmittelbaren Anlass bleibt der
+                  weitere Zusammenhang sichtbar. Die vorhandenen Rückmeldungen
+                  bilden eine zusätzliche Schicht der Betrachtung. Frühere
+                  Zwischenstände werden als Teil der aktuellen Bewegung
+                  mitgedacht. Die angrenzenden Themenfelder bleiben im
+                  erweiterten Rahmen anschlussfähig. Auch mögliche
+                  Wechselwirkungen mit nachgelagerten Schritten werden
+                  einbezogen. Die bereits entstandenen Gesprächslinien werden in
+                  der Gesamtschau weitergeführt. Unterschiedliche Zeithorizonte
+                  erscheinen dabei nebeneinander im selben Feld. Weitere
+                  Perspektiven können an die bestehende Betrachtung angelegt
+                  werden. Die aktuelle Fassung nimmt auch die Ränder des
+                  bisherigen Austauschs auf.
                 </p>
                 <p>
-                  Für eine zeitnahe Rückmeldung zur möglichen weiteren
-                  Vorgehensweise wären wir dankbar. Danach ließe sich die
-                  nächste Abstimmung entsprechend vorbereiten.
+                  Die institutionelle Bearbeitung umfasst Prüfung,
+                  Einordnungsleistung und Ergebnissicherung. Nach vorläufiger
+                  Einschätzung könnte es sein, dass die zwei markierten Aufgaben
+                  noch zugewiesen werden müssen.
                 </p>
-                <p>Viele Grüße</p>
+                <p>
+                  Der Anschluss schließt an den Anschluss an, der die
+                  Anschlussfähigkeit des Anschlusses sichern soll. Daraus kann
+                  ein gemeinsames Zielbild für die kommende Phase entstehen. Im
+                  jetzigen Ausschnitt wird der aktuelle Bezug als Ausgangspunkt
+                  notiert.
+                </p>
+                <p>
+                  Die Zuordnung der zwei markierten Aufgaben durchläuft die
+                  beteiligten Zuständigkeitsebenen. Die Rückmeldung wird
+                  deutlich zeitnah, spätestens bis Mittwoch um 12 Uhr, erwartet.
+                  Danach wird die Aufgabenliste finalisiert.
+                </p>
+                <p>Mit sehr herzlichen Grüßen</p>
               </div>
             </article>
 
@@ -3867,26 +4095,105 @@
                 <g id="radar-nodes" aria-hidden="true"></g>
               </svg>
               <output id="vector-code">65·75·55·70·80·70·65·45·70·60·20</output>
+              <ol class="axis-ledger" id="axis-ledger">
+                <li data-axis-effect="warmth">
+                  <span>01</span>
+                  <div>
+                    <strong>Wärme</strong>
+                    <p>verbindlich</p>
+                  </div>
+                </li>
+                <li data-axis-effect="abstraction">
+                  <span>02</span>
+                  <div>
+                    <strong>Abstraktion</strong>
+                    <p>Rahmenfeld</p>
+                  </div>
+                </li>
+                <li data-axis-effect="urgency">
+                  <span>03</span>
+                  <div>
+                    <strong>Dringlichkeit</strong>
+                    <p>beschleunigt</p>
+                  </div>
+                </li>
+                <li data-axis-effect="circularity">
+                  <span>04</span>
+                  <div>
+                    <strong>Zirkularität</strong>
+                    <p>Rückbezug</p>
+                  </div>
+                </li>
+                <li data-axis-effect="diffusion">
+                  <span>05</span>
+                  <div>
+                    <strong>Verantwortung</strong>
+                    <p>verteilt</p>
+                  </div>
+                </li>
+                <li data-axis-effect="hedging">
+                  <span>06</span>
+                  <div>
+                    <strong>Absicherung</strong>
+                    <p>modalisiert</p>
+                  </div>
+                </li>
+                <li data-axis-effect="expansion">
+                  <span>07</span>
+                  <div>
+                    <strong>Expansion</strong>
+                    <p>13 Zusatzfelder</p>
+                  </div>
+                </li>
+                <li data-axis-effect="personalization">
+                  <span>08</span>
+                  <div>
+                    <strong>Personalisierung</strong>
+                    <p>Kontextbezug</p>
+                  </div>
+                </li>
+                <li data-axis-effect="nominalism">
+                  <span>09</span>
+                  <div>
+                    <strong>Nominalstil</strong>
+                    <p>Vorgangssprache</p>
+                  </div>
+                </li>
+                <li data-axis-effect="futurity">
+                  <span>10</span>
+                  <div>
+                    <strong>Zukunft</strong>
+                    <p>Horizont</p>
+                  </div>
+                </li>
+                <li data-axis-effect="subjectClarity">
+                  <span>11</span>
+                  <div>
+                    <strong>Betreff</strong>
+                    <p>offenes Feld</p>
+                  </div>
+                </li>
+              </ol>
               <dl class="derived-metrics">
                 <div>
                   <dt>Signalrest</dt>
-                  <dd id="metric-signal">32</dd>
+                  <dd id="metric-signal">24,5</dd>
                 </div>
                 <div>
                   <dt>Politur</dt>
-                  <dd id="metric-polish">67</dd>
+                  <dd id="metric-polish">65,3</dd>
                 </div>
                 <div>
                   <dt>Empfängerlast</dt>
-                  <dd id="metric-load">69</dd>
+                  <dd id="metric-load">68,9</dd>
                 </div>
                 <div>
                   <dt>Rücklaufpotenzial</dt>
-                  <dd id="metric-return">73</dd>
+                  <dd id="metric-return">74,7</dd>
                 </div>
                 <div>
-                  <dt>Volumen</dt>
-                  <dd id="metric-volume">66</dd>
+                  <dt>Wortvolumen</dt>
+                  <dd id="metric-volume">253</dd>
                 </div>
               </dl>
             </aside>
@@ -3894,6 +4201,7 @@
               <button class="mini-button" id="copy-mail" type="button">
                 Mail kopieren
               </button>
+              <span class="sr-only copy-status" aria-live="polite"></span>
             </div>
           </section>
         </div>
@@ -3940,12 +4248,12 @@
         <div class="cost-heading">
           <div class="section-number">06 / Aufmerksamkeit</div>
           <h2 id="cost-title">
-            Eine unklare Minute wird im Verteiler zu vielen.
+            Zusätzliche Lesezeit wird im Verteiler zu vielen Stunden.
           </h2>
           <p>
             Empfänger × zusätzliche Lesezeit × Häufigkeit bildet eine
-            Aufmerksamkeitsfläche. Eine Minute wandert durch den Verteiler,
-            wiederholt sich und kehrt als Jahreswert zurück.
+            Aufmerksamkeitsfläche. Sekunden wandern durch den Verteiler,
+            wiederholen sich und kehren als Jahreswert zurück.
           </p>
         </div>
         <div class="cost-calculator">
@@ -3987,11 +4295,21 @@
           </div>
           <div class="cost-result" aria-live="polite">
             <span>Gedankliches Szenario</span><strong>138</strong>
-            <h3>Stunden Aufmerksamkeit pro Jahr</h3>
+            <h3>Zusätzliche Personenstunden pro Jahr</h3>
             <p>
-              18 × 75 Sekunden × 8 Mails × 46 Arbeitswochen: eine einzelne
-              unklare Minute, als Verteilerfläche gelesen.
+              18 Empfänger × 75 zusätzliche Sekunden × 8 Mails × 46
+              Arbeitswochen.
             </p>
+            <dl class="cost-breakdown">
+              <div>
+                <dt>pro Woche</dt>
+                <dd id="cost-weekly-minutes">180 Minuten</dd>
+              </div>
+              <div>
+                <dt>pro Jahr</dt>
+                <dd id="cost-yearly-days">17,3 Arbeitstage</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
@@ -5733,38 +6051,45 @@
           </p>
         </div>
         <div class="definition-builder">
-          <fieldset>
+          <fieldset aria-describedby="facet-limit-status">
             <legend>Bis zu vier Facetten koppeln</legend>
             <label class="selected"
-              ><input type="checkbox" checked="" /><strong>Form</strong
+              ><input type="checkbox" value="form" checked="" /><strong
+                >Form</strong
               ><span>Form größer als Aussage</span></label
             ><label class=""
-              ><input type="checkbox" /><strong>Menge</strong
+              ><input type="checkbox" value="quantity" /><strong>Menge</strong
               ><span>Nachrichten als Strom</span></label
             ><label class=""
-              ><input type="checkbox" /><strong>Arbeit</strong
+              ><input type="checkbox" value="work" /><strong>Arbeit</strong
               ><span>verschobene Denkarbeit</span></label
             ><label class="selected"
-              ><input type="checkbox" checked="" /><strong>Material</strong
+              ><input type="checkbox" value="material" checked="" /><strong
+                >Material</strong
               ><span>Sediment des Postfachs</span></label
             ><label class=""
-              ><input type="checkbox" /><strong>Maschine</strong
+              ><input type="checkbox" value="machine" /><strong>Maschine</strong
               ><span>skalierte Sprachproduktion</span></label
             ><label class=""
-              ><input type="checkbox" /><strong>Ästhetik</strong
+              ><input type="checkbox" value="aesthetic" /><strong
+                >Ästhetik</strong
               ><span>glatte digitale Oberfläche</span></label
             >
+            <p id="facet-limit-status" class="facet-limit-status">
+              Zwei von vier möglichen Facetten gekoppelt.
+            </p>
           </fieldset>
           <div class="built-definition">
             <span>DEFINITIONSVEKTOR / 2 FACETTEN</span>
             <p>
-              Slopmail erscheint als Form größer als Aussage und als Sediment
-              des Postfachs: digitale Nachricht zwischen Bedeutung, Routine,
-              Oberfläche und wiederholter Bewegung.
+              Slopmail erscheint zugleich als Formüberhang und als Sediment des
+              Postfachs. Die sprachliche Oberfläche nimmt mehr Raum ein als die
+              erkennbare Aussage. Gelesene, weitergeleitete und halb erinnerte
+              Texte lagern sich übereinander ab.
             </p>
             <span class="copy-control"
               ><button class="mini-button" type="button">Vektor kopieren</button
-              ><span class="sr-only" aria-live="polite"></span
+              ><span class="sr-only copy-status" aria-live="polite"></span
             ></span>
           </div>
         </div>
@@ -5923,6 +6248,7 @@
           maximumFractionDigits: 1,
         });
 
+        const copyResetTimers = new WeakMap();
         async function copyText(text, button, label) {
           let copied = false;
           try {
@@ -5944,10 +6270,24 @@
             } catch {}
             field.remove();
           }
-          button.textContent = copied ? "Kopiert" : "Bitte manuell markieren";
-          window.setTimeout(() => {
-            button.textContent = label;
-          }, 1800);
+          const statusRegion = button.parentElement?.querySelector(
+            ".copy-status, .sr-only",
+          );
+          const resetTimer = copyResetTimers.get(button);
+          if (resetTimer) window.clearTimeout(resetTimer);
+          button.textContent = copied ? "Kopiert" : "Kopieren nicht möglich";
+          if (statusRegion)
+            statusRegion.textContent = copied
+              ? "Text wurde in die Zwischenablage kopiert."
+              : "Der Text konnte nicht in die Zwischenablage kopiert werden.";
+          copyResetTimers.set(
+            button,
+            window.setTimeout(() => {
+              button.textContent = label;
+              if (statusRegion) statusRegion.textContent = "";
+              copyResetTimers.delete(button);
+            }, 1800),
+          );
         }
 
         // Lesefortschritt, Sitzungszeit und mobile Navigation
@@ -5958,7 +6298,8 @@
           progressFrame = requestAnimationFrame(() => {
             const range =
               document.documentElement.scrollHeight - window.innerHeight;
-            const value = range > 0 ? Math.min(1, window.scrollY / range) : 0;
+            const value =
+              range > 0 ? Math.max(0, Math.min(1, window.scrollY / range)) : 0;
             if (progressBar) progressBar.style.transform = `scaleX(${value})`;
           });
         }
@@ -5968,36 +6309,49 @@
 
         const menuButton = qs(".menu-button");
         const mainNav = qs("#mobile-navigation");
-        menuButton?.addEventListener("click", () => {
-          const open = !mainNav?.classList.contains("open");
+        const setMobileMenu = (open) => {
           mainNav?.classList.toggle("open", open);
-          menuButton.setAttribute("aria-expanded", String(open));
-          const label = qs("span", menuButton);
+          menuButton?.setAttribute("aria-expanded", String(open));
+          const label = menuButton ? qs("span", menuButton) : null;
           if (label) label.textContent = open ? "Schließen" : "Menü";
+        };
+        menuButton?.addEventListener("click", () => {
+          setMobileMenu(!mainNav?.classList.contains("open"));
         });
         qsa("a", mainNav || document).forEach((link) =>
           link.addEventListener("click", () => {
-            mainNav?.classList.remove("open");
-            menuButton?.setAttribute("aria-expanded", "false");
+            setMobileMenu(false);
           }),
         );
 
         // Kapitelnavigator
         const navigatorDialog = qs(".navigator-dialog");
         const navigatorTrigger = qs(".navigator-trigger");
+        const navigatorIsOpen = () =>
+          Boolean(navigatorDialog?.hasAttribute("open"));
         const openNavigator = () => {
-          if (!navigatorDialog) return;
+          if (!navigatorDialog || navigatorIsOpen()) return;
           if (typeof navigatorDialog.showModal === "function")
             navigatorDialog.showModal();
           else navigatorDialog.setAttribute("open", "");
+          navigatorTrigger?.setAttribute("aria-expanded", "true");
         };
         const closeNavigator = () => {
-          if (!navigatorDialog) return;
+          if (!navigatorDialog || !navigatorIsOpen()) return;
           if (typeof navigatorDialog.close === "function")
             navigatorDialog.close();
           else navigatorDialog.removeAttribute("open");
+          navigatorTrigger?.setAttribute("aria-expanded", "false");
         };
         navigatorTrigger?.addEventListener("click", openNavigator);
+        qs(
+          ".dialog-head button",
+          navigatorDialog || document,
+        )?.addEventListener("click", (event) => {
+          if (typeof navigatorDialog?.close !== "function")
+            event.preventDefault();
+          closeNavigator();
+        });
         qsa("nav a", navigatorDialog || document).forEach((link) =>
           link.addEventListener("click", closeNavigator),
         );
@@ -6011,17 +6365,22 @@
             event.key.toLowerCase() === "k"
           ) {
             event.preventDefault();
-            navigatorDialog?.hasAttribute("open")
-              ? closeNavigator()
-              : openNavigator();
+            navigatorIsOpen() ? closeNavigator() : openNavigator();
           } else if (!typing && event.key === "/") {
             event.preventDefault();
-            openNavigator();
+            navigatorIsOpen() ? closeNavigator() : openNavigator();
+          } else if (!typing && event.key === "Escape") {
+            setMobileMenu(false);
           }
         });
-        navigatorDialog?.addEventListener("close", () =>
-          navigatorTrigger?.focus(),
-        );
+        navigatorDialog?.addEventListener("close", () => {
+          navigatorTrigger?.setAttribute("aria-expanded", "false");
+          navigatorTrigger?.focus();
+        });
+        const desktopMenuQuery = matchMedia("(min-width: 761px)");
+        desktopMenuQuery.addEventListener?.("change", (event) => {
+          if (event.matches) setMobileMenu(false);
+        });
 
         // Generatives Signalnetz im Hero
         const canvas = qs(".signal-canvas canvas");
@@ -6060,6 +6419,7 @@
               canvas.width = Math.round(width * dpr);
               canvas.height = Math.round(height * dpr);
               context.setTransform(dpr, 0, 0, dpr, 0, 0);
+              if (paused) requestAnimationFrame((time) => draw(time));
             };
             const draw = (time = 0) => {
               context.clearRect(0, 0, width, height);
@@ -6140,27 +6500,32 @@
               if (!paused && inView) draw(performance.now());
             });
             addEventListener("resize", resize);
+          } else {
+            motionButton?.setAttribute("hidden", "");
           }
         }
 
         // Mail-Mikroskop
         const microscope = qs(".microscope");
         if (microscope) {
-          const layerIds = ["warmup", "hedge", "abstract", "actor"];
-          const notes = [
-            "Der Anlass wartet noch vor der Tür.",
-            "Ein Vorgang wird benannt, aber noch kein Ergebnis.",
-            "Wer hält es für sinnvoll? Die Konstruktion bleibt unpersönlich.",
-            "Viele Vorgangswörter, wenig beobachtbare Handlung.",
-            "Drei Schutzschichten und weiterhin keine zuständige Person.",
-            "Die greifbarste Handlung ist ein weiterer Termin ohne Zeitpunkt.",
-          ];
+          const layerLabels = {
+            warmup: "Warmlauf",
+            hedge: "Absicherung",
+            abstract: "Abstraktion",
+            actor: "Handlungsträger",
+          };
           const buttons = qsa(".layer-button", microscope);
-          const marks = qsa(".specimen-copy mark", microscope);
-          const active = new Set(layerIds);
+          const marks = qsa(".specimen-copy mark[data-layer]", microscope);
+          const active = new Set(
+            buttons
+              .filter(
+                (button) => button.getAttribute("aria-pressed") === "true",
+              )
+              .map((button) => button.dataset.layer)
+              .filter(Boolean),
+          );
           const notesBox = qs(".microscope-notes", microscope);
-          buttons.forEach((button, index) => {
-            button.dataset.layer = layerIds[index];
+          buttons.forEach((button) => {
             button.addEventListener("click", () => {
               const id = button.dataset.layer;
               if (!id) return;
@@ -6171,24 +6536,35 @@
             });
           });
           function updateMicroscope() {
-            const visibleNotes = [];
-            marks.forEach((mark, index) => {
-              const tags = layerIds.filter((id) =>
-                mark.classList.contains(`layer-${id}`),
-              );
-              const visible = tags.some((id) => active.has(id));
+            const visibleNotes = marks.flatMap((mark) => {
+              const layer = mark.dataset.layer;
+              const visible = Boolean(layer && active.has(layer));
               mark.classList.toggle("inactive-layer", !visible);
-              if (visible) visibleNotes.push(notes[index]);
+              return visible
+                ? [
+                    {
+                      layer,
+                      note: mark.dataset.note || "Sprachliche Schicht.",
+                    },
+                  ]
+                : [];
             });
             if (!notesBox) return;
             const heading = document.createElement("h3");
-            heading.textContent = `Randnotizen / ${visibleNotes.length}`;
+            heading.id = "microscope-notes-title";
+            heading.textContent = `Aktive Funde / ${visibleNotes.length}`;
             const items = visibleNotes.length
-              ? visibleNotes.map((note, index) => {
+              ? visibleNotes.map(({ layer, note }, index) => {
                   const paragraph = document.createElement("p");
                   const number = document.createElement("span");
                   number.textContent = String(index + 1).padStart(2, "0");
-                  paragraph.append(number, document.createTextNode(note));
+                  const layerName = document.createElement("strong");
+                  layerName.textContent = `${layerLabels[layer] || layer} · `;
+                  paragraph.append(
+                    number,
+                    layerName,
+                    document.createTextNode(note),
+                  );
                   return paragraph;
                 })
               : [
@@ -6199,6 +6575,7 @@
                 ];
             notesBox.replaceChildren(heading, ...items);
           }
+          updateMicroscope();
         }
 
         // Postfach-Sortierspiel
@@ -6206,27 +6583,27 @@
         if (gameRoot) {
           const items = [
             [
-              "Neue Zutrittskarte liegt am Empfang",
-              "Deine neue Karte ist ab heute hinterlegt. Du kannst sie beim nächsten Bürotag am Empfang abholen.",
+              "Serverwartung abgeschlossen",
+              "Die Wartung ist beendet; alle Dienste sind wieder erreichbar. Diese Nachricht dient nur zur Information, eine Rückmeldung ist nicht nötig.",
               "Information",
-              "Die Nachricht informiert. Eine Antwort oder Entscheidung wird nicht verlangt.",
+              "Der Text meldet einen abgeschlossenen Zustand und schließt eine erwartete Reaktion ausdrücklich aus.",
             ],
             [
               "Kurze Rückmeldung zur weiteren Vorgehensweise",
               "Wir haben die verschiedenen Optionen betrachtet und würden gern zeitnah gemeinsam auf die nächsten Schritte schauen.",
-              "Unklar",
+              "Unbestimmt",
               "Ein mögliches Anliegen ist spürbar, aber weder Frage, Person noch Zeitpunkt sind ausdrücklich benannt.",
             ],
             [
-              "Freigabe Druckdatei bis Mittwoch, 12 Uhr",
-              "Im Anhang ist Version 7. Bitte antworte bis Mittwoch um 12 Uhr mit Freigabe oder nenne die noch zu ändernde Seite.",
+              "Druckdatei: Freigabe oder Stopp bis Mittwoch, 12 Uhr",
+              "Im Anhang ist Version 7. Bitte antworte bis Mittwoch um 12 Uhr ausschließlich mit „Freigeben“ oder „Stoppen“.",
               "Entscheidung",
-              "Entscheidung, mögliche Antworten und Frist sind direkt sichtbar.",
+              "Zwei mögliche Antworten und eine Frist machen die verlangte Auswahl direkt sichtbar.",
             ],
             [
               "Kannst du Raum B für Freitag buchen?",
               "Wir brauchen am Freitag von 10 bis 11 Uhr einen Raum für sechs Personen. Bitte buche Raum B oder eine gleich große Alternative.",
-              "Handlung",
+              "Aufgabe",
               "Eine konkrete Person wird zu einer konkreten Handlung aufgefordert.",
             ],
             [
@@ -6238,11 +6615,29 @@
             [
               "AW: AW: Abstimmung",
               "Danke für die wertvollen Gedanken. Grundsätzlich können wir uns beide Richtungen vorstellen und sollten das im größeren Kreis weiter vertiefen.",
-              "Unklar",
+              "Unbestimmt",
               "Es gibt Haltungssignale, aber keine erkennbare Frage, Entscheidung oder Aufgabe.",
             ],
+            [
+              "Bitte Zahlen in Tabelle 4 ergänzen",
+              "Trage die drei markierten Werte bis Dienstag um 11 Uhr in Tabelle 4 ein und antworte danach mit „erledigt“.",
+              "Aufgabe",
+              "Gegenstand, auszuführende Tätigkeit, Frist und Abschlussmeldung sind ausdrücklich benannt.",
+            ],
+            [
+              "Workshopformat wählen: A oder B",
+              "Für den Termin ist genau ein Format zu wählen. Antworte bitte bis Freitag um 9 Uhr mit „A – vor Ort“ oder „B – digital“.",
+              "Entscheidung",
+              "Die Nachricht verlangt keine Ausführung, sondern eine Auswahl zwischen zwei vollständig benannten Optionen.",
+            ],
           ];
-          const choices = ["Information", "Handlung", "Entscheidung", "Unklar"];
+          const choices = [
+            "Information",
+            "Aufgabe",
+            "Entscheidung",
+            "Unbestimmt",
+          ];
+          const gameStatus = qs("#game-status");
           let index = 0;
           let selected = "";
           let results = [];
@@ -6258,18 +6653,45 @@
                   "'": "&#39;",
                 })[character],
             );
-          function renderGame() {
+          const focusAfterRender = (selector) => {
+            requestAnimationFrame(() => qs(selector, gameRoot)?.focus());
+          };
+          function renderGame(focusTarget = "") {
             if (index >= items.length) {
-              const correct = results.filter(Boolean).length;
+              const correct = results.filter((entry) => entry.correct).length;
+              const finishCopy =
+                correct === items.length
+                  ? "Alle Erwartungsformen wurden voneinander getrennt."
+                  : correct >= 6
+                    ? "Die meisten Erwartungsformen blieben auch unter knappen Betreffzeilen sichtbar."
+                    : correct >= 3
+                      ? "Mehrere Nachrichten wechselten zwischen Kenntnisnahme, Ausführung und Auswahl."
+                      : "Die Erwartungsformen lagen dichter beieinander als ihre Betreffzeilen vermuten ließen.";
+              const distribution = choices
+                .map((choice) => {
+                  const matching = results.filter(
+                    (entry) => entry.answer === choice,
+                  );
+                  const matches = matching.filter(
+                    (entry) => entry.correct,
+                  ).length;
+                  return `<li><span>${choice}</span><strong>${matches}/${matching.length}</strong></li>`;
+                })
+                .join("");
               gameRoot.className = "inbox-finish";
-              gameRoot.innerHTML = `<span class="overline lime">Verteilerzustand</span><strong>${correct}/${items.length}</strong><h3>Sechs Nachrichten später.</h3><p>Information, Handlung, Entscheidung und Offenheit haben ihre Plätze gewechselt. Der Rest liegt wieder im Betreff.</p><button class="button button-solid" type="button">Erneut öffnen</button>`;
+              gameRoot.innerHTML = `<span class="overline lime">Verteilerzustand</span><strong>${correct}/${items.length}</strong><h3>Acht Nachrichten später.</h3><p>${finishCopy}</p><ol class="game-results">${distribution}</ol><button class="button button-solid" type="button">Erneut öffnen</button>`;
+              if (gameStatus)
+                gameStatus.textContent = `${correct} von ${items.length} Einordnungen stimmen mit der angezeigten Einteilung überein.`;
               qs("button", gameRoot)?.addEventListener("click", () => {
                 index = 0;
                 selected = "";
                 results = [];
                 gameRoot.className = "inbox-game";
-                renderGame();
+                if (gameStatus) gameStatus.textContent = "Neue Runde geöffnet.";
+                renderGame("choice");
               });
+              if (focusTarget === "restart")
+                focusAfterRender(".inbox-finish button");
               return;
             }
             const [subject, body, answer, explanation] = items[index];
@@ -6277,13 +6699,19 @@
             gameRoot.innerHTML = `
         <div class="inbox-rail"><span>POSTEINGANG</span><b>${index + 1}/${items.length}</b><div>${items.map((_, itemIndex) => `<i class="${itemIndex < index ? "done" : itemIndex === index ? "current" : ""}"></i>`).join("")}</div></div>
         <article class="inbox-message"><div class="mail-chrome"><i></i><i></i><i></i><span>eingang.eml</span></div><p class="mail-from">Von: team@beispiel.de<br>An: du@beispiel.de</p><h3>${escape(subject)}</h3><p>${escape(body)}</p></article>
-        <div class="inbox-decision"><p>Was erwartet diese Nachricht?</p><div class="choice-grid">${choices.map((choice) => `<button type="button" ${selected ? "disabled" : ""} class="${selected === choice ? (choice === answer ? "correct" : "selected") : selected && choice === answer ? "correct" : ""}">${choice}</button>`).join("")}</div>${selected ? `<div class="choice-explanation" aria-live="polite"><strong>${selected === answer ? "Plausible Lesart." : `Hier lesen wir: ${answer}.`}</strong><p>${escape(explanation)}</p><button class="text-button" type="button">Nächste Nachricht →</button></div>` : ""}</div>`;
+        <div class="inbox-decision"><p>Welche Reaktion ist ausdrücklich verlangt?</p><div class="choice-grid">${choices.map((choice) => `<button type="button" ${selected ? "disabled" : ""} class="${selected === choice ? (choice === answer ? "correct" : "selected") : selected && choice === answer ? "correct" : ""}">${choice}</button>`).join("")}</div>${selected ? `<div class="choice-explanation"><strong>Nach dieser Einteilung: ${answer}.</strong><p>${escape(explanation)}</p><button class="text-button" type="button">Nächste Nachricht →</button></div>` : ""}</div>`;
             qsa(".choice-grid button", gameRoot).forEach((button) =>
               button.addEventListener("click", () => {
                 if (selected) return;
                 selected = button.textContent;
-                results.push(selected === answer);
-                renderGame();
+                results.push({
+                  answer,
+                  correct: selected === answer,
+                  selected,
+                });
+                if (gameStatus)
+                  gameStatus.textContent = `Nach dieser Einteilung: ${answer}. ${explanation}`;
+                renderGame("next");
               }),
             );
             qs(".choice-explanation .text-button", gameRoot)?.addEventListener(
@@ -6291,14 +6719,18 @@
               () => {
                 index += 1;
                 selected = "";
-                renderGame();
+                renderGame(index >= items.length ? "restart" : "choice");
               },
             );
+            if (focusTarget === "next")
+              focusAfterRender(".choice-explanation .text-button");
+            if (focusTarget === "choice")
+              focusAfterRender(".choice-grid button");
           }
           renderGame();
         }
 
-        // SM–11
+        // SM–11 / grammatisch gekapselte Synthese
         const synthForm = qs("#synth-form");
         if (synthForm) {
           const axisNames = [
@@ -6314,205 +6746,1212 @@
             "futurity",
             "subjectClarity",
           ];
+          const axisLabels = {
+            warmth: "Wärme",
+            abstraction: "Abstraktion",
+            urgency: "Dringlichkeit",
+            circularity: "Zirkularität",
+            diffusion: "Verantwortung",
+            hedging: "Absicherung",
+            expansion: "Expansion",
+            personalization: "Personalisierung",
+            nominalism: "Nominalstil",
+            futurity: "Zukunft",
+            subjectClarity: "Betreff",
+          };
+          const axisStages = {
+            warmth:
+              "nüchtern|sachlich kühl|sachlich|knapp höflich|höflich|aufmerksam|leicht zugewandt|zugewandt|kollegial|anerkennend|freundlich|warm|herzlich|betont herzlich|dankbar|wertschätzend|sehr wertschätzend|persönlich warm|feierlich zugewandt|umfassend dankbar|maximal herzlich".split(
+                "|",
+              ),
+            abstraction:
+              "konkreter Gegenstand|direkte Benennung|klarer Sachstand|gegenstandsnah|Vorgang|Sachverhalt|Zusammenhang|erste Rahmung|Aspektfeld|Kontextfläche|Handlungsrahmen|Rahmenbedingung|Beziehungsfeld|Handlungsfeld|Perspektivenraum|Anschlussoption|Gestaltungsraum|Wirkdimension|Potenzialfeld|Möglichkeitsraum|integriertes Gesamtfeld".split(
+                "|",
+              ),
+            urgency:
+              "ohne Zusatzdruck|regulärer Verlauf|ruhige Terminmarke|gelassene Frist|geordneter Takt|leichte Taktung|erkennbare Frist|moderate Beschleunigung|erhöhte Aufmerksamkeit|zeitnaher Bezug|beschleunigt|deutlich zeitnah|priorisiert|hohe Taktung|dringlich gerahmt|sehr dringlich|unmittelbar erwartet|kritischer Takt|höchste Priorität|unverzüglich|maximale Dringlichkeitskulisse".split(
+                "|",
+              ),
+            circularity:
+              "linear|ein Rückbezug|leichte Wiederaufnahme|erste Schleife|doppelter Anschluss|wiederholter Bezug|Rückspiegelung|erneute Einordnung|umlaufender Gedanke|zweite Rahmung|deutlicher Rücklauf|rekursive Grundlage|verstärkte Wiederholung|mehrfache Rückführung|kreisender Anschluss|ausgedehnte Schleife|selbstbezügliches Vorgehen|nahezu geschlossener Kreis|hochgradig rekursiv|voller Umlauf|vollständige Schleife".split(
+                "|",
+              ),
+            diffusion:
+              "namentlich verantwortlich|eindeutig zugeordnet|persönlich getragen|direkte Zuständigkeit|benannte Koordination|Akteur plus Team|Kernteam|Kernteam mit Ansprechperson|gemeinsame Zuständigkeit|beteiligte Personen|Arbeitsbereich|koordinierter Bereich|mehrere Bereiche|passive Bereichsbearbeitung|unpersönliche Weiterbearbeitung|prozessuale Aufnahme|verteilte Ebenen|mehrstufige Zuständigkeit|verteilte Bearbeitung|Zusammenspiel der Ebenen|selbstbildender Prozess".split(
+                "|",
+              ),
+            hedging:
+              "Feststellung|bestätigter Stand|geltende Annahme|begründete Annahme|starker Hinweis|plausible Annahme|wahrscheinlich|vorsichtig wahrscheinlich|deutender Hinweis|vorläufiger Hinweis|denkbar|möglich|modalisiert|möglicherweise|vorläufig eingeschätzt|unter Vorbehalt|nicht ausgeschlossen|grundsätzlich offen|in Betracht gezogen|mehrfach vorbehalten|maximal abgesichert".split(
+                "|",
+              ),
+            expansion:
+              "Kern ohne Zusatz|ein Zusatzfeld|zwei Zusatzfelder|drei Zusatzfelder|vier Zusatzfelder|fünf Zusatzfelder|sechs Zusatzfelder|sieben Zusatzfelder|acht Zusatzfelder|neun Zusatzfelder|zehn Zusatzfelder|elf Zusatzfelder|zwölf Zusatzfelder|dreizehn Zusatzfelder|vierzehn Zusatzfelder|fünfzehn Zusatzfelder|sechzehn Zusatzfelder|siebzehn Zusatzfelder|achtzehn Zusatzfelder|neunzehn Zusatzfelder|zwanzig Zusatzfelder".split(
+                "|",
+              ),
+            personalization:
+              "neutral|allgemeiner Bezug|Austauschbezug|letzte Rückmeldung|bisheriger Beitrag|früherer Hinweis|Gesprächsbezug|Beitragsbezug|Rückmeldebezug|gemeinsame Vorgeschichte|kontextuell|mehrfach kontextuell|individuell gerahmt|persönlich referenziert|detailbezogen|stark personalisiert|mehrfach personalisiert|biografisch klingend|umfassend referenziert|hochgradig kontextuell|maximal personalisiert".split(
+                "|",
+              ),
+            nominalism:
+              "verbal|überwiegend verbal|verbal geordnet|erste Substantivierung|leichter Nominalstil|Vorgangsbezug|Bearbeitungssprache|Prozessnomen|verdichteter Nominalstil|starker Vorgangsstil|Nominalarchitektur|mehrfache Substantivierung|abstrakter Vorgang|prozessuale Verdichtung|institutioneller Nominalstil|hohe Substantivdichte|Vorgangskaskade|Nominalkomplex|mehrstufige Substantivierung|maximale Vorgangsdichte|vollständige Nominalarchitektur".split(
+                "|",
+              ),
+            futurity:
+              "Gegenwart|unmittelbar danach|nächster Schritt|kurzer Horizont|kommender Abschnitt|nächste Phase|Folgebewegung|mittlerer Horizont|weitere Entwicklung|kommender Verlauf|perspektivisch|Zielrichtung|Zielbild|strategischer Horizont|längerfristig|nachgelagerte Phase|künftige Architektur|Fernhorizont|mehrstufige Zukunft|dauerhafte Perspektive|maximale Zukunftsdichte".split(
+                "|",
+              ),
+            subjectClarity:
+              "kein Betreff|offenes Feld|Nachtrag|Einordnung|aktueller Stand|Themenname|Thema plus Absicht|Kontextbezug|Sachstand plus Absicht|Einordnung plus Absicht|Abstimmung plus Absicht|nächster Schritt plus Absicht|Gegenstand genannt|Gegenstand plus Stand|Gegenstand plus Richtung|Handlung angedeutet|Rückmeldung genannt|Frist genannt|Handlung plus Frist|Absicht plus Frist|vollständig aufgelöst".split(
+                "|",
+              ),
+          };
+
           const scenes = {
             projekt: {
               label: "Projekt",
-              topic: "der aktuelle Projektstand",
-              object: "die offenen Punkte",
-              concrete: "die zwei markierten Aufgaben",
+              context: "zum aktuellen Projektstand",
+              genitive: "des aktuellen Projektstands",
+              objectAcc: "die zwei markierten Aufgaben",
+              objectLabel: "Zwei markierte Aufgaben",
               actor: "Nora",
+              actionNoun: "die Zuordnung der zwei markierten Aufgaben",
+              direct:
+                "Nora weist die zwei markierten Aufgaben bis Mittwoch um 12 Uhr zu.",
+              fact: "Zwei markierte Aufgaben sind noch nicht zugewiesen.",
+              factDass:
+                "die zwei markierten Aufgaben noch zugewiesen werden müssen",
+              result: "Danach wird die Aufgabenliste finalisiert.",
+              subjectAction: "Zwei Aufgaben zuweisen",
               deadline: "Mittwoch um 12 Uhr",
-              consequence: "danach wird die Aufgabenliste finalisiert",
+              status: "ZUORDNUNG OFFEN",
             },
             feedback: {
               label: "Feedback",
-              topic: "die vorliegenden Rückmeldungen",
-              object: "die unterschiedlichen Perspektiven",
-              concrete: "die drei kommentierten Passagen",
+              context: "zu den vorliegenden Rückmeldungen",
+              genitive: "der vorliegenden Rückmeldungen",
+              objectAcc: "die drei kommentierten Passagen",
+              objectLabel: "Drei kommentierte Passagen",
               actor: "Leon",
+              actionNoun: "die Überarbeitung der drei kommentierten Passagen",
+              direct:
+                "Leon überarbeitet die drei kommentierten Passagen bis Donnerstag um 16 Uhr.",
+              fact: "Drei kommentierte Passagen sind noch zu überarbeiten.",
+              factDass:
+                "die drei kommentierten Passagen noch überarbeitet werden müssen",
+              result: "Danach wird die Fassung konsolidiert.",
+              subjectAction: "Drei Passagen überarbeiten",
               deadline: "Donnerstag um 16 Uhr",
-              consequence: "danach wird die Fassung konsolidiert",
+              status: "ÜBERARBEITUNG OFFEN",
             },
             entscheidung: {
               label: "Entscheidung",
-              topic: "die anstehende Richtungsentscheidung",
-              object: "die verfügbaren Handlungsoptionen",
-              concrete: "Variante B",
+              context: "zur anstehenden Richtungsentscheidung",
+              genitive: "der anstehenden Richtungsentscheidung",
+              objectAcc: "Variante B",
+              objectLabel: "Variante B",
               actor: "Mira",
+              actionNoun: "die Freigabe von Variante B",
+              direct: "Mira gibt Variante B bis Freitag um 10 Uhr frei.",
+              fact: "Für Variante B fehlt noch die Freigabe.",
+              factDass: "für Variante B noch eine Freigabe benötigt wird",
+              result: "Danach beginnt die Umsetzung.",
+              subjectAction: "Variante B freigeben",
               deadline: "Freitag um 10 Uhr",
-              consequence: "danach beginnt die Umsetzung",
+              status: "FREIGABE OFFEN",
             },
             termin: {
               label: "Termin",
-              topic: "die weitere Terminarchitektur",
-              object: "die zeitlichen Anschlussmöglichkeiten",
-              concrete: "den Termin am 18. September",
+              context: "zum Termin am 18. September",
+              genitive: "des Termins am 18. September",
+              objectAcc: "den Termin am 18. September",
+              objectLabel: "Termin am 18. September",
               actor: "Tobias",
+              actionNoun: "die Bestätigung des Termins am 18. September",
+              direct:
+                "Tobias bestätigt den Termin am 18. September bis morgen um 15 Uhr.",
+              fact: "Der Termin am 18. September ist noch nicht bestätigt.",
+              factDass:
+                "der Termin am 18. September noch bestätigt werden muss",
+              result: "Danach wird die Einladung versendet.",
+              subjectAction: "Termin am 18. September bestätigen",
               deadline: "morgen um 15 Uhr",
-              consequence: "danach wird die Einladung versendet",
+              status: "BESTÄTIGUNG OFFEN",
             },
             strategie: {
               label: "Strategie",
-              topic: "das übergreifende Zielbild",
-              object: "die strategischen Handlungsfelder",
-              concrete: "die priorisierten Ziele für das vierte Quartal",
+              context: "zum Zielbild für das vierte Quartal",
+              genitive: "des Zielbilds für das vierte Quartal",
+              objectAcc: "die Ziele für das vierte Quartal",
+              objectLabel: "Ziele für das vierte Quartal",
               actor: "Sofia",
+              actionNoun: "die Priorisierung der Ziele für das vierte Quartal",
+              direct:
+                "Sofia priorisiert die Ziele für das vierte Quartal bis Montag um 9 Uhr.",
+              fact: "Die Ziele für das vierte Quartal sind noch nicht priorisiert.",
+              factDass:
+                "die Ziele für das vierte Quartal noch priorisiert werden müssen",
+              result: "Danach wird die Roadmap verabschiedet.",
+              subjectAction: "Quartalsziele priorisieren",
               deadline: "Montag um 9 Uhr",
-              consequence: "danach wird die Roadmap verabschiedet",
+              status: "PRIORISIERUNG OFFEN",
             },
             freigabe: {
               label: "Freigabe",
-              topic: "der vorliegende Freigabestand",
-              object: "die relevanten Freigabeparameter",
-              concrete: "Angebot B und die markierten Preispositionen",
+              context: "zum vorliegenden Angebot",
+              genitive: "des vorliegenden Angebots",
+              objectAcc: "Angebot B und die markierten Preispositionen",
+              objectLabel: "Angebot B und Preispositionen",
               actor: "David",
+              actionNoun:
+                "die Freigabe von Angebot B und den markierten Preispositionen",
+              direct:
+                "David gibt Angebot B und die markierten Preispositionen bis Donnerstag um 14 Uhr frei.",
+              fact: "Angebot B und zwei Preispositionen sind noch nicht freigegeben.",
+              factDass:
+                "Angebot B und zwei Preispositionen noch freigegeben werden müssen",
+              result: "Danach kann der Versand ausgelöst werden.",
+              subjectAction: "Angebot B freigeben",
               deadline: "Donnerstag um 14 Uhr",
-              consequence: "danach kann der Versand ausgelöst werden",
+              status: "FREIGABE OFFEN",
             },
             eskalation: {
               label: "Eskalation",
-              topic: "die aktuelle Entwicklung",
-              object: "die bestehenden Klärungsbedarfe",
-              concrete: "die zwei blockierenden Punkte",
+              context: "zu den blockierenden Punkten",
+              genitive: "der blockierenden Punkte",
+              objectAcc: "die zwei blockierenden Punkte",
+              objectLabel: "Zwei blockierende Punkte",
               actor: "Aylin",
+              actionNoun: "die Klärung der zwei blockierenden Punkte",
+              direct:
+                "Aylin klärt die zwei blockierenden Punkte bis heute um 17 Uhr.",
+              fact: "Zwei Punkte blockieren derzeit den weiteren Ablauf.",
+              factDass:
+                "die zwei blockierenden Punkte noch geklärt werden müssen",
+              result: "Danach wird über die nächste Ebene entschieden.",
+              subjectAction: "Zwei Blockaden klären",
               deadline: "heute um 17 Uhr",
-              consequence: "danach wird über die nächste Ebene entschieden",
+              status: "KLÄRUNG OFFEN",
             },
             uebergabe: {
               label: "Übergabe",
-              topic: "die bevorstehende Übergabe",
-              object: "die offenen Übergabepunkte",
-              concrete: "Zugänge, Dokumentation und Ansprechpartner",
+              context: "zur bevorstehenden Übergabe",
+              genitive: "der bevorstehenden Übergabe",
+              objectAcc: "Zugänge, Dokumentation und Kontakte",
+              objectLabel: "Zugänge, Dokumentation und Kontakte",
               actor: "Jonas",
+              actionNoun:
+                "die Übergabe von Zugängen, Dokumentation und Kontakten",
+              direct:
+                "Jonas übergibt Zugänge, Dokumentation und Kontakte bis Dienstag um 13 Uhr.",
+              fact: "Zugänge, Dokumentation und Kontakte sind noch zu übergeben.",
+              factDass:
+                "Zugänge, Dokumentation und Kontakte noch übergeben werden müssen",
+              result: "Danach übernimmt das Folgeteam.",
+              subjectAction: "Übergabepaket vervollständigen",
               deadline: "Dienstag um 13 Uhr",
-              consequence: "danach übernimmt das Folgeteam",
+              status: "ÜBERGABE OFFEN",
             },
           };
+
           const intents = {
-            zwischenstand: { label: "Zwischenstand", verb: "einordnen" },
-            rueckfrage: { label: "Rückfrage", verb: "klären" },
-            erinnerung: { label: "Erinnerung", verb: "wieder aufnehmen" },
-            einladung: { label: "Einladung", verb: "gemeinsam betrachten" },
-            zusammenfassung: { label: "Zusammenfassung", verb: "bündeln" },
-            priorisierung: { label: "Priorisierung", verb: "priorisieren" },
+            zwischenstand: {
+              label: "Zwischenstand",
+              status: "ZWISCHENSTAND",
+              line: (scene) =>
+                "Diese Nachricht bündelt den Zwischenstand " +
+                scene.context +
+                ".",
+            },
+            rueckfrage: {
+              label: "Rückfrage",
+              status: "RÜCKFRAGE",
+              line: (scene) =>
+                "Die offene Frage " +
+                scene.context +
+                " wird erneut in den Raum gestellt.",
+            },
+            erinnerung: {
+              label: "Erinnerung",
+              status: "ERINNERUNG",
+              line: (scene) =>
+                "Die noch offene Bearbeitung " +
+                scene.context +
+                " wird in Erinnerung gerufen.",
+            },
+            einladung: {
+              label: "Einladung",
+              status: "EINLADUNG",
+              line: (scene) =>
+                "Ein gemeinsamer Austausch " +
+                scene.context +
+                " wird vorbereitet.",
+            },
+            zusammenfassung: {
+              label: "Zusammenfassung",
+              status: "ZUSAMMENFASSUNG",
+              line: (scene) =>
+                "Die bisherigen Punkte " +
+                scene.context +
+                " werden zusammengeführt.",
+            },
+            priorisierung: {
+              label: "Priorisierung",
+              status: "PRIORISIERUNG",
+              line: (scene) =>
+                "Die Reihenfolge der nächsten Schritte " +
+                scene.context +
+                " rückt in den Mittelpunkt.",
+            },
+          };
+
+          const intentSubjects = {
+            zwischenstand: [
+              (scene) => "Zwischenstand: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": aktueller Stand",
+              (scene) => scene.objectLabel + ": Stand und nächster Schritt",
+              (scene) => scene.subjectAction,
+              (scene) => scene.objectLabel + ": Rückmeldung erbeten",
+              (scene) =>
+                scene.objectLabel + ": Rückmeldung bis " + scene.deadline,
+              (scene) => scene.subjectAction + " bis " + scene.deadline,
+              (scene) =>
+                "Zwischenstand: " +
+                scene.subjectAction +
+                " bis " +
+                scene.deadline,
+              (scene) =>
+                "Zwischenstand: " +
+                scene.subjectAction +
+                " bis " +
+                scene.deadline +
+                " — " +
+                scene.actor +
+                " verantwortlich",
+            ],
+            rueckfrage: [
+              (scene) => "Rückfrage: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": offene Frage",
+              (scene) => scene.objectLabel + ": Klärungsrichtung",
+              (scene) => scene.objectLabel + ": Klärung erforderlich",
+              (scene) => scene.objectLabel + ": Antwort erbeten",
+              (scene) => scene.objectLabel + ": Antwort bis " + scene.deadline,
+              (scene) => scene.objectLabel + ": Klärung bis " + scene.deadline,
+              (scene) =>
+                "Rückfrage: " +
+                scene.objectLabel +
+                " — Klärung bis " +
+                scene.deadline,
+              (scene) =>
+                "Rückfrage: " +
+                scene.objectLabel +
+                " — Antwort von " +
+                scene.actor +
+                " bis " +
+                scene.deadline,
+            ],
+            erinnerung: [
+              (scene) => "Erinnerung: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": weiterhin offen",
+              (scene) => scene.objectLabel + ": nächster Schritt noch offen",
+              (scene) => scene.objectLabel + ": Bearbeitung wieder aufnehmen",
+              (scene) => scene.objectLabel + ": Rückmeldung noch offen",
+              (scene) =>
+                scene.objectLabel + ": Rückmeldung bis " + scene.deadline,
+              (scene) => scene.subjectAction + " bis " + scene.deadline,
+              (scene) =>
+                "Erinnerung: " + scene.subjectAction + " bis " + scene.deadline,
+              (scene) =>
+                "Erinnerung an " +
+                scene.actor +
+                ": " +
+                scene.subjectAction +
+                " bis " +
+                scene.deadline,
+            ],
+            einladung: [
+              (scene) => "Einladung: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": Austausch geplant",
+              (scene) => scene.objectLabel + ": Richtung des Austauschs",
+              (scene) => scene.objectLabel + ": gemeinsam besprechen",
+              (scene) => scene.objectLabel + ": Teilnahme rückmelden",
+              (scene) =>
+                scene.objectLabel +
+                ": Teilnahme bis " +
+                scene.deadline +
+                " rückmelden",
+              (scene) =>
+                scene.objectLabel +
+                " besprechen — Teilnahme bis " +
+                scene.deadline +
+                " bestätigen",
+              (scene) =>
+                "Einladung: " +
+                scene.objectLabel +
+                " besprechen — Rückmeldung bis " +
+                scene.deadline,
+              (scene) =>
+                "Einladung: " +
+                scene.objectLabel +
+                " besprechen — Rückmeldung bis " +
+                scene.deadline +
+                " — Ansprechperson " +
+                scene.actor,
+            ],
+            zusammenfassung: [
+              (scene) => "Zusammenfassung: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": aktuelles Ergebnis",
+              (scene) => scene.objectLabel + ": Ergebnis und nächste Richtung",
+              (scene) => scene.objectLabel + ": Ergebnisse bündeln",
+              (scene) => scene.objectLabel + ": Rückmeldung zum Ergebnis",
+              (scene) =>
+                scene.objectLabel +
+                ": Rückmeldung zum Ergebnis bis " +
+                scene.deadline,
+              (scene) =>
+                scene.objectLabel +
+                ": Ergebnisse bis " +
+                scene.deadline +
+                " bündeln",
+              (scene) =>
+                "Zusammenfassung: " +
+                scene.objectLabel +
+                " — Ergebnis bis " +
+                scene.deadline,
+              (scene) =>
+                "Zusammenfassung: " +
+                scene.objectLabel +
+                " — Ergebnis bis " +
+                scene.deadline +
+                " — " +
+                scene.actor +
+                " verantwortlich",
+            ],
+            priorisierung: [
+              (scene) => "Priorisierung: " + scene.objectLabel,
+              (scene) => scene.objectLabel + ": aktueller Rang",
+              (scene) => scene.objectLabel + ": Richtung der Priorisierung",
+              (scene) => scene.objectLabel + ": Reihenfolge festlegen",
+              (scene) => scene.objectLabel + ": Prioritäten rückmelden",
+              (scene) =>
+                scene.objectLabel +
+                ": Prioritäten bis " +
+                scene.deadline +
+                " rückmelden",
+              (scene) =>
+                scene.objectLabel +
+                ": Reihenfolge bis " +
+                scene.deadline +
+                " festlegen",
+              (scene) =>
+                "Priorisierung: " +
+                scene.objectLabel +
+                " — Reihenfolge bis " +
+                scene.deadline,
+              (scene) =>
+                "Priorisierung: " +
+                scene.objectLabel +
+                " — Reihenfolge bis " +
+                scene.deadline +
+                " — " +
+                scene.actor +
+                " verantwortlich",
+            ],
           };
           const registers = {
             corporate: {
-              transitions: [
-                "Vor diesem Hintergrund",
-                "Auf dieser Grundlage",
-                "Im weiteren Verlauf",
+              label: "Corporate",
+              lines: [
+                "Vor diesem Hintergrund werden die relevanten Handlungsfelder entlang der bestehenden Rahmenbedingungen zusammengeführt.",
+                "Auf dieser Grundlage wird der vorliegende Stand in eine tragfähige Gesamtlinie überführt.",
+                "Im weiteren Verlauf werden Zielkorridor und Anschlussfähigkeit gemeinsam betrachtet.",
+                "Entlang der übergeordneten Rahmenbedingungen wird eine konsolidierte Vorgehenslinie hergestellt.",
               ],
-              nouns: ["Rahmenbedingungen", "Handlungsfelder", "Zielkorridore"],
-              adjectives: ["tragfähig", "anschlussfähig", "übergeordnet"],
-              verbs: ["bündeln", "schärfen", "konsolidieren"],
             },
             beratung: {
-              transitions: [
-                "Aus der Gesamtschau",
-                "Entlang der bisherigen Erkenntnisse",
-                "Mit Blick auf das Zielbild",
+              label: "Beratung",
+              lines: [
+                "Aus der Gesamtschau werden Wirkdimensionen, Gestaltungsräume und Hebel in ein gemeinsames Bild überführt.",
+                "Entlang der bisherigen Erkenntnisse wird das Zielbild strukturiert und in wirksame Anschlussoptionen übersetzt.",
+                "Mit Blick auf die Wirkung werden die relevanten Hebel in einer integrierten Perspektive gebündelt.",
+                "Die vorliegenden Beobachtungen werden zu einer operationalisierbaren Gesamtschau verdichtet.",
               ],
-              nouns: ["Wirkdimensionen", "Gestaltungsräume", "Hebel"],
-              adjectives: ["zielgerichtet", "integriert", "wirksam"],
-              verbs: ["strukturieren", "orchestrieren", "operationalisieren"],
             },
             institution: {
-              transitions: [
-                "Unter Berücksichtigung des bisherigen Sachstands",
-                "In diesem Zusammenhang",
-                "Nach Maßgabe der vorliegenden Rückmeldungen",
+              label: "Institution",
+              lines: [
+                "Unter Berücksichtigung des bisherigen Sachstands werden die erforderlichen Verfahrensschritte zusammengeführt.",
+                "Nach Maßgabe der vorliegenden Rückmeldungen wird eine sachgerechte Bearbeitungslinie gebildet.",
+                "In diesem Zusammenhang werden Prüfbereiche und Zuständigkeitsebenen nachvollziehbar geordnet.",
+                "Der dokumentierte Sachstand wird in eine abgestimmte Verfahrensfolge überführt.",
               ],
-              nouns: [
-                "Verfahrensschritte",
-                "Prüfbereiche",
-                "Zuständigkeitsebenen",
-              ],
-              adjectives: ["sachgerecht", "abgestimmt", "nachvollziehbar"],
-              verbs: ["prüfen", "zusammenführen", "veranlassen"],
             },
             startup: {
-              transitions: [
-                "Auf Basis des aktuellen Set-ups",
-                "Mit Blick auf den nächsten Sprint",
-                "Aus der laufenden Dynamik heraus",
+              label: "Start-up",
+              lines: [
+                "Auf Basis des aktuellen Set-ups werden Workstreams, Learnings und Next Steps neu geclustert.",
+                "Mit Blick auf den nächsten Sprint wird das Thema fokussiert und in ein skalierbares Set-up überführt.",
+                "Aus der laufenden Dynamik heraus werden die relevanten Learnings in pragmatische Anschlussbewegungen übersetzt.",
+                "Die aktuellen Workstreams werden entlang des nächsten Sprints neu ausgerichtet.",
               ],
-              nouns: ["Workstreams", "Learnings", "Next Steps"],
-              adjectives: ["skalierbar", "fokussiert", "pragmatisch"],
-              verbs: ["clustern", "schärfen", "alignen"],
             },
             netzwerk: {
-              transitions: [
-                "Aus dem gemeinsamen Austausch",
-                "Mit Blick auf die verbundenen Perspektiven",
-                "Im Zusammenspiel der Beteiligten",
+              label: "Netzwerk",
+              lines: [
+                "Aus dem gemeinsamen Austausch werden Resonanzräume, Anknüpfungspunkte und Impulse miteinander verbunden.",
+                "Mit Blick auf die verbundenen Perspektiven wird der bisherige Dialog offen weitergetragen.",
+                "Im Zusammenspiel der Beteiligten werden Impulse aufgenommen und in einen gemeinsamen Resonanzraum überführt.",
+                "Die geteilten Perspektiven werden zu einer verbindenden Bewegung zusammengebracht.",
               ],
-              nouns: ["Resonanzräume", "Anknüpfungspunkte", "Impulse"],
-              adjectives: ["gemeinsam", "offen", "verbindend"],
-              verbs: ["verknüpfen", "weitertragen", "zusammenbringen"],
             },
           };
+
           const audiences = {
             person: {
-              greeting: [
-                "Hallo",
-                "Guten Morgen",
-                "Liebe Kollegin, lieber Kollege",
-              ],
               routing: "EINZELPERSON",
-              closing: ["Viele Grüße", "Beste Grüße", "Herzliche Grüße"],
+              dative: "dir",
+              accusative: "dich",
+              possessive: "deine",
+              possessiveCap: "Deine",
+              possessiveMasculineCap: "Dein",
+              greetings: {
+                low: ["Guten Tag", "Hallo"],
+                middle: ["Hallo", "Guten Morgen"],
+                high: ["Einen herzlichen guten Morgen", "Hallo und guten Tag"],
+              },
+              load: 8,
             },
             team: {
-              greeting: [
-                "Hallo zusammen",
-                "Liebes Team",
-                "Guten Morgen zusammen",
-              ],
               routing: "TEAM",
-              closing: [
-                "Viele Grüße",
-                "Beste Grüße",
-                "Herzliche Grüße in die Runde",
-              ],
+              dative: "euch",
+              accusative: "euch",
+              possessive: "eure",
+              possessiveCap: "Eure",
+              possessiveMasculineCap: "Euer",
+              greetings: {
+                low: ["Guten Tag zusammen", "Hallo zusammen"],
+                middle: ["Hallo zusammen", "Liebes Team"],
+                high: ["Liebes Team", "Einen herzlichen guten Morgen zusammen"],
+              },
+              load: 20,
             },
             leitung: {
-              greeting: [
-                "Guten Morgen in die Runde",
-                "Hallo zusammen",
-                "Sehr geehrte Runde",
-              ],
               routing: "LEITUNGSKREIS",
-              closing: [
-                "Beste Grüße",
-                "Mit freundlichen Grüßen",
-                "Viele Grüße",
-              ],
+              dative: "euch",
+              accusative: "euch",
+              possessive: "eure",
+              possessiveCap: "Eure",
+              possessiveMasculineCap: "Euer",
+              greetings: {
+                low: ["Guten Tag", "Guten Morgen"],
+                middle: ["Guten Morgen in die Runde", "Hallo zusammen"],
+                high: [
+                  "Einen herzlichen guten Morgen in die Runde",
+                  "Guten Tag in die Runde",
+                ],
+              },
+              load: 28,
             },
             partner: {
-              greeting: [
-                "Hallo zusammen",
-                "Liebe Partnerinnen und Partner",
-                "Guten Tag zusammen",
-              ],
               routing: "PARTNERKREIS",
-              closing: ["Beste Grüße", "Herzliche Grüße", "Viele Grüße"],
+              dative: "euch",
+              accusative: "euch",
+              possessive: "eure",
+              possessiveCap: "Eure",
+              possessiveMasculineCap: "Euer",
+              greetings: {
+                low: ["Guten Tag zusammen", "Hallo zusammen"],
+                middle: ["Liebe Partnerinnen und Partner", "Hallo zusammen"],
+                high: [
+                  "Liebe Partnerinnen und Partner",
+                  "Einen herzlichen guten Morgen zusammen",
+                ],
+              },
+              load: 24,
             },
             verteiler: {
-              greeting: [
-                "Guten Tag zusammen",
-                "Hallo in die Runde",
-                "Liebe Kolleginnen und Kollegen",
-              ],
               routing: "VERTEILER / GROSS",
-              closing: [
-                "Viele Grüße",
-                "Mit besten Grüßen",
-                "Herzliche Grüße in die Runde",
-              ],
+              dative: "euch",
+              accusative: "euch",
+              possessive: "eure",
+              possessiveCap: "Eure",
+              possessiveMasculineCap: "Euer",
+              greetings: {
+                low: ["Guten Tag zusammen", "Hallo in die Runde"],
+                middle: [
+                  "Liebe Kolleginnen und Kollegen",
+                  "Hallo in die Runde",
+                ],
+                high: [
+                  "Liebe Kolleginnen und Kollegen",
+                  "Ein herzliches Hallo in die Runde",
+                ],
+              },
+              load: 48,
             },
           };
-          const clamp = (value) =>
-            Math.max(0, Math.min(100, Math.round(value)));
+
+          const warmthLines = [
+            () => "",
+            () => "Danke für die Kenntnisnahme.",
+            (audience) =>
+              "Danke " + audience.dative + " für die Kenntnisnahme.",
+            (audience) =>
+              "Danke " + audience.dative + " für die Aufmerksamkeit.",
+            (audience) =>
+              "Vielen Dank " +
+              audience.dative +
+              " für den kurzen Blick darauf.",
+            (audience) => "Vielen Dank " + audience.dative + " für die Zeit.",
+            (audience) =>
+              "Danke " + audience.dative + " für die aufmerksame Begleitung.",
+            (audience) =>
+              "Vielen Dank " +
+              audience.dative +
+              " für die verlässliche Begleitung.",
+            (audience) =>
+              "Danke " +
+              audience.dative +
+              " für den kollegialen Blick auf den Punkt.",
+            (audience) =>
+              "Vielen Dank " +
+              audience.dative +
+              " für die anerkennenswerte Unterstützung.",
+            (audience) =>
+              "Ich danke " +
+              audience.dative +
+              " herzlich für die bisherige Aufmerksamkeit.",
+            (audience) =>
+              "Vielen herzlichen Dank " +
+              audience.dative +
+              " für die Begleitung.",
+            (audience) =>
+              "Herzlichen Dank " +
+              audience.dative +
+              " für die offene und verlässliche Begleitung.",
+            (audience) =>
+              "Ganz herzlichen Dank " +
+              audience.dative +
+              " für die aufmerksame Unterstützung.",
+            (audience) =>
+              "Mit großem Dank an " +
+              audience.accusative +
+              " für die bisherige Begleitung.",
+            (audience) =>
+              "Ich möchte " +
+              audience.dative +
+              " ausdrücklich für die wertschätzende Begleitung danken.",
+            (audience) =>
+              "Mein besonderer Dank gilt " +
+              audience.dative +
+              " für die sehr aufmerksame Begleitung.",
+            (audience) =>
+              "Mit persönlichem und herzlichem Dank an " +
+              audience.accusative +
+              " für die bisherige Unterstützung.",
+            (audience) =>
+              "Mit großer Wertschätzung und einem sehr herzlichen Dank an " +
+              audience.accusative +
+              ".",
+            (audience) =>
+              "Mit umfassendem Dank an " +
+              audience.accusative +
+              " für Aufmerksamkeit, Geduld und Begleitung.",
+            (audience) =>
+              "Mit maximaler Herzlichkeit, großer Wertschätzung und ausdrücklichem Dank an " +
+              audience.accusative +
+              ".",
+          ];
+          const closingLines = [
+            "Gruß",
+            "Viele Grüße",
+            "Freundliche Grüße",
+            "Beste Grüße",
+            "Mit freundlichen Grüßen",
+            "Mit besten Grüßen",
+            "Viele freundliche Grüße",
+            "Beste Grüße und danke",
+            "Viele Grüße und vielen Dank",
+            "Mit besten Grüßen und Dank",
+            "Herzliche Grüße",
+            "Herzliche Grüße und vielen Dank",
+            "Mit herzlichen Grüßen",
+            "Mit sehr herzlichen Grüßen",
+            "Dankbare Grüße",
+            "Mit wertschätzenden Grüßen",
+            "Mit großer Wertschätzung",
+            "Mit persönlichen und herzlichen Grüßen",
+            "Mit sehr herzlichen und zugewandten Grüßen",
+            "Mit umfassendem Dank und herzlichen Grüßen",
+            "Mit größter Wertschätzung und den herzlichsten Grüßen",
+          ];
+
+          const abstractionLines = [
+            (scene) => scene.fact,
+            (scene) => "Konkret gilt: " + scene.fact,
+            (scene) =>
+              "Der Sachstand lässt sich direkt benennen: " + scene.fact,
+            (scene) => "Diese Nachricht betrifft " + scene.objectAcc + ".",
+            (scene) => "Der Gegenstand ist " + scene.actionNoun + ".",
+            (scene) => "Im Mittelpunkt steht " + scene.actionNoun + ".",
+            (scene) =>
+              "Der Kern " + scene.genitive + " ist " + scene.actionNoun + ".",
+            (scene) =>
+              "Der Sachverhalt " +
+              scene.genitive +
+              " wird entlang der konkreten Punkte betrachtet.",
+            (scene) =>
+              "Die vorliegenden Punkte " +
+              scene.genitive +
+              " bilden den Gegenstand der Betrachtung.",
+            (scene) =>
+              "Die relevanten Aspekte " +
+              scene.genitive +
+              " stehen im Mittelpunkt.",
+            (scene) =>
+              "Der Vorgang " +
+              scene.genitive +
+              " wird in seinem Zusammenhang betrachtet.",
+            (scene) =>
+              "Der Handlungsrahmen " +
+              scene.genitive +
+              " bildet den gemeinsamen Bezugspunkt.",
+            (scene) =>
+              "Die bestehenden Rahmenbedingungen " +
+              scene.genitive +
+              " werden zusammengeführt.",
+            (scene) =>
+              "Die relevanten Handlungsfelder " +
+              scene.genitive +
+              " werden gebündelt.",
+            (scene) =>
+              "Die übergreifenden Perspektiven " +
+              scene.genitive +
+              " werden verdichtet.",
+            (scene) =>
+              "Die anschlussfähigen Optionen " +
+              scene.genitive +
+              " rücken in den Fokus.",
+            () =>
+              "Der damit verbundene Gestaltungsraum wird gesamthaft betrachtet.",
+            () =>
+              "Die daraus hervorgehenden Wirkdimensionen werden in einen übergreifenden Zusammenhang gestellt.",
+            () =>
+              "Das relevante Potenzialfeld wird entlang seiner Anschlussoptionen erschlossen.",
+            () =>
+              "Der übergeordnete Möglichkeitsraum wird in seiner Gesamtdynamik eingeordnet.",
+            () =>
+              "Die vernetzten Wirk-, Potenzial- und Anschlussräume werden als integriertes Gesamtfeld betrachtet.",
+          ];
+
+          const urgencyLines = [
+            (scene) =>
+              "Als zeitliche Marke bleibt " +
+              scene.deadline +
+              " bestehen; zusätzlicher Druck entsteht nicht.",
+            (scene) =>
+              "Der Punkt kann bis " +
+              scene.deadline +
+              " im normalen Verlauf aufgenommen werden.",
+            (scene) =>
+              "Die Rückmeldung bleibt ruhig auf " +
+              scene.deadline +
+              " terminiert.",
+            (scene) =>
+              "Für die Rückmeldung ist " +
+              scene.deadline +
+              " als gelassene Frist gesetzt.",
+            (scene) =>
+              "Die Bearbeitung folgt dem vorgesehenen Takt bis " +
+              scene.deadline +
+              ".",
+            (scene) =>
+              "Ein Abschluss bis " +
+              scene.deadline +
+              " hält den Ablauf in seiner Spur.",
+            (scene) =>
+              "Die Rückmeldung sollte bis " +
+              scene.deadline +
+              " im regulären Takt vorliegen.",
+            (scene) =>
+              "Eine Antwort bis " +
+              scene.deadline +
+              " unterstützt den vorgesehenen Verlauf.",
+            (scene) =>
+              "Die zeitliche Aufmerksamkeit richtet sich auf " +
+              scene.deadline +
+              ".",
+            (scene) =>
+              "Mit Blick auf " +
+              scene.deadline +
+              " gewinnt die Rückmeldung an zeitlicher Nähe.",
+            (scene) =>
+              "Eine zeitnahe Rückmeldung bis " +
+              scene.deadline +
+              " hält die weitere Bearbeitung offen.",
+            (scene) =>
+              "Die Rückmeldung wird deutlich zeitnah, spätestens bis " +
+              scene.deadline +
+              ", erwartet.",
+            (scene) =>
+              "Der Punkt ist priorisiert und benötigt bis " +
+              scene.deadline +
+              " eine Antwort.",
+            (scene) =>
+              "Die hohe Taktung verlangt eine Rückmeldung bis " +
+              scene.deadline +
+              ".",
+            (scene) =>
+              "Die Angelegenheit ist dringlich gerahmt; die Antwort wird bis " +
+              scene.deadline +
+              " benötigt.",
+            (scene) =>
+              "Eine sehr dringliche Rückmeldung muss bis " +
+              scene.deadline +
+              " vorliegen.",
+            (scene) =>
+              "Die Rückmeldung wird unmittelbar erwartet und ist bis " +
+              scene.deadline +
+              " abzuschließen.",
+            (scene) =>
+              "Der kritische Takt setzt " +
+              scene.deadline +
+              " als feste Antwortgrenze.",
+            (scene) =>
+              "Die Angelegenheit besitzt höchste Priorität; maßgeblich bleibt " +
+              scene.deadline +
+              ".",
+            (scene) =>
+              "Eine unverzügliche Rückmeldung wird benötigt, in jedem Fall bis " +
+              scene.deadline +
+              ".",
+            (scene) =>
+              "Die Rückmeldung wird sofort benötigt; spätestens " +
+              scene.deadline +
+              " muss sie vollständig vorliegen.",
+          ];
+
+          const circularityLines = [
+            () => "Der Gedankengang endet nach dieser Aussage.",
+            () =>
+              "Der genannte Punkt wird im weiteren Verlauf einmal wieder aufgenommen.",
+            () =>
+              "Die Einordnung führt leicht zu ihrer eigenen Ausgangsfrage zurück.",
+            () => "Der Ausgangspunkt erscheint am Ende erneut als Bezugspunkt.",
+            () =>
+              "Der nächste Schritt schließt an den Schritt an, der den nächsten Schritt vorbereitet.",
+            () =>
+              "Die weitere Einordnung nimmt die bisherige Einordnung erneut auf.",
+            () =>
+              "Der bisherige Stand wird als Grundlage für die Rückspiegelung des bisherigen Stands verwendet.",
+            () =>
+              "Die gemeinsame Einordnung wird im weiteren Verlauf noch einmal gemeinsam eingeordnet.",
+            () =>
+              "Der Gedanke kehrt über den weiteren Verlauf zu seinem eigenen Beginn zurück.",
+            () =>
+              "Die Grundlage bildet erneut die Grundlage, auf der die nächste Grundlage entstehen soll.",
+            () =>
+              "Die weitere Vorgehensweise wird aus Sicht der weiteren Vorgehensweise erneut betrachtet.",
+            () =>
+              "Die Einordnung schafft eine Grundlage für jene Einordnung, aus der die Grundlage hervorgeht.",
+            () =>
+              "Der Rückbezug wird zurückgeführt, damit die Rückführung als gemeinsamer Bezugspunkt dienen kann.",
+            () =>
+              "Die Perspektive führt zur Perspektive zurück und bestätigt dabei die Notwendigkeit weiterer Perspektiven.",
+            () =>
+              "Der Anschluss schließt an den Anschluss an, der die Anschlussfähigkeit des Anschlusses sichern soll.",
+            () =>
+              "Die weitere Bewegung beschreibt einen Kreis um die Frage, wie die weitere Bewegung weitergeführt wird.",
+            () =>
+              "Das Vorgehen betrachtet sich selbst als Grundlage des Vorgehens und wird dadurch zum weiteren Vorgehen.",
+            () =>
+              "Die Einordnung ordnet ihre eigene Einordnung in eine Einordnung der weiteren Einordnung ein.",
+            () =>
+              "Der Rücklauf führt die Ausgangslage über mehrere Rückbezüge wieder in die Ausgangslage zurück.",
+            () =>
+              "Die gemeinsame Grundlage wird zur Grundlage ihrer eigenen gemeinsamen Grundlegung.",
+            () =>
+              "Das weitere Vorgehen führt über die weitere Vorgehensweise zur gemeinsamen Weiterführung des weiteren Vorgehens zurück.",
+          ];
+
+          const diffusionLines = [
+            (scene) => scene.direct,
+            (scene) =>
+              "Für " +
+              scene.actionNoun +
+              " ist " +
+              scene.actor +
+              " verantwortlich.",
+            (scene) =>
+              scene.actor +
+              " trägt die Verantwortung für " +
+              scene.actionNoun +
+              ".",
+            (scene) => scene.actor + " übernimmt " + scene.actionNoun + ".",
+            (scene) => scene.actor + " koordiniert " + scene.actionNoun + ".",
+            (scene) =>
+              "Das Kernteam übernimmt " +
+              scene.actionNoun +
+              "; " +
+              scene.actor +
+              " bündelt die Rückmeldung.",
+            (scene) => "Das Kernteam verantwortet " + scene.actionNoun + ".",
+            (scene) =>
+              "Das Kernteam koordiniert " +
+              scene.actionNoun +
+              "; " +
+              scene.actor +
+              " bleibt ansprechbar.",
+            (scene) =>
+              scene.actor +
+              " und das Kernteam stimmen " +
+              scene.actionNoun +
+              " ab.",
+            (scene) =>
+              "Die beteiligten Personen stimmen " +
+              scene.actionNoun +
+              " gemeinsam ab.",
+            (scene) =>
+              "Der zuständige Arbeitsbereich übernimmt " +
+              scene.actionNoun +
+              ".",
+            (scene) =>
+              "Der zuständige Arbeitsbereich koordiniert " +
+              scene.actionNoun +
+              " mit den Beteiligten.",
+            (scene) =>
+              "Die beteiligten Bereiche übernehmen " +
+              scene.actionNoun +
+              " gemeinsam.",
+            (scene) =>
+              capitalize(scene.actionNoun) +
+              " wird von den beteiligten Bereichen gemeinsam bearbeitet.",
+            (scene) =>
+              capitalize(scene.actionNoun) +
+              " wird im zuständigen Arbeitsbereich weiterbearbeitet.",
+            (scene) =>
+              capitalize(scene.actionNoun) +
+              " wird in die vorgesehene Bearbeitungsfolge aufgenommen.",
+            (scene) =>
+              capitalize(scene.actionNoun) +
+              " durchläuft die beteiligten Zuständigkeitsebenen.",
+            (scene) =>
+              capitalize(scene.actionNoun) +
+              " liegt zwischen mehreren Zuständigkeits- und Bearbeitungsebenen.",
+            () =>
+              "Die weitere Bearbeitung verteilt sich auf die beteiligten Ebenen und Zuständigkeitsfelder.",
+            () =>
+              "Die Anschlussbearbeitung liegt im Zusammenspiel der zuständigen Ebenen.",
+            () =>
+              "Die Zuständigkeit bildet sich im weiteren Verlauf aus dem Zusammenspiel der beteiligten Ebenen.",
+          ];
+
+          const hedgingLines = [
+            (scene) => "Es steht fest, dass " + scene.factDass + ".",
+            (scene) =>
+              "Der vorliegende Stand bestätigt, dass " + scene.factDass + ".",
+            (scene) =>
+              "Nach aktuellem Stand gilt, dass " + scene.factDass + ".",
+            (scene) =>
+              "Derzeit ist davon auszugehen, dass " + scene.factDass + ".",
+            (scene) => "Alles spricht dafür, dass " + scene.factDass + ".",
+            (scene) =>
+              "Die vorliegenden Hinweise sprechen dafür, dass " +
+              scene.factDass +
+              ".",
+            (scene) => "Es ist wahrscheinlich, dass " + scene.factDass + ".",
+            (scene) =>
+              "Es erscheint wahrscheinlich, dass " + scene.factDass + ".",
+            (scene) => "Vieles deutet darauf hin, dass " + scene.factDass + ".",
+            (scene) =>
+              "Derzeit deutet einiges darauf hin, dass " + scene.factDass + ".",
+            (scene) => "Es ist denkbar, dass " + scene.factDass + ".",
+            (scene) => "Es erscheint möglich, dass " + scene.factDass + ".",
+            (scene) => "Es könnte sein, dass " + scene.factDass + ".",
+            (scene) =>
+              "Möglicherweise ist davon auszugehen, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Nach vorläufiger Einschätzung könnte es sein, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Unter dem Vorbehalt weiterer Rückmeldungen könnte angenommen werden, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Es lässt sich nicht ausschließen, dass " + scene.factDass + ".",
+            (scene) =>
+              "Grundsätzlich lässt sich derzeit nicht ausschließen, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Gegebenenfalls wäre in Betracht zu ziehen, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Unter mehreren Vorbehalten ließe sich vorsichtig annehmen, dass " +
+              scene.factDass +
+              ".",
+            (scene) =>
+              "Es erscheint zum gegenwärtigen Zeitpunkt grundsätzlich nicht ausgeschlossen, dass " +
+              scene.factDass +
+              ".",
+          ];
+
+          const expansionFragments = [
+            "Der bisherige Verlauf bleibt dabei als Hintergrund erhalten.",
+            "Zusätzlich werden die bereits bekannten Berührungspunkte mitgeführt.",
+            "Auch die in früheren Runden genannten Hinweise bleiben Teil des Bildes.",
+            "Die verschiedenen Blickrichtungen werden dabei nicht isoliert voneinander gelesen.",
+            "Neben dem unmittelbaren Anlass bleibt der weitere Zusammenhang sichtbar.",
+            "Die vorhandenen Rückmeldungen bilden eine zusätzliche Schicht der Betrachtung.",
+            "Frühere Zwischenstände werden als Teil der aktuellen Bewegung mitgedacht.",
+            "Die angrenzenden Themenfelder bleiben im erweiterten Rahmen anschlussfähig.",
+            "Auch mögliche Wechselwirkungen mit nachgelagerten Schritten werden einbezogen.",
+            "Die bereits entstandenen Gesprächslinien werden in der Gesamtschau weitergeführt.",
+            "Unterschiedliche Zeithorizonte erscheinen dabei nebeneinander im selben Feld.",
+            "Weitere Perspektiven können an die bestehende Betrachtung angelegt werden.",
+            "Die aktuelle Fassung nimmt auch die Ränder des bisherigen Austauschs auf.",
+            "Zusätzliche Kontextflächen erweitern die Einordnung über den Kern hinaus.",
+            "Die Verbindung zwischen Anlass, Verlauf und möglichem Anschluss bleibt erhalten.",
+            "Dabei werden sowohl unmittelbare als auch mittelbare Bezugspunkte berücksichtigt.",
+            "Der Gesamtzusammenhang erhält eine weitere Ebene aus Rückblick und Vorschau.",
+            "Auch noch nicht ausformulierte Anschlussfragen bleiben im erweiterten Rahmen präsent.",
+            "Die Einordnung umfasst damit Gegenstand, Umfeld, Verlauf und mögliche Folgebewegung.",
+            "Schließlich wird der gesamte Kontext noch einmal als zusammenhängende Kontextfläche beschrieben.",
+          ];
+
+          const personalizationLines = [
+            () => "",
+            () =>
+              "Der bisherige Austausch bleibt als allgemeiner Bezugspunkt bestehen.",
+            () => "Die Nachricht knüpft an den bisherigen Austausch an.",
+            (audience) =>
+              "Sie greift " + audience.possessive + " letzte Rückmeldung auf.",
+            (audience) =>
+              audience.possessiveMasculineCap +
+              " bisheriger Beitrag bleibt dabei sichtbar.",
+            (audience) =>
+              "Der von " +
+              audience.dative +
+              " eingebrachte Hinweis wird erneut aufgenommen.",
+            (audience) =>
+              "Die Nachricht knüpft an das letzte Gespräch mit " +
+              audience.dative +
+              " an.",
+            (audience) =>
+              audience.possessiveCap +
+              " bisherigen Beiträge bilden einen persönlichen Bezugspunkt.",
+            (audience) =>
+              "Die zuletzt von " +
+              audience.dative +
+              " geteilte Rückmeldung wird als Kontext mitgeführt.",
+            (audience) =>
+              "Unsere gemeinsame Vorgeschichte wird als vertrauter Rahmen aufgegriffen.",
+            (audience) =>
+              audience.possessiveCap +
+              " Perspektive aus dem letzten Austausch bleibt ausdrücklich präsent.",
+            (audience) =>
+              audience.possessiveCap +
+              " Hinweise und unser gemeinsamer Gesprächsverlauf werden miteinander verbunden.",
+            (audience) =>
+              "Die von " +
+              audience.dative +
+              " zuletzt benannten Punkte werden individuell gerahmt.",
+            (audience) =>
+              audience.possessiveCap +
+              " konkrete Rückmeldung und der persönliche Austausch werden erneut referenziert.",
+            (audience) =>
+              "Die von " +
+              audience.dative +
+              " eingebrachten Details bleiben als besondere Kontextspur sichtbar.",
+            (audience) =>
+              audience.possessiveCap +
+              " bisherigen Hinweise werden mehrfach mit dem aktuellen Anlass verknüpft.",
+            (audience) =>
+              audience.possessiveCap +
+              " Beispiele, Rückfragen und Beiträge werden als persönliche Bezugslinie zusammengeführt.",
+            (audience) =>
+              "Der gemeinsame Verlauf wird so erzählt, als trüge er bereits eine eigene persönliche Geschichte.",
+            (audience) =>
+              audience.possessiveCap +
+              " Hinweise, Beispiele und zuletzt gesetzten Akzente werden umfassend referenziert.",
+            (audience) =>
+              "Nahezu jede aktuelle Bewegung wird mit einem früheren Beitrag von " +
+              audience.dative +
+              " verbunden.",
+            (audience) =>
+              audience.possessiveCap +
+              " bisherigen Hinweise, Beispiele, Fragen und Gesprächsmomente bilden den vollständigen persönlichen Rahmen dieser Nachricht.",
+          ];
+
+          const nominalismLines = [
+            () =>
+              "Der Text nennt den Punkt, ordnet ihn und hält das Ergebnis fest.",
+            () =>
+              "Der Text beschreibt den Punkt, prüft ihn und dokumentiert das Ergebnis.",
+            () =>
+              "Der Text führt den Punkt auf, ordnet ihn ein und schließt die Betrachtung ab.",
+            () =>
+              "Die Bearbeitung beginnt mit dem Prüfen und endet mit der Dokumentation.",
+            () =>
+              "Prüfung und Dokumentation begleiten die weitere Bearbeitung.",
+            () => "Der Vorgang verbindet Prüfung, Einordnung und Abschluss.",
+            () =>
+              "Die Bearbeitung umfasst die Prüfung und die anschließende Ergebnissicherung.",
+            () =>
+              "Der Prozess führt von der Prüfung über die Einordnung zur Dokumentation.",
+            () =>
+              "Die Prüfung bildet den Ausgangspunkt einer verdichteten Bearbeitung.",
+            () =>
+              "Die weitere Bearbeitung dient der strukturierten Ergebnissicherung.",
+            () =>
+              "Prüfung, Einordnung und Dokumentation bilden eine gemeinsame Vorgangsarchitektur.",
+            () =>
+              "Die Durchführung der Prüfung ermöglicht die Herstellung einer abgestimmten Dokumentation.",
+            () =>
+              "Die Bearbeitung des Vorgangs erfolgt im Rahmen einer strukturierten Einordnungsbewegung.",
+            () =>
+              "Die prozessuale Verdichtung führt zur Herstellung eines konsolidierten Bearbeitungsstands.",
+            () =>
+              "Die institutionelle Bearbeitung umfasst Prüfung, Einordnungsleistung und Ergebnissicherung.",
+            () =>
+              "Die Herbeiführung einer abgestimmten Einordnung bildet den Kern der weiteren Bearbeitung.",
+            () =>
+              "Die Durchführung der Bearbeitung dient der Sicherstellung einer nachvollziehbaren Ergebnisdokumentation.",
+            () =>
+              "Die prozessuale Einordnungsleistung ermöglicht die Herstellung einer anschlussfähigen Bearbeitungsarchitektur.",
+            () =>
+              "Die Operationalisierung der Bearbeitungsdurchführung führt zur Konsolidierung der Ergebnisherstellung.",
+            () =>
+              "Die Herbeiführung der Durchführung einer abgestimmten Einordnungsleistung bildet den Gegenstand der Anschlussbearbeitung.",
+            () =>
+              "Die Sicherstellung der Operationalisierung der weiterführenden Bearbeitungsdurchführung dient der Herstellung einer konsolidierten Ergebnisdokumentationsarchitektur.",
+          ];
+
+          const futurityLines = [
+            () => "Der Blick bleibt bei der gegenwärtigen Lage.",
+            () => "Unmittelbar danach wird der aktuelle Punkt abgeschlossen.",
+            () =>
+              "Der nächste Schritt schließt direkt an den gegenwärtigen Stand an.",
+            () =>
+              "Der kurze Horizont reicht bis zur unmittelbar folgenden Bearbeitung.",
+            () =>
+              "Der kommende Abschnitt nimmt das Ergebnis als Ausgangspunkt.",
+            () =>
+              "In der nächsten Phase wird der erreichte Stand weitergeführt.",
+            () => "Die Folgebewegung baut auf dem aktuellen Ergebnis auf.",
+            () =>
+              "Der mittlere Horizont verbindet den nächsten Schritt mit der folgenden Phase.",
+            () =>
+              "Die weitere Entwicklung nimmt aus dem aktuellen Stand eine erkennbare Richtung auf.",
+            () =>
+              "Im kommenden Verlauf kann daraus eine gemeinsame Linie entstehen.",
+            () =>
+              "Perspektivisch öffnet sich daraus eine weiterführende Vorgehensweise.",
+            () =>
+              "Die künftige Zielrichtung wird aus dem vorliegenden Stand abgeleitet.",
+            () =>
+              "Daraus kann ein gemeinsames Zielbild für die kommende Phase entstehen.",
+            () =>
+              "Der strategische Horizont verbindet die nächste Phase mit einem übergeordneten Zielbild.",
+            () =>
+              "Längerfristig kann der aktuelle Stand als Referenz für weitere Entscheidungen dienen.",
+            () =>
+              "In nachgelagerten Phasen wird daraus eine belastbare Vorgehensarchitektur abgeleitet.",
+            () =>
+              "Die künftige Architektur verbindet mehrere Folgephasen in einem gemeinsamen Zielkorridor.",
+            () =>
+              "Am Fernhorizont erscheint ein Zielbild, das spätere Prozessschritte miteinander verbindet.",
+            () =>
+              "Die mehrstufige Zukunft führt vom nächsten Schritt über Folgephasen zu einem übergreifenden Zielzustand.",
+            () =>
+              "Dauerhaft kann daraus eine gemeinsame Referenz für sämtliche nachgelagerten Bewegungen entstehen.",
+            () =>
+              "Perspektivisch verdichtet sich der gesamte weitere Verlauf zu einer langfristigen, mehrstufigen und anschlussfähigen Zukunftsarchitektur.",
+          ];
+
+          const subjectLines = [
+            () => "(kein Betreff)",
+            () => "Weiteres",
+            () => "Nachtrag",
+            () => "Einordnung",
+            () => "Aktueller Stand",
+            (scene) => scene.label,
+            (scene, intent) => scene.label + ": " + intent.label,
+            (scene, intent) => intent.label + " " + scene.context,
+            (scene, intent) =>
+              scene.label + ": aktueller Stand / " + intent.label,
+            (scene, intent) => scene.label + ": Einordnung / " + intent.label,
+            (scene, intent) =>
+              scene.label + ": weitere Abstimmung / " + intent.label,
+            (scene, intent) =>
+              scene.label + ": nächster Schritt / " + intent.label,
+            (scene, intent, intentKey) => intentSubjects[intentKey][0](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][1](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][2](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][3](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][4](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][5](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][6](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][7](scene),
+            (scene, intent, intentKey) => intentSubjects[intentKey][8](scene),
+          ];
+
+          const variantOpeners = [
+            "In dieser Fassung",
+            "Aus dieser Perspektive",
+            "Im aktuellen Durchlauf",
+            "In der vorliegenden Lesart",
+            "Auf dieser Ebene",
+            "Im jetzigen Ausschnitt",
+            "Unter diesem Blickwinkel",
+            "In der gegenwärtigen Konstellation",
+            "Aus dem aktuellen Stand heraus",
+            "Innerhalb dieses Rahmens",
+            "In dieser Anordnung",
+            "Für den vorliegenden Verlauf",
+          ];
+          const variantSubjects = [
+            "der vorliegende Stand",
+            "der aktuelle Bezug",
+            "die bisherige Bewegung",
+            "der gemeinsame Ausgangspunkt",
+            "die gegenwärtige Lage",
+            "der bisherige Verlauf",
+            "die aktuelle Konstellation",
+            "der dokumentierte Ausschnitt",
+            "die vorliegende Perspektive",
+            "der gemeinsame Bezugspunkt",
+            "die bestehende Gesprächslinie",
+            "das gegenwärtige Themenfeld",
+          ];
+          const variantComplements = [
+            "als Ausgangspunkt notiert",
+            "in einen gemeinsamen Rahmen gestellt",
+            "für den weiteren Verlauf markiert",
+            "als Bezugslinie festgehalten",
+            "in die aktuelle Betrachtung aufgenommen",
+            "mit der nächsten Bewegung verbunden",
+            "als gemeinsame Grundlage geführt",
+            "in der Gesamtschau gespiegelt",
+            "für die Folgephase hinterlegt",
+            "als Orientierungspunkt verdichtet",
+            "in den weiteren Zusammenhang eingeordnet",
+            "als anschlussfähige Referenz geführt",
+          ];
+
+          const expansionEffect = (tier) =>
+            tier === 0
+              ? "0 Zusatzfelder"
+              : tier === 1
+                ? "1 Zusatzfeld"
+                : tier + " Zusatzfelder";
+          const capitalize = (text) =>
+            text.charAt(0).toLocaleUpperCase("de") + text.slice(1);
+          const clampMetric = (value) =>
+            Math.max(0, Math.min(100, Math.round(value * 10) / 10));
           const hashString = (text) => {
             let hash = 2166136261;
             for (let index = 0; index < text.length; index += 1) {
@@ -6521,171 +7960,137 @@
             }
             return hash >>> 0;
           };
-          const mulberry32 = (seed) => () => {
-            let value = (seed += 0x6d2b79f5);
-            value = Math.imul(value ^ (value >>> 15), value | 1);
-            value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-            return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-          };
-          const pick = (list, random) =>
-            list[Math.floor(random() * list.length) % list.length];
-          const values = () =>
-            Object.fromEntries(
-              axisNames.map((name) => [
-                name,
-                Number(qs(`[name="${name}"]`, synthForm)?.value || 0),
-              ]),
-            );
-          let variant = 17;
-          let renderFrame = 0;
-
-          const compose = () => {
-            const axes = values();
-            const sceneKey = qs("#synth-scene")?.value || "projekt";
-            const intentKey = qs("#synth-intent")?.value || "zwischenstand";
-            const registerKey = qs("#synth-register")?.value || "corporate";
-            const audienceKey = qs("#synth-audience")?.value || "team";
-            const scene = scenes[sceneKey];
-            const intent = intents[intentKey];
-            const register = registers[registerKey];
-            const audience = audiences[audienceKey];
+          const stablePick = (list, state, version, salt) => {
             const signature = [
-              sceneKey,
-              intentKey,
-              registerKey,
-              audienceKey,
-              ...axisNames.map((name) => axes[name]),
-              variant,
+              state.scene,
+              state.intent,
+              state.register,
+              state.audience,
+              version,
+              salt,
             ].join("|");
-            const random = mulberry32(hashString(signature));
-            const transition = pick(register.transitions, random);
-            const noun = pick(register.nouns, random);
-            const adjective = pick(register.adjectives, random);
-            const registerVerb = pick(register.verbs, random);
-            const subject =
-              axes.subjectClarity >= 80
-                ? `${intent.label}: ${scene.concrete} bis ${scene.deadline}`
-                : axes.subjectClarity >= 55
-                  ? `${intent.label} zu ${scene.label} und nächstem Schritt`
-                  : axes.subjectClarity >= 30
-                    ? `Weitere Abstimmung zu ${scene.topic}`
-                    : pick(
-                        [
-                          "Gemeinsame Einordnung zum weiteren Vorgehen",
-                          "Aktueller Stand und mögliche Anschlussoptionen",
-                          "Im Nachgang zur übergreifenden Thematik",
-                          "Weitere Perspektiven im laufenden Kontext",
-                        ],
-                        random,
-                      );
-            const softener =
-              axes.hedging >= 80
-                ? "erscheint es grundsätzlich nicht ausgeschlossen, dass"
-                : axes.hedging >= 60
-                  ? "könnte es perspektivisch sinnvoll sein,"
-                  : axes.hedging >= 35
-                    ? "erscheint es sinnvoll,"
-                    : "sollten wir";
-            const object =
-              axes.abstraction >= 80
-                ? `die relevanten ${noun} im übergeordneten Gesamtzusammenhang`
-                : axes.abstraction >= 55
-                  ? `${scene.object} entlang der bestehenden Rahmenbedingungen`
-                  : axes.abstraction >= 30
-                    ? scene.object
-                    : scene.concrete;
-            const contextSentence =
-              axes.nominalism >= 70
-                ? `${transition} steht die ${adjective} Einordnung von ${object} im Mittelpunkt der weiteren Betrachtung.`
-                : axes.nominalism >= 40
-                  ? `${transition} sollten wir ${object} noch einmal ${registerVerb} und gemeinsam ${intent.verb}.`
-                  : `${transition} ${registerVerb} wir ${object} und ${intent.verb} den nächsten Schritt.`;
-            const orientationSentence =
-              axes.abstraction >= 70
-                ? `Dabei ${softener} mögliche Perspektiven gebündelt, bestehende Anschlussoptionen verdichtet und die daraus hervorgehenden ${noun} in eine ${adjective} Gesamtbewegung überführt werden.`
-                : axes.abstraction >= 40
-                  ? `Dabei ${softener} die vorhandenen Rückmeldungen zusammenzuführen und mögliche Optionen für den nächsten Schritt zu ordnen.`
-                  : `Dabei ${softener} ${scene.concrete} zu prüfen und das Ergebnis festzuhalten.`;
-            const actionSentence =
-              axes.diffusion >= 85
-                ? `Auf den zuständigen Ebenen wäre gegebenenfalls zu prüfen, in welcher Konstellation die weitere Bearbeitung anschlussfähig verortet werden kann.`
-                : axes.diffusion >= 65
-                  ? `Die beteiligten Bereiche könnten die nächsten Schritte im Anschluss gemeinsam aufnehmen und entsprechend zurückspiegeln.`
-                  : axes.diffusion >= 40
-                    ? `Das Kernteam sollte ${object} bis ${scene.deadline} prüfen und eine Rückmeldung bündeln.`
-                    : `${scene.actor} ${intent.verb} ${scene.concrete} bis ${scene.deadline}; ${scene.consequence}.`;
-            const futureSentence =
-              axes.futurity >= 75
-                ? `Perspektivisch ließe sich daraus ein belastbares Zielbild ableiten, das für die nachgelagerten Prozessschritte als gemeinsame Referenz dienen könnte.`
-                : axes.futurity >= 45
-                  ? `Im nächsten Schritt kann daraus eine ${adjective} Vorgehensweise für die kommende Phase entstehen.`
-                  : `Danach gilt: ${scene.consequence}.`;
-            const urgencySentence =
-              axes.urgency >= 80
-                ? "Mit Blick auf die aktuell hohe Dynamik wäre eine möglichst zeitnahe Rückkopplung für die weitere Anschlussfähigkeit wesentlich."
-                : axes.urgency >= 55
-                  ? "Eine zeitnahe Rückmeldung würde die weitere Einordnung entsprechend unterstützen."
-                  : axes.urgency >= 30
-                    ? `Eine Rückmeldung bis ${scene.deadline} hält den vorgesehenen Ablauf offen.`
-                    : "Der Punkt kann im regulären Verlauf aufgenommen werden.";
-            const echoSentence =
-              axes.circularity >= 80
-                ? `In diesem Sinne wäre die weitere Vorgehensweise noch einmal aus der Perspektive des weiteren Vorgehens zu betrachten, damit das Vorgehen als solches gemeinsam weitergeführt werden kann.`
-                : axes.circularity >= 55
-                  ? `Damit würde die gemeinsame Einordnung zugleich eine Grundlage für die weitere gemeinsame Einordnung bilden.`
-                  : `Damit ist der Anschluss an den nächsten Schritt hergestellt.`;
-            const personalSentence =
-              axes.personalization >= 75
-                ? `Vielen Dank nochmals für die konstruktiven Impulse, die sorgfältigen Rückmeldungen und die durchweg offene Begleitung des bisherigen Prozesses.`
-                : axes.personalization >= 45
-                  ? "Vielen Dank für die bisherigen Rückmeldungen und den konstruktiven Austausch."
-                  : axes.personalization >= 20
-                    ? "Danke für die Rückmeldungen."
-                    : "";
-            const greeting = pick(audience.greeting, random);
-            const closing =
-              axes.warmth >= 75
-                ? pick(
-                    [
-                      "Herzliche Grüße und vielen Dank in die Runde",
-                      "Mit besten Grüßen und herzlichem Dank",
-                      ...audience.closing,
-                    ],
-                    random,
-                  )
-                : axes.warmth >= 40
-                  ? pick(audience.closing, random)
-                  : "Gruß";
-            const modules = [
-              personalSentence,
-              contextSentence,
-              orientationSentence,
-              axes.futurity >= 25 ? futureSentence : "",
-              axes.circularity >= 35 ? echoSentence : "",
-              axes.urgency >= 20 ? urgencySentence : "",
-              actionSentence,
-            ].filter(Boolean);
-            const count =
-              axes.expansion < 20
-                ? 2
-                : axes.expansion < 40
-                  ? 3
-                  : axes.expansion < 60
-                    ? 4
-                    : axes.expansion < 80
-                      ? 6
-                      : modules.length;
-            const selected = modules.slice(0, Math.max(1, count - 1));
-            if (!selected.includes(actionSentence))
-              selected.push(actionSentence);
-            const paragraphs = [greeting, ...selected, closing];
-            return {
-              axes,
+            return list[hashString(signature) % list.length];
+          };
+          const quantize = (value) => {
+            const numeric = Number(value);
+            return Number.isFinite(numeric)
+              ? Math.max(0, Math.min(100, Math.round(numeric / 5) * 5))
+              : 0;
+          };
+          const readSynthState = () => {
+            const state = {
+              scene: qs("#synth-scene")?.value || "projekt",
+              intent: qs("#synth-intent")?.value || "zwischenstand",
+              register: qs("#synth-register")?.value || "corporate",
+              audience: qs("#synth-audience")?.value || "team",
+            };
+            axisNames.forEach((name) => {
+              state[name] = quantize(
+                qs('[name="' + name + '"]', synthForm)?.value || 0,
+              );
+            });
+            return state;
+          };
+
+          const compose = (inputState, version) => {
+            const state = { ...inputState };
+            const axes = Object.fromEntries(
+              axisNames.map((name) => [name, quantize(state[name])]),
+            );
+            const tier = (name) => axes[name] / 5;
+            const scene = scenes[state.scene] || scenes.projekt;
+            const intent = intents[state.intent] || intents.zwischenstand;
+            const register = registers[state.register] || registers.corporate;
+            const audience = audiences[state.audience] || audiences.team;
+            const warmthTier = tier("warmth");
+            const greetingBand =
+              warmthTier >= 14
+                ? audience.greetings.high
+                : warmthTier >= 6
+                  ? audience.greetings.middle
+                  : audience.greetings.low;
+            const greeting =
+              stablePick(greetingBand, state, version, "greeting") + ",";
+            const warmth = warmthLines[warmthTier](audience);
+            const closing = closingLines[warmthTier];
+            const abstraction = abstractionLines[tier("abstraction")](scene);
+            const urgency = urgencyLines[tier("urgency")](scene);
+            const circularity = circularityLines[tier("circularity")](scene);
+            const diffusion = diffusionLines[tier("diffusion")](scene);
+            const hedging = hedgingLines[tier("hedging")](scene);
+            const expansion = expansionFragments
+              .slice(0, tier("expansion"))
+              .join(" ");
+            const personalization =
+              personalizationLines[tier("personalization")](audience);
+            const nominalism = nominalismLines[tier("nominalism")]();
+            const futurity = futurityLines[tier("futurity")]();
+            const subject = subjectLines[tier("subjectClarity")](
               scene,
               intent,
+              state.intent,
+            );
+            const registerLine = stablePick(
+              register.lines,
+              state,
+              version,
+              "register",
+            );
+            const variantIndex = ((Math.trunc(version) % 1728) + 1728) % 1728;
+            const variantLine =
+              variantOpeners[variantIndex % 12] +
+              " wird " +
+              variantSubjects[Math.floor(variantIndex / 12) % 12] +
+              " " +
+              variantComplements[Math.floor(variantIndex / 144) % 12] +
+              ".";
+            const slots = {
+              warmth,
+              personalization,
+              intent: intent.line(scene),
+              register: registerLine,
+              abstraction,
+              expansion,
+              nominalism,
+              hedging,
+              circularity,
+              futurity,
+              variant: variantLine,
+              diffusion,
+              urgency,
+              result: scene.result,
+            };
+            const joinSlots = (...values) =>
+              values.filter(Boolean).join(" ").trim();
+            const paragraphs = [
+              greeting,
+              joinSlots(slots.warmth, slots.personalization),
+              joinSlots(
+                slots.intent,
+                slots.register,
+                slots.abstraction,
+                slots.expansion,
+              ),
+              joinSlots(slots.nominalism, slots.hedging),
+              joinSlots(slots.circularity, slots.futurity, slots.variant),
+              joinSlots(slots.diffusion, slots.urgency, slots.result),
+              closing,
+            ].filter(Boolean);
+            const wordCount = [subject, ...paragraphs]
+              .join(" ")
+              .trim()
+              .split(/\s+/u).length;
+            return {
+              axes,
+              state,
+              scene,
+              intent,
+              register,
               audience,
+              slots,
               subject,
               paragraphs,
+              wordCount,
               code: axisNames.map((name) => axes[name]).join("·"),
             };
           };
@@ -6697,7 +8102,7 @@
             const points = ordered.map((value, index) => {
               const angle =
                 -Math.PI / 2 + (index * Math.PI * 2) / ordered.length;
-              const radius = 14 + (value / 100) * 84;
+              const radius = (value / 100) * 88;
               return [
                 120 + Math.cos(angle) * radius,
                 120 + Math.sin(angle) * radius,
@@ -6723,12 +8128,45 @@
             const description = qs("#radar-desc");
             if (description)
               description.textContent = axisNames
-                .map((name, index) => `${name}: ${ordered[index]}`)
-                .join(", ");
+                .map(
+                  (name) =>
+                    axisLabels[name] +
+                    ": " +
+                    axes[name] +
+                    ", " +
+                    axisStages[name][axes[name] / 5],
+                )
+                .join("; ");
           };
 
-          const renderSynth = (announce = false) => {
-            const result = compose();
+          const axisEffectText = (name, tier, result) => {
+            const stage = axisStages[name][tier];
+            const details = {
+              warmth: "Anrede, Höflichkeitszeile und Schluss",
+              abstraction: "Gegenstandsebene " + tier + " von 20",
+              urgency: "Frist bleibt sichtbar · Takt " + tier + " von 20",
+              circularity: "Rückbezug " + tier + " von 20",
+              diffusion: "Akteursschärfe " + (20 - tier) + " von 20",
+              hedging: "Vorbehaltsrang " + tier + " von 20",
+              expansion:
+                expansionEffect(tier) +
+                " · " +
+                result.wordCount +
+                " Wörter gesamt",
+              personalization: "Kontextreferenz " + tier + " von 20",
+              nominalism: "Substantivierungsrang " + tier + " von 20",
+              futurity: "Zeithorizont " + tier + " von 20",
+              subjectClarity: "Auflösung " + tier + " von 20",
+            };
+            return stage + " · " + details[name];
+          };
+
+          let variant = 17;
+          let neighborCursor = 0;
+          let renderFrame = 0;
+          const renderSynth = (announcement = "") => {
+            const state = readSynthState();
+            const result = compose(state, variant);
             const subject = qs("#generated-subject");
             const body = qs("#generated-body");
             const routing = qs(".mail-routing");
@@ -6743,106 +8181,188 @@
               );
             }
             if (routing)
-              routing.textContent = `VON / ${result.scene.label.toLocaleUpperCase("de")} → AN / ${result.audience.routing} · STATUS / OFFEN`;
+              routing.textContent =
+                "KONTEXT / " +
+                result.scene.label.toLocaleUpperCase("de") +
+                " → EMPFÄNGER / " +
+                result.audience.routing +
+                " · MODUS / " +
+                result.intent.status +
+                " · " +
+                result.scene.status;
             const seed = qs("#synth-seed");
-            if (seed)
-              seed.textContent = `SM/11 · ${String(variant).padStart(4, "0")}`;
+            if (seed) {
+              const fingerprint = hashString(
+                [
+                  result.state.scene,
+                  result.state.intent,
+                  result.state.register,
+                  result.state.audience,
+                  result.code,
+                  variant,
+                ].join("|"),
+              )
+                .toString(36)
+                .toLocaleUpperCase("de")
+                .padStart(7, "0")
+                .slice(-7);
+              seed.textContent =
+                "SM/11 · " +
+                String(variant).padStart(4, "0") +
+                " / " +
+                fingerprint;
+            }
             const vectorCode = qs("#vector-code");
             if (vectorCode) vectorCode.textContent = result.code;
             qsa(".vector-control", synthForm).forEach((control) => {
-              const output = qs("output", control);
               const input = qs("input", control);
-              if (output && input) output.textContent = input.value;
+              const output = qs("output", control);
+              const name = input?.name;
+              if (!input || !output || !name) return;
+              const value = result.axes[name];
+              const stage = axisStages[name][value / 5];
+              output.textContent = String(value);
+              input.setAttribute("aria-valuetext", value + ", " + stage);
             });
+            qsa("[data-axis-effect]", qs("#axis-ledger") || document).forEach(
+              (item) => {
+                const name = item.dataset.axisEffect;
+                if (!name || !(name in result.axes)) return;
+                const tier = result.axes[name] / 5;
+                const strong = qs("strong", item);
+                const copy = qs("p", item);
+                if (strong)
+                  strong.textContent =
+                    axisLabels[name] + " · " + axisStages[name][tier];
+                if (copy) copy.textContent = axisEffectText(name, tier, result);
+              },
+            );
             const a = result.axes;
             const metrics = {
-              "#metric-signal": clamp(
+              "#metric-signal": clampMetric(
                 100 -
-                  (a.abstraction * 0.34 +
-                    a.diffusion * 0.32 +
-                    a.circularity * 0.14 +
-                    a.hedging * 0.12 +
-                    a.expansion * 0.08),
+                  (a.abstraction * 0.2 +
+                    a.diffusion * 0.22 +
+                    a.hedging * 0.17 +
+                    a.circularity * 0.1 +
+                    a.nominalism * 0.08 +
+                    (100 - a.subjectClarity) * 0.23),
               ),
-              "#metric-polish": clamp(
-                a.warmth * 0.28 +
-                  a.hedging * 0.22 +
-                  a.nominalism * 0.2 +
-                  a.personalization * 0.15 +
-                  a.abstraction * 0.15,
+              "#metric-polish": clampMetric(
+                a.warmth * 0.23 +
+                  a.hedging * 0.18 +
+                  a.nominalism * 0.22 +
+                  a.personalization * 0.18 +
+                  a.abstraction * 0.19,
               ),
-              "#metric-load": clamp(
-                a.diffusion * 0.3 +
-                  a.abstraction * 0.2 +
-                  a.circularity * 0.16 +
-                  a.expansion * 0.15 +
-                  a.urgency * 0.1 +
-                  a.futurity * 0.09,
+              "#metric-load": clampMetric(
+                a.diffusion * 0.18 +
+                  a.abstraction * 0.15 +
+                  a.circularity * 0.12 +
+                  a.expansion * 0.12 +
+                  a.urgency * 0.08 +
+                  a.futurity * 0.07 +
+                  (100 - a.subjectClarity) * 0.18 +
+                  result.audience.load * 0.2,
               ),
-              "#metric-return": clamp(
-                a.diffusion * 0.33 +
+              "#metric-return": clampMetric(
+                a.diffusion * 0.26 +
                   a.hedging * 0.18 +
                   (100 - a.subjectClarity) * 0.24 +
-                  a.circularity * 0.15 +
-                  a.abstraction * 0.1,
+                  a.circularity * 0.14 +
+                  a.abstraction * 0.12 +
+                  a.urgency * 0.06,
               ),
-              "#metric-volume": clamp(
-                a.expansion * 0.55 +
-                  a.circularity * 0.2 +
-                  a.personalization * 0.1 +
-                  a.nominalism * 0.15,
-              ),
+              "#metric-volume": result.wordCount,
             };
             Object.entries(metrics).forEach(([selector, value]) => {
               const node = qs(selector);
-              if (node) node.textContent = String(value);
+              if (node) node.textContent = formatNumber.format(value);
             });
             updateRadar(a);
-            if (announce) {
+            if (announcement) {
               const status = qs("#synth-status");
-              if (status)
-                status.textContent = `Konfiguration ${variant} gesetzt`;
+              if (status) status.textContent = announcement;
             }
+            return result;
           };
 
           synthForm.addEventListener("input", () => {
             cancelAnimationFrame(renderFrame);
-            renderFrame = requestAnimationFrame(() => renderSynth(false));
+            renderFrame = requestAnimationFrame(() => renderSynth());
           });
-          synthForm.addEventListener("change", () => renderSynth(true));
+          synthForm.addEventListener("change", (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement && target.type === "range") {
+              const value = quantize(target.value);
+              renderSynth(
+                axisLabels[target.name] +
+                  ": " +
+                  axisStages[target.name][value / 5],
+              );
+            } else if (target instanceof HTMLSelectElement) {
+              const label = qs('label[for="' + target.id + '"] > span');
+              renderSynth(
+                (label?.textContent || "Feld") +
+                  ": " +
+                  target.selectedOptions[0].textContent,
+              );
+            }
+          });
           synthForm.addEventListener("submit", (event) => {
             event.preventDefault();
             variant += 1;
-            renderSynth(true);
+            renderSynth("Fassung " + variant + " gesetzt");
           });
           synthForm.addEventListener("reset", () => {
             variant = 17;
-            queueMicrotask(() => renderSynth(true));
+            neighborCursor = 0;
+            queueMicrotask(() => renderSynth("Ausgangslage wiederhergestellt"));
           });
           qs("#mutate-mail")?.addEventListener("click", () => {
-            variant += 1;
             const controls = qsa(".vector-control input", synthForm);
-            const random = mulberry32(hashString(String(variant)));
-            controls.forEach((input) => {
-              if (random() > 0.58) {
-                const delta = random() > 0.5 ? 5 : -5;
-                input.value = String(
-                  Math.max(0, Math.min(100, Number(input.value) + delta)),
-                );
-              }
-            });
-            renderSynth(true);
+            neighborCursor += 1;
+            const input =
+              controls[
+                hashString(variant + "|" + neighborCursor + "|neighbor") %
+                  controls.length
+              ];
+            const current = quantize(input.value);
+            const direction =
+              current === 0
+                ? 5
+                : current === 100
+                  ? -5
+                  : hashString(
+                        variant + "|" + neighborCursor + "|" + input.name,
+                      ) %
+                        2 ===
+                      0
+                    ? -5
+                    : 5;
+            input.value = String(current + direction);
+            renderSynth(
+              axisLabels[input.name] +
+                ": Nachbarstufe " +
+                input.value +
+                " gesetzt",
+            );
           });
           qs("#copy-mail")?.addEventListener("click", (event) => {
             const button = event.currentTarget;
-            const result = compose();
+            const result = compose(readSynthState(), variant);
             copyText(
-              `Betreff: ${result.subject}\n\n${result.paragraphs.join("\n\n")}`,
+              "Betreff: " +
+                result.subject +
+                "\n\n" +
+                result.paragraphs.join("\n\n"),
               button,
               "Mail kopieren",
             );
           });
-          renderSynth(false);
+          synthForm.compose = compose;
+          synthForm.readSynthState = readSynthState;
+          renderSynth();
         }
         // Aufmerksamkeitsrechner
         const costInputs = qsa(".cost-inputs input");
@@ -6850,6 +8370,13 @@
           const outputs = qsa(".cost-inputs output");
           const result = qs(".cost-result > strong");
           const explanation = qs(".cost-result > p");
+          const weeklyMinutesNode = qs("#cost-weekly-minutes");
+          const yearlyDaysNode = qs("#cost-yearly-days");
+          const preciseNumber = (value, digits = 2) =>
+            value.toLocaleString("de-DE", {
+              maximumFractionDigits: digits,
+              minimumFractionDigits: 0,
+            });
           const updateCost = () => {
             const [recipients, seconds, mails] = costInputs.map((input) =>
               Number(input.value),
@@ -6858,13 +8385,33 @@
             if (outputs[1]) outputs[1].textContent = `${seconds} Sek.`;
             if (outputs[2]) outputs[2].textContent = String(mails);
             const hours = (recipients * seconds * mails * 46) / 3600;
+            const weeklyMinutes = (recipients * seconds * mails) / 60;
+            const yearlyDays = hours / 8;
             if (result)
               result.textContent =
                 hours < 100
-                  ? formatNumber.format(hours)
-                  : Math.round(hours).toLocaleString("de-DE");
+                  ? preciseNumber(hours, 2)
+                  : hours < 1000
+                    ? preciseNumber(hours, 1)
+                    : preciseNumber(Math.round(hours), 0);
             if (explanation)
-              explanation.textContent = `${recipients} × ${seconds} Sekunden × ${mails} Mails × 46 Arbeitswochen: eine einzelne unklare Minute, als Verteilerfläche gelesen.`;
+              explanation.textContent = `${recipients} ${recipients === 1 ? "Empfänger" : "Empfänger"} × ${seconds} zusätzliche Sekunden × ${mails} ${mails === 1 ? "Mail" : "Mails"} × 46 Arbeitswochen.`;
+            if (weeklyMinutesNode)
+              weeklyMinutesNode.textContent = `${preciseNumber(weeklyMinutes, weeklyMinutes < 10 ? 2 : 1)} ${weeklyMinutes === 1 ? "Minute" : "Minuten"}`;
+            if (yearlyDaysNode)
+              yearlyDaysNode.textContent = `${preciseNumber(yearlyDays, yearlyDays < 10 ? 2 : 1)} ${yearlyDays === 1 ? "Arbeitstag" : "Arbeitstage"}`;
+            costInputs[0].setAttribute(
+              "aria-valuetext",
+              `${recipients} ${recipients === 1 ? "Empfänger" : "Empfänger"}`,
+            );
+            costInputs[1].setAttribute(
+              "aria-valuetext",
+              `${seconds} zusätzliche Sekunden`,
+            );
+            costInputs[2].setAttribute(
+              "aria-valuetext",
+              `${mails} ${mails === 1 ? "Mail pro Woche" : "Mails pro Woche"}`,
+            );
           };
           costInputs.forEach((input) =>
             input.addEventListener("input", updateCost),
@@ -6875,40 +8422,74 @@
         // Definitionsmatrix
         const definitionBuilder = qs(".definition-builder");
         if (definitionBuilder) {
-          const facets = [
-            ["Form", "Form größer als Aussage"],
-            ["Menge", "Nachrichten als Strom"],
-            ["Arbeit", "verschobene Denkarbeit"],
-            ["Material", "Sediment des Postfachs"],
-            ["Maschine", "skalierte Sprachproduktion"],
-            ["Ästhetik", "glatte digitale Oberfläche"],
-          ];
-          const labels = qsa("fieldset label", definitionBuilder);
+          const facets = {
+            form: {
+              phrase: "Formüberhang",
+              sentence:
+                "Die sprachliche Oberfläche nimmt mehr Raum ein als die erkennbare Aussage.",
+            },
+            quantity: {
+              phrase: "Nachrichtenstrom",
+              sentence:
+                "Die einzelne Mail wird zum Teil einer fortlaufenden Menge.",
+            },
+            work: {
+              phrase: "verlagerte Denkarbeit",
+              sentence:
+                "Ein Teil der Klärung wandert vom Absender zum Empfänger.",
+            },
+            material: {
+              phrase: "Sediment des Postfachs",
+              sentence:
+                "Gelesene, weitergeleitete und halb erinnerte Texte lagern sich übereinander ab.",
+            },
+            machine: {
+              phrase: "skalierte Sprachproduktion",
+              sentence:
+                "Vorlagen, Systeme und Routinen vervielfachen eine vertraute sprachliche Form.",
+            },
+            aesthetic: {
+              phrase: "glatte digitale Oberfläche",
+              sentence:
+                "Politur und Lesefluss können den unbestimmten Gegenstand optisch schließen.",
+            },
+          };
           const checkboxes = qsa("fieldset input", definitionBuilder);
           const outputMeta = qs(".built-definition > span", definitionBuilder);
           const outputText = qs(".built-definition > p", definitionBuilder);
+          const limitStatus = qs("#facet-limit-status", definitionBuilder);
           const copyButton = qs(
             ".built-definition .mini-button",
             definitionBuilder,
           );
           let definition = "";
+          const joinGerman = (parts) => {
+            if (parts.length < 2) return parts[0] || "";
+            return `${parts.slice(0, -1).join(", ")} und ${parts[parts.length - 1]}`;
+          };
           const updateDefinition = () => {
             const selected = checkboxes
-              .map((input, index) => (input.checked ? facets[index] : null))
+              .filter((input) => input.checked)
+              .map((input) => facets[input.value])
               .filter(Boolean);
             definition = selected.length
-              ? `Slopmail erscheint als ${selected.map((facet) => facet[1]).join(", ")} — digitale Nachricht zwischen Bedeutung, Routine, Oberfläche und wiederholter Bewegung.`
+              ? `Slopmail erscheint ${selected.length > 1 ? "zugleich " : ""}${joinGerman(selected.map((facet) => `als ${facet.phrase}`))}. ${selected.map((facet) => facet.sentence).join(" ")}`
               : "Die Definition wartet im Nullfeld.";
-            labels.forEach((label, index) =>
-              label.classList.toggle("selected", checkboxes[index].checked),
-            );
             checkboxes.forEach((input) => {
               input.disabled = !input.checked && selected.length >= 4;
+              const label = input.closest("label");
+              label?.classList.toggle("selected", input.checked);
+              label?.classList.toggle("limit-disabled", input.disabled);
             });
             if (outputMeta)
-              outputMeta.textContent = `DEFINITIONSVEKTOR / ${selected.length} FACETTEN`;
+              outputMeta.textContent = `DEFINITIONSVEKTOR / ${selected.length} ${selected.length === 1 ? "FACETTE" : "FACETTEN"}`;
             if (outputText) outputText.textContent = definition;
             if (copyButton) copyButton.hidden = selected.length === 0;
+            if (limitStatus)
+              limitStatus.textContent =
+                selected.length >= 4
+                  ? "Vier von vier möglichen Facetten gekoppelt. Eine Auswahl lösen, um eine andere Facette zu öffnen."
+                  : `${selected.length} von vier möglichen Facetten gekoppelt.`;
           };
           checkboxes.forEach((input) =>
             input.addEventListener("change", updateDefinition),
