@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Slopmail</title>
-<meta name="description" content="Wer labert, macht bald fertig.">
+<meta name="description" content="Ranglisten und Statistiken unserer Spielerunde">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#07090e">
 <meta name="color-scheme" content="dark">
@@ -15,9 +15,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Spieleabend">
+<meta name="apple-mobile-web-app-title" content="Slopmail">
 <!--
-  Spieleabend-Auswertung, Seite Version 1.0
+  Slopmail · Spieleabend-Auswertung, Seite Version 1.1
   Diese Datei enthält Design, Bedienung und Rechenlogik, aber keinen PIN und keine Daten.
   Die Daten liefert das Google Apps Script (Adresse unten bei SCRIPT_URL), geschützt durch den PIN.
 -->
@@ -464,7 +464,12 @@ table.daten th:first-child, table.daten td:first-child { text-align: left; posit
   mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
 }
 .bester-wert { color: var(--gold); font-weight: 750; }
+/* Zwei Werte übereinander in einer Tabellenzelle */
+.zelle-stapel { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
+.zelle-stapel .sehr-klein { font-size: 11px; }
 table.daten tr:last-child td { border-bottom: 0; }
+/* Kompakte Tabellen mit vielen Zahlenspalten (z. B. nach Spielerzahl) */
+table.daten.kompakt th, table.daten.kompakt td { padding-left: 6px; padding-right: 6px; }
 table.daten th button { color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; display: inline-flex; gap: 4px; align-items: center; }
 table.daten th[aria-sort] { color: var(--text); }
 table.daten td.links, table.daten th.links { text-align: left; }
@@ -742,6 +747,8 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 .legende .alle { color: var(--text-3); }
 .speicher-karte { padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; }
 .speicher-karte > span { flex: 1 1 auto; min-width: 0; line-height: 1.35; }
+/* Nachtrag (früherer Abend): Datum in der Speicherleiste golden hervorheben */
+.speicher-karte .nachtrag-datum { color: var(--gold); font-weight: 650; }
 .speicher-karte .knopf { flex: 0 0 auto; }
 .nur-pc { display: none; }
 @media (min-width: 900px) { .nur-pc { display: block; } }
@@ -763,8 +770,8 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 /** Adresse der Web-App (Google Apps Script). Nicht geheim, der PIN schützt die Daten. */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0ykiF-1TBWGFS7SvEaO_8uzD9TFOCr4Geb_C2OIUkP8KTqo3clRxpQFvPoNH7dBvO/exec';
 
-/** Name der Seite, erscheint oben und im Browser-Tab */
-const SEITENTITEL = 'Spieleabend';
+/** Name der Seite, erscheint oben, auf der Anmeldeseite, im Browser-Tab und auf geteilten Bildern */
+const SEITENTITEL = 'Slopmail';
 
 /**
  * Kontaktadresse, sichtbar schon auf der Anmeldeseite (vor der PIN-Eingabe)
@@ -828,7 +835,7 @@ const ABEND_WECHSEL_STUNDE = 6;
 const MIN_PARTIEN_PLANBARKEIT = 8;
 
 /** Version dieser Seite und benötigte Script-Version */
-const SEITEN_VERSION = '1.0';
+const SEITEN_VERSION = '1.1';
 const BENOETIGTE_SCRIPT_VERSION = '1.1';
 
 // ---- 01-helfer.js ----
@@ -3157,8 +3164,8 @@ function sparkline(werte, farbe, breite = 64, hoehe = 22) {
 // ---------------------------------------------------------------------------
 
 /** spalten: [{ titel, links }], zeilen: [[zelle, ...]] */
-function datenTabelle(spalten, zeilen) {
-  const tabelle = h('table', { class: 'daten' },
+function datenTabelle(spalten, zeilen, optionen = {}) {
+  const tabelle = h('table', { class: 'daten' + (optionen.kompakt ? ' kompakt' : '') },
     h('thead', {}, h('tr', {}, spalten.map((sp) => h('th', { class: sp.links ? 'links' : '', scope: 'col' }, sp.titel)))),
     h('tbody', {}, zeilen.map((z) => h('tr', { class: z.gedimmt ? 'gedimmt' : '' }, (z.zellen || z).map((c, i) => h('td', { class: spalten[i] && spalten[i].links ? 'links' : '' }, c))))));
   return beobachteRollen(h('div', { class: 'tabellen-rahmen' }, tabelle));
@@ -4598,18 +4605,22 @@ function punkteInhalt(G) {
 function nachSpielerzahlInhalt(G) {
   const zahlen = [...G.nachSpielerzahl.keys()].sort((a, b) => a - b);
   if (!zahlen.length) return h('p', { class: 'text-3 klein' }, 'Keine Partien im Zeitraum.');
-  const spalten = [{ titel: 'Spieler', links: true }].concat(zahlen.map((n) => ({ titel: n + ' Spieler' })));
+  const spalten = [{ titel: '', links: true }].concat(zahlen.map((n) => ({ titel: n + ' Sp.' })));
   const personen = G.zeilen.map((z) => z.S.person);
-  const zeilen = personen.map((person) => [spielerLink(person, { groesse: 'klein' })].concat(zahlen.map((n) => {
+  // Kompakte Zellen (oben Siegquote, darunter Score und Anzahl), damit auch 3 bis 6 Spieler am Handy nebeneinander passen
+  const zeilen = personen.map((person) => [spielerLink(person, { groesse: 'klein', ohneName: true, inaktivZeigen: false })].concat(zahlen.map((n) => {
     const x = G.nachSpielerzahl.get(n).proSpieler.get(person.key);
     if (!x) return '–';
-    return fmtProzent(x.siege / x.partien) + ' · ' + fmtProzent(mittel(x.scores)) + ' (' + x.partien + ')';
+    // schmales Leerzeichen vor % spart Platz in der kleinen Zeile
+    const score = fmtProzent(mittel(x.scores)).replace(NBSP, '\u202F');
+    return h('span', { class: 'zelle-stapel', title: 'Siegquote ' + fmtProzent(x.siege / x.partien) + ', Platzierungs-Score ' + fmtProzent(mittel(x.scores)) + ', ' + mehrzahl(x.partien, 'Partie', 'Partien') },
+      h('strong', {}, fmtProzent(x.siege / x.partien)), h('span', { class: 'sehr-klein text-3' }, score + ' (' + x.partien + ')'));
   })));
   const zusammenfassung = [h('strong', {}, 'Partien')].concat(zahlen.map((n) => fmtZahl(G.nachSpielerzahl.get(n).partien)));
-  const punkteZeile = G.hatPunkte ? [h('strong', {}, 'Ø Punkte')].concat(zahlen.map((n) => { const w = G.nachSpielerzahl.get(n).punkte; return w.length ? fmtKurz(mittel(w), 1) : '–'; })) : null;
+  const punkteZeile = G.hatPunkte ? [h('strong', {}, 'Ø Pkt.')].concat(zahlen.map((n) => { const w = G.nachSpielerzahl.get(n).punkte; return w.length ? fmtKurz(mittel(w), 1) : '–'; })) : null;
   return h('div', { class: 'stapel' },
-    datenTabelle(spalten, [zusammenfassung].concat(punkteZeile ? [punkteZeile] : [], zeilen)),
-    h('p', { class: 'sehr-klein text-3' }, 'Je Feld: Siegquote · Platzierungs-Score (Anzahl Partien). Bei zwei Spielern liegt die Zufalls-Siegquote bei 50 %, bei vier bei 25 %.'));
+    datenTabelle(spalten, [zusammenfassung].concat(punkteZeile ? [punkteZeile] : [], zeilen), { kompakt: true }),
+    h('p', { class: 'sehr-klein text-3' }, 'Je Feld oben die Siegquote, darunter Platzierungs-Score und in Klammern die Anzahl Partien. Zufall wäre bei 2 Spielern 50 %, bei 4 Spielern 25 %, bei 6 Spielern 17 % Siegquote.'));
 }
 
 function spezialistenInhalt(G) {
@@ -4681,10 +4692,13 @@ function neuerEintrag(spielKey) {
   };
 }
 
+/** Ein nach dem Speichern gemerktes Datum (z. B. beim Nachtragen eines früheren Abends) gilt so lange, danach wieder der aktuelle Abend */
+const DATUM_MERKEN_MS = 3 * 60 * 60 * 1000;
+
 function starteEintragen(spielKey) {
   const alt = zustand.eintragen;
   zustand.eintragen = neuerEintrag(spielKey);
-  if (alt && alt.datum) zustand.eintragen.datum = alt.datum;
+  if (alt && alt.datum) { zustand.eintragen.datum = alt.datum; zustand.eintragen.datumGemerktUm = alt.datumGemerktUm || null; }
 }
 
 function plaetzeAusReihenfolge(reihenfolge) {
@@ -4737,10 +4751,29 @@ function sortiereNachPunkten(e) {
   return true;
 }
 
+/**
+ * Übernimmt ein im Datumsfeld gewähltes Datum in den Zustand. Wird vor jedem Neuzeichnen
+ * und beim Speichern aufgerufen, weil manche Handys die Auswahl erst spät oder gar nicht melden.
+ */
+function sichereEintragDatum() {
+  const e = zustand.eintragen;
+  const feld = document.getElementById('eintrag-datum');
+  if (e && feld && feld.value && feld.value !== e.datum && tagAusText(feld.value) !== null) {
+    e.datum = feld.value;
+    e.datumGemerktUm = null;
+  }
+}
+
 function ansichtEintragen() {
   setzeKopf('Partie eintragen');
   if (!zustand.eintragen) zustand.eintragen = neuerEintrag();
+  sichereEintragDatum(); // das alte Formular steht noch auf der Seite
   const e = zustand.eintragen;
+  // Gemerktes Datum nach einigen Stunden verwerfen, damit ein alter Nachtrag nicht versehentlich weiterläuft
+  if (e.datumGemerktUm && Date.now() - e.datumGemerktUm > DATUM_MERKEN_MS && !e.reihenfolge.length) {
+    e.datum = textAusTag(spieleabendTag());
+    e.datumGemerktUm = null;
+  }
   const modell = zustand.modell;
   const aktiveSpiele = modell.spiele.filter((sp) => sp.aktiv);
   let spiel = e.spielKey ? modell.spielNach.get(e.spielKey) : null;
@@ -4760,7 +4793,24 @@ function ansichtEintragen() {
 
   // 2. Datum
   const datumFeld = h('input', { class: 'eingabe', type: 'date', id: 'eintrag-datum', value: e.datum, max: textAusTag(heuteTag() + 1), min: '2000-01-01' });
-  datumFeld.addEventListener('change', () => { e.datum = datumFeld.value; });
+  // Beide Ereignisse abfangen: Manche Handys melden eine Auswahl nur über „input“, andere nur über „change“
+  const datumUebernehmen = () => {
+    if (!datumFeld.value || datumFeld.value === e.datum || tagAusText(datumFeld.value) === null) return;
+    e.datum = datumFeld.value;
+    e.datumGemerktUm = null;
+    aktualisiereHinweise();
+    zeigeNachtragHinweis();
+  };
+  datumFeld.addEventListener('input', datumUebernehmen);
+  datumFeld.addEventListener('change', datumUebernehmen);
+  const nachtragHinweis = h('div', {});
+  const zeigeNachtragHinweis = () => {
+    const tag = tagAusText(e.datum);
+    const heute = spieleabendTag();
+    ersetzeInhalt(nachtragHinweis, tag !== null && tag < heute
+      ? h('div', { class: 'hinweis' }, symbol('kalender', 18), h('div', {}, 'Nachtrag für ' + fmtDatumLang(tag) + '. Die Partie wird in allen Verläufen und Trends an diesem Tag einsortiert, nicht als neueste.'))
+      : null);
+  };
 
   // 3. Reihenfolge
   const gesetzt = new Set(e.reihenfolge.map((r) => r.key));
@@ -4808,10 +4858,18 @@ function ansichtEintragen() {
     if (e.fehler) teile.push(h('div', { class: 'hinweis fehler' }, symbol('warnung', 18), h('div', {}, e.fehler)));
     ersetzeInhalt(hinweisBox, teile);
     speichernKnopf.disabled = probleme.length > 0 || e.speichert;
-    ersetzeInhalt(speichernKnopf, e.speichert ? [h('span', { class: 'wuerfel-lader', style: { width: '18px', height: '18px', margin: 0, borderRadius: '5px' } }), 'Speichere …'] : [symbol('check', 18), 'Partie speichern']);
-    zusammenfassung.textContent = probleme.length ? probleme[0] : (spiel.name + ' · ' + mehrzahl(e.reihenfolge.length, 'Spieler', 'Spieler') + ' · ' + fmtDatum(tagAusText(e.datum)));
+    ersetzeInhalt(speichernKnopf, e.speichert ? [h('span', { class: 'wuerfel-lader', style: { width: '18px', height: '18px', margin: 0, borderRadius: '5px' } }), 'Speichere …'] : [symbol('check', 18), 'Speichern']);
+    const tagGewaehlt = tagAusText(e.datum);
+    const nachtrag = tagGewaehlt !== null && tagGewaehlt < spieleabendTag();
+    // Zwei Zeilen: Spiel, darunter Spielerzahl und Datum (bei einem Nachtrag golden)
+    if (probleme.length) ersetzeInhalt(zusammenfassung, probleme[0]);
+    else ersetzeInhalt(zusammenfassung,
+      h('strong', { class: 'abgeschnitten', style: { display: 'block' } }, spiel.name),
+      h('span', { style: { display: 'block' } }, mehrzahl(e.reihenfolge.length, 'Spieler', 'Spieler') + ' · ',
+        h('span', { class: nachtrag ? 'nachtrag-datum' : null }, (nachtrag ? 'Nachtrag ' : '') + fmtDatum(tagGewaehlt))));
   };
   aktualisiereHinweise();
+  zeigeNachtragHinweis();
 
   const schritt = (nr, titel, ...inhalt) => h('section', { class: 'karte schritt' },
     h('div', { class: 'schritt-titel' }, h('span', { class: 'schritt-nr' }, nr), h('h2', { style: { fontSize: '16px' } }, titel)), inhalt);
@@ -4819,20 +4877,21 @@ function ansichtEintragen() {
   const wurzel = h('div', { class: 'stapel' },
     schritt(1, 'Spiel', spielwahl),
     schritt(2, 'Datum', h('label', { class: 'feld', style: { maxWidth: '260px' } }, h('span', {}, 'Tag des Spieleabends'), datumFeld),
-      h('p', { class: 'sehr-klein text-3' }, 'Vor ' + ABEND_WECHSEL_STUNDE + ' Uhr morgens ist der Vortag vorgewählt.')),
+      h('p', { class: 'sehr-klein text-3' }, 'Vor ' + ABEND_WECHSEL_STUNDE + ' Uhr morgens ist der Vortag vorgewählt. Für einen früheren Abend hier dessen Datum wählen.'),
+      nachtragHinweis),
     schritt(3, 'Reihenfolge', h('p', { class: 'klein text-2' }, 'Tippe die Spieler in der Reihenfolge ihrer Platzierung an, zuerst den Sieger. Bei Gleichstand „gleichauf“ antippen. Punkte sind freiwillig.'),
       e.reihenfolge.length ? reihen : null,
       auswahl,
       e.reihenfolge.length ? h('button', { type: 'button', class: 'knopf klein leise', style: { alignSelf: 'flex-start' }, onclick: () => { e.reihenfolge = []; e.punkte = {}; neuZeichnen(); } }, symbol('wiederherstellen', 16), 'Reihenfolge zurücksetzen') : null),
-    spiel && e.reihenfolge.length >= 2 ? siegchancenKarte(spiel, e.reihenfolge.map((r) => modell.spielerNach.get(r.key)), 'Siegchancen vor der Partie') : null,
+    spiel && e.reihenfolge.length >= 2 ? siegchancenKarte(spiel, e.reihenfolge.map((r) => modell.spielerNach.get(r.key)), 'Siegchancen vor der Partie', tagAusText(e.datum)) : null,
     hinweisBox,
     h('div', { class: 'speicherleiste' }, h('div', { class: 'karte speicher-karte' }, zusammenfassung, speichernKnopf)));
   return wurzel;
 }
 
-/** Siegchancen einer Runde aus der Spiel-Elo */
-function siegchancenKarte(spiel, personen, titel) {
-  const A = auswerten(zustand.modell, {});
+/** Siegchancen einer Runde aus der Spiel-Elo; bei einem Nachtrag mit dem Stand an jenem Tag */
+function siegchancenKarte(spiel, personen, titel, bisTag) {
+  const A = bisTag !== undefined && bisTag !== null && bisTag < heuteTag() ? auswerten(zustand.modell, { bis: bisTag }) : auswerten(zustand.modell, {});
   const elos = personen.map((p) => { const SG = A.spieler.get(p.key).proSpiel.get(spiel.key); return SG && SG.partienGesamt ? SG.elo : START_ELO; });
   const chancen = siegchancen(elos);
   const zeilen = personen.map((p, i) => ({ p, elo: elos[i], chance: chancen[i] })).sort((a, b) => b.chance - a.chance);
@@ -4847,6 +4906,8 @@ function siegchancenKarte(spiel, personen, titel) {
 
 async function speicherePartie() {
   const e = zustand.eintragen;
+  // Sicherheitshalber das Datum direkt aus dem Feld lesen, falls ein Handy die Auswahl nicht gemeldet hat
+  sichereEintragDatum();
   const modell = zustand.modell;
   const spiel = e.spielKey ? modell.spielNach.get(e.spielKey) : null;
   const probleme = pruefeEintrag(e, spiel);
@@ -4873,7 +4934,7 @@ async function speicherePartie() {
       for (const [id, info] of liste) if (!alt.has(id)) neueErfolge.push({ person: zustand.modell.spielerNach.get(key), erfolg: ERFOLGE.find((x) => x.id === id), info });
     }
     const zuletzt = e.reihenfolge.map((r) => r.key);
-    zustand.eintragen = Object.assign(neuerEintrag(null), { datum: e.datum, zuletzt });
+    zustand.eintragen = Object.assign(neuerEintrag(null), { datum: e.datum, zuletzt, datumGemerktUm: Date.now() });
     zeigeAnsichtBehalteScroll();
     if (partie) zeigeErgebnis(partie, neueErfolge);
     else meldung('Gespeichert.');
@@ -4899,12 +4960,16 @@ function zeigeErgebnis(partie, neueErfolge) {
       h('span', {}, h('strong', {}, x.erfolg.name), h('span', { class: 'text-3 klein' }, ' · ' + x.person.kuerzel))))) : null;
   const ueberraschung = partie.siegerChance !== null && partie.siegerChance < 0.25 && partie.gewinner.length === 1
     ? h('div', { class: 'hinweis' }, symbol('blitz', 18), h('div', {}, 'Überraschung: ' + partie.gewinner[0].person.kuerzel + ' hatte vorher nur ' + fmtProzent(partie.siegerChance) + ' Siegchance.')) : null;
+  // Nachtrag: zeigen, wo die Partie nach Datum einsortiert wurde
+  const gesamtZahl = zustand.modell.aktivePartien.length;
+  const nachtrag = partie.tag < spieleabendTag() && partie.lfd < gesamtZahl
+    ? h('div', { class: 'hinweis' }, symbol('kalender', 18), h('div', {}, 'Nachtrag: nach Datum als Partie ' + partie.lfd + ' von ' + gesamtZahl + ' einsortiert. Trend und Form richten sich weiter nach den zeitlich neuesten Partien.')) : null;
   const teilen = h('button', { type: 'button', class: 'knopf' }, symbol('teilen', 18), 'Als Bild teilen');
   const weiter = h('button', { type: 'button', class: 'knopf gold' }, symbol('plus', 18), 'Nächste Partie');
   const fertig = h('a', { class: 'knopf leise', href: '#gesamt' }, 'Zur Übersicht');
   const schliessen = zeigeBlatt({
     titel: 'Gespeichert',
-    inhalt: h('div', { class: 'stapel' }, h('div', { class: 'zeile zwischen umbruch' }, spielMarke(partie.spiel, false), h('span', { class: 'klein text-3' }, fmtDatumLang(partie.tag))), h('div', { class: 'partie-ergebnisse' }, zeilen), ueberraschung, erfolge),
+    inhalt: h('div', { class: 'stapel' }, h('div', { class: 'zeile zwischen umbruch' }, spielMarke(partie.spiel, false), h('span', { class: 'klein text-3' }, fmtDatumLang(partie.tag))), h('div', { class: 'partie-ergebnisse' }, zeilen), nachtrag, ueberraschung, erfolge),
     aktionen: [fertig, teilen, weiter]
   });
   teilen.addEventListener('click', () => teilePartie(partie));
@@ -5784,7 +5849,7 @@ function erzeugeDemoDaten() {
   const spiele = [
     { name: 'Brass Birmingham', min: 2, max: 4, aktiv: true },
     { name: 'Vale of Eternity', min: 2, max: 4, aktiv: true },
-    { name: 'Siedler von Catan', min: 3, max: 4, aktiv: true },
+    { name: 'Siedler von Catan', min: 3, max: 6, aktiv: true }, // mit Erweiterung für 5 bis 6
     { name: 'Ikki', min: 2, max: 4, aktiv: true }
   ];
   const personen = [
