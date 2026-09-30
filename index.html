@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Slopmail</title>
-<meta name="description" content="Wer labert, macht bald fertig">
+<meta name="description" content="Ranglisten und Statistiken unserer Spielerunde">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#07090e">
 <meta name="color-scheme" content="dark">
@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Slopmail">
 <!--
-  Slopmail · Spieleabend-Auswertung, Seite Version 1.1
+  Slopmail · Spieleabend-Auswertung, Seite Version 1.2
   Diese Datei enthält Design, Bedienung und Rechenlogik, aber keinen PIN und keine Daten.
   Die Daten liefert das Google Apps Script (Adresse unten bei SCRIPT_URL), geschützt durch den PIN.
 -->
@@ -48,7 +48,7 @@
   --achse: #394155;
   --text: #eef1f7;
   --text-2: #a9b1c3;
-  --text-3: #7d8699;
+  --text-3: #8b93a5;
   --gold: #f3c35b;
   --gold-hell: #f8dc97;
   --gold-dunkel: #c98a2b;
@@ -266,7 +266,7 @@ p { margin: 0; }
 .knopf.gefahr { background: rgba(255, 122, 122, 0.12); color: #ffc2c2; border-color: rgba(255, 122, 122, 0.35); }
 .knopf.leise { background: transparent; border-color: transparent; color: var(--text-2); }
 .knopf.leise:hover { background: rgba(255, 255, 255, 0.05); color: var(--text); }
-.knopf.klein { min-height: 36px; padding: 0 12px; font-size: 13.5px; border-radius: 10px; }
+.knopf.klein { min-height: 40px; padding: 0 12px; font-size: 13.5px; border-radius: 10px; }
 .knopf.breit { width: 100%; }
 .knopf .sym { flex: 0 0 auto; }
 .symbol-knopf {
@@ -276,7 +276,8 @@ p { margin: 0; }
 .symbol-knopf:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
 .symbol-knopf.dreht .sym { animation: drehen 0.9s linear infinite; }
 @keyframes drehen { to { transform: rotate(360deg); } }
-.info-knopf { width: 28px; height: 28px; display: inline-grid; place-items: center; border-radius: 50%; color: var(--text-3); flex: 0 0 auto; }
+.info-knopf { position: relative; width: 28px; height: 28px; display: inline-grid; place-items: center; border-radius: 50%; color: var(--text-3); flex: 0 0 auto; }
+.info-knopf::before { content: ""; position: absolute; inset: -8px; } /* Trefferfläche 44 px, optisch 28 px */
 .info-knopf:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
 
 .feld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -284,10 +285,11 @@ p { margin: 0; }
 .eingabe, .auswahl {
   width: 100%; min-height: 46px; padding: 0 14px; border-radius: 12px;
   background: var(--eingabe); border: 1px solid var(--linie-2); color: var(--text);
+  font-size: 16px; /* unter 16 px zoomt das iPhone beim Antippen in die Seite */
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .eingabe:focus, .auswahl:focus { outline: none; border-color: rgba(243, 195, 91, 0.6); box-shadow: 0 0 0 3px rgba(243, 195, 91, 0.16); }
-.eingabe::placeholder { color: #5d6678; }
+.eingabe::placeholder { color: #7d8699; }
 .eingabe.zahl-eingabe { text-align: right; font-variant-numeric: tabular-nums; }
 .auswahl { appearance: none; -webkit-appearance: none; padding-right: 38px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a9b1c3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
@@ -302,7 +304,7 @@ input[type="date"].eingabe { padding-right: 10px; }
 .schalter input:focus-visible + .spur { outline: 2px solid var(--akzent); outline-offset: 2px; }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;
   border-radius: 999px; background: var(--flaeche-2); border: 1px solid var(--linie);
   color: var(--text-2); font-weight: 600; font-size: 13.5px; white-space: nowrap;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -310,9 +312,18 @@ input[type="date"].eingabe { padding-right: 10px; }
 .chip:hover { color: var(--text); border-color: var(--linie-2); }
 .chip[aria-pressed="true"], .chip.aktiv { color: var(--text); background: var(--flaeche-3); border-color: rgba(243, 195, 91, 0.45); }
 .chip .sym { width: 16px; height: 16px; }
-.segment { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--eingabe); border: 1px solid var(--linie); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-.segment::-webkit-scrollbar { display: none; }
-.segment button { min-height: 32px; padding: 0 13px; border-radius: 999px; font-size: 13px; font-weight: 650; color: var(--text-3); white-space: nowrap; transition: background 0.2s, color 0.2s; }
+.chip.klein { min-height: 36px; padding: 0 12px; font-size: 13px; }
+/* Sprungleiste: waagerecht scrollende Chips zu den Bereichen einer langen Seite */
+.sprungleiste { display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 0 6px; margin: 0 calc(-1 * var(--rand)); padding-left: var(--rand); padding-right: var(--rand); -webkit-overflow-scrolling: touch; }
+.sprungleiste::-webkit-scrollbar { display: none; }
+.sprungleiste .chip { flex: 0 0 auto; }
+/* Hinweisleiste über der Ansicht (Sofortstart, offline) */
+.stand-hinweis { display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin-bottom: 14px; border-radius: 12px; background: rgba(243, 195, 91, 0.1); border: 1px solid rgba(243, 195, 91, 0.35); font-size: 13.5px; color: var(--text); }
+.stand-hinweis .sym { color: var(--gold); flex: 0 0 auto; }
+.stand-hinweis > span { flex: 1 1 auto; min-width: 0; }
+.stand-hinweis .knopf { flex: 0 0 auto; }
+.segment { display: inline-flex; flex-wrap: wrap; padding: 3px; gap: 2px; border-radius: 22px; background: var(--eingabe); border: 1px solid var(--linie); max-width: 100%; }
+.segment button { min-height: 38px; padding: 0 13px; border-radius: 999px; font-size: 13px; font-weight: 650; color: var(--text-3); white-space: nowrap; transition: background 0.2s, color 0.2s; }
 .segment button[aria-pressed="true"] { background: var(--flaeche-3); color: var(--text); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 4px 12px -6px rgba(0, 0, 0, 0.6); }
 .filterzeile { display: flex; gap: 8px; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 2px 0 14px; margin-bottom: 4px; }
 .filterzeile::-webkit-scrollbar { display: none; }
@@ -409,6 +420,8 @@ details.bereich[open] > .bereich-inhalt { animation: aufklappen 0.35s ease both;
 .spiel-label:hover { text-decoration: none; }
 .spiel-label .spiel-punkt { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--spiel); color: #0b0d12; flex: 0 0 auto; }
 .spiel-label .spiel-punkt .sym { width: 13px; height: 13px; stroke-width: 2.2; }
+.spiel-label-kurz { display: none; }
+@media (max-width: 479px) { .spiel-label-lang { display: none; } .spiel-label-kurz { display: inline; } } /* am Handy kurzer Name */
 .delta { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .delta .sym { width: 13px; height: 13px; }
 .delta.hoch { color: var(--gut); }
@@ -425,8 +438,9 @@ details.bereich[open] > .bereich-inhalt { animation: aufklappen 0.35s ease both;
 .podest {
   width: 100%; border-radius: 14px 14px 6px 6px; display: grid; place-items: start center; padding-top: 10px;
   font-family: var(--schrift-titel); font-weight: 600; font-size: 22px;
-  transform-origin: bottom; animation: steigen 0.8s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  transform-origin: bottom;
 }
+.frisch .podest { animation: steigen 0.8s cubic-bezier(0.2, 0.9, 0.2, 1) both; }
 .p1 .podest { height: 96px; color: var(--auf-gold); background: linear-gradient(180deg, #f9dc93, #e3a83c 55%, #9c6a22); box-shadow: 0 0 40px -6px rgba(243, 195, 91, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6); animation-delay: 0.15s; }
 .p2 .podest { height: 70px; color: #1b2230; background: linear-gradient(180deg, #eef2f7, #b7c1cf 60%, #6f7a8b); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6); animation-delay: 0.05s; }
 .p3 .podest { height: 52px; color: #2a160a; background: linear-gradient(180deg, #f0b98e, #c9824f 60%, #7a4724); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45); animation-delay: 0.25s; }
@@ -439,14 +453,16 @@ details.bereich[open] > .bereich-inhalt { animation: aufklappen 0.35s ease both;
 .rangzeile {
   display: grid; grid-template-columns: 26px auto minmax(0, 1fr) auto; align-items: center; gap: 10px;
   padding: 10px 2px; border-top: 1px solid var(--linie);
-  animation: einblenden 0.45s ease both;
 }
+.frisch .rangzeile { animation: einblenden 0.45s ease both; }
 .rangzeile:first-child { border-top: 0; }
 .rangzeile .rang { text-align: center; font-weight: 700; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .rangzeile .rang-mitte { display: flex; flex-direction: column; min-width: 0; }
 .rangzeile .rang-rechts { display: flex; align-items: center; gap: 10px; }
 .rangzeile .rang-wert { font-weight: 750; font-size: 16px; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
-.rangzeile.vorlaeufig { opacity: 0.6; }
+.rangzeile.vorlaeufig { color: var(--text-2); }
+.rangzeile.vorlaeufig .abzeichen { filter: saturate(0.6) brightness(0.85); }
+.rangzeile.vorlaeufig .elo-zahl, .rangzeile.vorlaeufig strong { color: var(--text-2); }
 .rangzeile .funke { display: none; }
 @media (min-width: 420px) { .rangzeile .funke { display: block; } }
 @keyframes einblenden { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -464,6 +480,7 @@ table.daten th:first-child, table.daten td:first-child { text-align: left; posit
   mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
 }
 .bester-wert { color: var(--gold); font-weight: 750; }
+.duell-kopf { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: start; }
 /* Zwei Werte übereinander in einer Tabellenzelle */
 .zelle-stapel { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
 .zelle-stapel .sehr-klein { font-size: 11px; }
@@ -473,7 +490,8 @@ table.daten.kompakt th, table.daten.kompakt td { padding-left: 6px; padding-righ
 table.daten th button { color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; display: inline-flex; gap: 4px; align-items: center; }
 table.daten th[aria-sort] { color: var(--text); }
 table.daten td.links, table.daten th.links { text-align: left; }
-table.daten tr.gedimmt td { opacity: 0.55; }
+table.daten tr.gedimmt td { color: var(--text-3); }
+table.daten tr.gedimmt td .abzeichen { filter: saturate(0.6) brightness(0.85); }
 
 /* --- Diagramme ------------------------------------------------------------ */
 .diagramm { position: relative; width: 100%; min-width: 0; }
@@ -483,7 +501,7 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 .diagramm svg text.stark { fill: var(--text); font-weight: 700; }
 .diagramm .gitter { stroke: var(--gitter); stroke-width: 1; shape-rendering: crispEdges; }
 .diagramm .achse { stroke: var(--achse); stroke-width: 1; shape-rendering: crispEdges; }
-.diagramm .bezug { stroke: #4a5366; stroke-width: 1; }
+.diagramm .bezug { stroke: #6a7590; stroke-width: 1; stroke-dasharray: 4 3; }
 .diagramm .fadenkreuz { stroke: rgba(255, 255, 255, 0.35); stroke-width: 1; pointer-events: none; }
 .diagramm .linie { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; transition: opacity 0.2s, stroke-width 0.2s; }
 .diagramm .linie.zeichnen { stroke-dasharray: var(--laenge); stroke-dashoffset: var(--laenge); animation: zeichnen 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
@@ -500,11 +518,12 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 .diagramm .zelle:hover, .diagramm .zelle.hervor { opacity: 0.85; }
 .legende { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .legende button, .legende .legende-eintrag {
-  display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 11px 0 9px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 11px 0 9px; border-radius: 999px;
   background: var(--flaeche-2); border: 1px solid var(--linie); font-size: 12.5px; font-weight: 650; color: var(--text-2);
   transition: opacity 0.2s, background 0.2s;
 }
-.legende button[aria-pressed="false"] { opacity: 0.42; }
+.legende button[aria-pressed="false"] { color: var(--text-3); background: transparent; border-style: dashed; text-decoration: line-through; }
+.legende button[aria-pressed="false"] .schluessel-linie, .legende button[aria-pressed="false"] .schluessel-flaeche { opacity: 0.35; }
 .legende button:hover { background: var(--flaeche-3); }
 .schluessel-linie { width: 14px; height: 3px; border-radius: 2px; background: var(--farbe); flex: 0 0 auto; }
 .schluessel-flaeche { width: 11px; height: 11px; border-radius: 3px; background: var(--farbe); flex: 0 0 auto; }
@@ -531,8 +550,9 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 .abend-kopf h3 { font-size: 15px; }
 .partie {
   border-radius: var(--radius-m); background: var(--flaeche); border: 1px solid var(--linie); padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 10px; animation: einblenden 0.35s ease both;
+  display: flex; flex-direction: column; gap: 10px;
 }
+.frisch .partie { animation: einblenden 0.35s ease both; }
 .partie + .partie { margin-top: 10px; }
 .partie.geloescht { opacity: 0.55; border-style: dashed; }
 .partie.fehlerhaft { border-color: rgba(250, 178, 25, 0.45); }
@@ -599,7 +619,8 @@ table.daten tr.gedimmt td { opacity: 0.55; }
   background: radial-gradient(120% 120% at 30% 20%, #fff3cf, #f3c35b 45%, #b67a22);
   box-shadow: 0 0 22px -4px rgba(243, 195, 91, 0.55);
 }
-.erfolg.gesperrt { opacity: 0.55; }
+.erfolg.gesperrt { color: var(--text-3); border-style: dashed; }
+.erfolg.gesperrt .erfolg-name { color: var(--text-2); }
 .erfolg.gesperrt .erfolg-symbol { background: var(--flaeche-3); color: var(--text-3); box-shadow: none; }
 .erfolg .erfolg-name { font-weight: 700; font-size: 13.5px; }
 .erfolg .erfolg-text { font-size: 11.5px; color: var(--text-3); line-height: 1.35; }
@@ -628,14 +649,24 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 .spielerwahl button.neu-knopf { padding: 0 14px; color: var(--text-2); border-style: dashed; }
 .reihenfolge { display: flex; flex-direction: column; gap: 8px; }
 .platzzeile {
-  display: grid; grid-template-columns: 36px auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: 36px auto minmax(0, 1fr) auto auto auto; grid-template-areas: "nr abz name gl pkt entf";
+  gap: 10px; align-items: center;
   padding: 8px 8px 8px 10px; border-radius: 14px; background: var(--flaeche-2); border: 1px solid var(--linie);
   animation: einblenden 0.25s ease both;
 }
-.platzzeile .platz-nr { font-family: var(--schrift-titel); font-weight: 600; font-size: 20px; color: var(--text-2); text-align: center; }
+.platzzeile .platz-nr { grid-area: nr; font-family: var(--schrift-titel); font-weight: 600; font-size: 20px; color: var(--text-2); text-align: center; }
+.platzzeile > .abzeichen { grid-area: abz; }
+.platzzeile .platz-name { grid-area: name; min-width: 0; }
+.platzzeile .gleichauf-zelle { grid-area: gl; display: flex; align-items: center; }
+.platzzeile .eingabe { grid-area: pkt; min-height: 40px; width: 92px; }
+.platzzeile .entfernen-knopf { grid-area: entf; }
 .platzzeile.p1 .platz-nr { color: var(--gold); }
-.platzzeile .eingabe { min-height: 40px; width: 92px; }
-.gleichauf-knopf { font-size: 12px; font-weight: 700; padding: 0 10px; min-height: 32px; border-radius: 999px; border: 1px solid var(--linie-2); color: var(--text-3); }
+.gleichauf-knopf { font-size: 12.5px; font-weight: 700; padding: 0 12px; min-height: 40px; border-radius: 999px; border: 1px solid var(--linie-2); color: var(--text-2); }
+@media (max-width: 479px) {
+  /* Handy: zweite Zeile mit gleichauf-Knopf und Punktefeld, nichts überdeckt sich mehr */
+  .platzzeile { grid-template-columns: 36px auto minmax(0, 1fr) auto; grid-template-areas: "nr abz name entf" "nr gl gl pkt"; row-gap: 6px; }
+  .platzzeile .entfernen-knopf, .platzzeile .eingabe { justify-self: end; }
+}
 .gleichauf-knopf[aria-pressed="true"] { color: var(--auf-gold); background: var(--gold); border-color: transparent; }
 .hinweis { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; background: rgba(95, 212, 196, 0.08); border: 1px solid rgba(95, 212, 196, 0.25); color: #c9f1ec; }
 .hinweis.warn { background: rgba(250, 178, 25, 0.08); border-color: rgba(250, 178, 25, 0.3); color: #ffe2a3; }
@@ -645,6 +676,7 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 @media (min-width: 900px) { .speicherleiste { bottom: 16px; } }
 
 /* --- Blätter (Dialoge), Meldungen, Laden --------------------------------------- */
+body.blatt-offen { overflow: hidden; } /* Hintergrund scrollt nicht mit, solange ein Blatt offen ist */
 .schleier { position: fixed; inset: 0; z-index: 90; background: rgba(3, 5, 9, 0.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: einblendenPunkt 0.2s ease both; }
 .blatt {
   position: fixed; z-index: 95; left: 0; right: 0; bottom: 0; max-height: 92vh; max-height: 92dvh; overflow-y: auto;
@@ -697,9 +729,12 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 /* --- Jahresrückblick ------------------------------------------------------------ */
 .geschichte { position: fixed; inset: 0; z-index: 150; background: #05070b; display: flex; flex-direction: column; animation: einblendenPunkt 0.3s ease both; }
 .geschichte-fortschritt { display: flex; gap: 4px; padding: calc(env(safe-area-inset-top, 0px) + 12px) 14px 8px; }
-.geschichte-fortschritt i { flex: 1 1 0; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); overflow: hidden; position: relative; }
-.geschichte-fortschritt i.fertig::after, .geschichte-fortschritt i.laeuft::after { content: ""; position: absolute; inset: 0; background: var(--gold); }
-.geschichte-fortschritt i.laeuft::after { animation: fortschritt 0.5s ease both; transform-origin: left; }
+.geschichte-fortschritt button { flex: 1 1 0; height: 3px; padding: 0; border-radius: 2px; background: rgba(255, 255, 255, 0.18); overflow: visible; position: relative; }
+.geschichte-fortschritt button::before { content: ""; position: absolute; inset: -12px 0; } /* Trefferfläche */
+.geschichte-fortschritt button.fertig::after, .geschichte-fortschritt button.laeuft::after { content: ""; position: absolute; inset: 0; border-radius: 2px; background: var(--gold); }
+.geschichte-fortschritt button.laeuft::after { animation: fortschritt 0.5s ease both; transform-origin: left; }
+.geschichte-fuss { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 14px); position: relative; z-index: 3; }
+.geschichte-fuss .knopf[disabled] { opacity: 0.35; }
 @keyframes fortschritt { from { transform: scaleX(0); } to { transform: none; } }
 .geschichte-kopf { display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 16px; }
 .geschichte-buehne { flex: 1 1 auto; position: relative; display: grid; place-items: center; padding: 16px 22px calc(env(safe-area-inset-bottom, 0px) + 28px); overflow: hidden; }
@@ -722,7 +757,15 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 
 /* --- Balken, Stapel, Matrix (Diagramm-Bausteine in HTML) --------------------- */
 .balken-liste { display: flex; flex-direction: column; gap: 6px; }
-.balken-zeile { display: grid; grid-template-columns: var(--label-breite, 96px) minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 34px; border-radius: 8px; }
+.balken-zeile { display: grid; grid-template-columns: var(--label-breite, 96px) minmax(0, 1fr) auto; grid-template-areas: "label spur wert"; gap: 10px; align-items: center; min-height: 34px; border-radius: 8px; }
+.balken-label { grid-area: label; }
+.balken-spur, .stapel-spur { grid-area: spur; }
+.balken-wert { grid-area: wert; }
+@media (max-width: 479px) {
+  /* Schmale Bildschirme: Beschriftung über dem Balken, Balken in voller Breite */
+  .balken-zeile { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "label wert" "spur spur"; gap: 4px 10px; }
+  .balken-wert { min-width: 0; }
+}
 .balken-zeile:focus-visible { outline: 2px solid var(--akzent); }
 .balken-label { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13.5px; font-weight: 650; }
 .balken-label > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -759,7 +802,7 @@ table.daten tr.gedimmt td { opacity: 0.55; }
 <body>
 <noscript><p style="padding:24px;color:#eef1f7;background:#07090e;font-family:system-ui,sans-serif">Bitte JavaScript aktivieren, sonst kann die Seite nicht angezeigt werden.</p></noscript>
 <div id="app"></div>
-<script>
+<script data-cfasync="false">
 (function () {
 'use strict';
 // ---- 00-konfig.js ----
@@ -772,6 +815,9 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0ykiF-1TBWGFS7SvEa
 
 /** Name der Seite, erscheint oben, auf der Anmeldeseite, im Browser-Tab und auf geteilten Bildern */
 const SEITENTITEL = 'Slopmail';
+
+/** Spruch unter dem Namen auf der Anmeldeseite */
+const STARTSPRUCH = 'Wer labert, macht bald fertig';
 
 /**
  * Kontaktadresse, sichtbar schon auf der Anmeldeseite (vor der PIN-Eingabe)
@@ -791,11 +837,19 @@ const K_FAKTOR = 32;
 const MIN_PARTIEN = 3;
 
 /**
- * Spieler des Quartals: Anteil der Partien des Quartals, bei denen man
- * mindestens dabei sein muss (0.5 = die Hälfte), und Mindestzahl an Partien.
+ * Spieler des Quartals: Anteil der Spieleabende des Quartals, an denen man
+ * mindestens dabei gewesen sein muss (0.5 = die Hälfte), und Mindestzahl an
+ * Partien. Gezählt werden Abende, nicht Partien, damit parallele Tische
+ * niemanden benachteiligen.
  */
-const QUARTAL_TEILNAHME = 0.5;
+const QUARTAL_TEILNAHME_ABENDE = 0.5;
 const QUARTAL_MIN_PARTIEN = 3;
+
+/** Favorit einer Partie: nur mit mindestens so viel Elo-Vorsprung und MIN_PARTIEN im Spiel */
+const FAVORIT_VORSPRUNG = 25;
+
+/** Allrounder: Sieg in jedem Spiel mit mindestens MIN_PARTIEN Partien, sobald es so viele Spiele gibt */
+const ALLROUNDER_MIN_SPIELE = 3;
 
 /**
  * Rang-Stufen nach Elo. Jede Stufe gilt ab dem genannten Wert.
@@ -825,8 +879,24 @@ function treppchenPunkteFuerPlatz(spielerzahl, platz) {
   return 0;
 }
 
-/** Wie lange auf das Script gewartet wird (Millisekunden) */
-const ANFRAGE_TIMEOUT_MS = 30000;
+/** Wie lange je Versuch auf das Script gewartet wird (Millisekunden); danach Hinweis und Wiederholung */
+const ANFRAGE_TIMEOUT_MS = 15000;
+
+/** Nach so vielen Millisekunden Ladezeit erscheint „dauert länger als üblich“ */
+const LADE_HINWEIS_MS = 10000;
+
+/** Zeitreise: so viele berechnete Stände bleiben im Speicher */
+const CACHE_STAENDE = 8;
+
+/**
+ * Sofortstart: Die zuletzt geladenen Daten bleiben auf dem Gerät gespeichert
+ * und werden beim nächsten Öffnen sofort angezeigt, bevor das Script antwortet.
+ * false schaltet das ab (dann liegen keine Daten auf dem Gerät, nur der PIN).
+ */
+const DATEN_MERKEN = true;
+
+/** Beim Zurückkehren in die App automatisch nachladen, wenn der Stand älter ist (Millisekunden) */
+const NACHLADEN_NACH_MS = 5 * 60 * 1000;
 
 /** Vor dieser Uhrzeit zählt beim Eintragen noch der Vortag als Spieleabend */
 const ABEND_WECHSEL_STUNDE = 6;
@@ -835,7 +905,7 @@ const ABEND_WECHSEL_STUNDE = 6;
 const MIN_PARTIEN_PLANBARKEIT = 8;
 
 /** Version dieser Seite und benötigte Script-Version */
-const SEITEN_VERSION = '1.1';
+const SEITEN_VERSION = '1.2';
 const BENOETIGTE_SCRIPT_VERSION = '1.1';
 
 // ---- 01-helfer.js ----
@@ -989,6 +1059,30 @@ function tagAusTeilen(jahr, monat, tagImMonat) {
   return Math.round(Date.UTC(jahr, monat - 1, tagImMonat) / MS_TAG);
 }
 
+/** Tage im Monat (Monat 1 bis 12) */
+function tageImMonat(jahr, monat) {
+  return new Date(Date.UTC(jahr, monat, 0)).getUTCDate();
+}
+
+/** Derselbe Kalendertag vor n Monaten; am Monatsende wird auf den letzten Tag des Zielmonats geklemmt (31.05. → 28.02.) */
+function monateZurueck(tag, n) {
+  const t = teileAusTag(tag);
+  let monat = t.monat - n, jahr = t.jahr;
+  while (monat < 1) { monat += 12; jahr--; }
+  return tagAusTeilen(jahr, monat, Math.min(t.tag, tageImMonat(jahr, monat)));
+}
+
+/** Versionsvergleich als Zahlen je Abschnitt („1.10“ ist neuer als „1.9“) */
+function versionMindestens(ist, soll) {
+  const a = String(ist || '0').split('.').map((x) => parseInt(x, 10) || 0);
+  const b = String(soll || '0').split('.').map((x) => parseInt(x, 10) || 0);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const x = a[i] || 0, y = b[i] || 0;
+    if (x !== y) return x > y;
+  }
+  return true;
+}
+
 /** Heutiges Datum nach der Uhr des Geräts */
 function heuteTag() {
   const jetzt = new Date();
@@ -1097,7 +1191,8 @@ function schoeneTicks(min, max, anzahl = 5) {
   const roh = (max - min) / Math.max(1, anzahl - 1);
   const basis = Math.pow(10, Math.floor(Math.log10(roh)));
   const faktor = roh / basis;
-  const schritt = (faktor <= 1 ? 1 : faktor <= 2 ? 2 : faktor <= 2.5 ? 2.5 : faktor <= 5 ? 5 : 10) * basis;
+  // Schwellen 1,5 / 3 / 7 wie bei d3: Elo 815 bis 1240 bekommt 100er-Schritte statt 200er
+  const schritt = (faktor <= 1.5 ? 1 : faktor <= 3 ? 2 : faktor <= 7 ? 5 : 10) * basis;
   const start = Math.floor(min / schritt) * schritt;
   const ende = Math.ceil(max / schritt) * schritt;
   const ticks = [];
@@ -1130,11 +1225,19 @@ function mehrzahl(anzahl, einzahl, plural) {
 
 const SPEICHER_PREFIX = 'spieleabend.';
 const speicher = {
-  lies(schluessel, ersatz = null) {
+  /**
+   * Liest einen gespeicherten Wert. Mit `pruefer(wert)` wird der Wert geprüft; ein
+   * kaputter oder veralteter Wert wird gelöscht und durch den Ersatz ersetzt, damit
+   * eine Ansicht nie dauerhaft an einer alten Speicherstruktur scheitert.
+   */
+  lies(schluessel, ersatz = null, pruefer = null) {
     try {
       const wert = window.localStorage.getItem(SPEICHER_PREFIX + schluessel);
-      return wert === null ? ersatz : JSON.parse(wert);
-    } catch (e) { return ersatz; }
+      if (wert === null) return ersatz;
+      const geparst = JSON.parse(wert);
+      if (pruefer && !pruefer(geparst)) { this.loesch(schluessel); return ersatz; }
+      return geparst;
+    } catch (e) { this.loesch(schluessel); return ersatz; }
   },
   schreib(schluessel, wert) {
     try { window.localStorage.setItem(SPEICHER_PREFIX + schluessel, JSON.stringify(wert)); return true; } catch (e) { return false; }
@@ -1225,7 +1328,7 @@ function warte(ms) { return new Promise((fertig) => setTimeout(fertig, ms)); }
 
 /** Zahl zählt sichtbar hoch (nur beim ersten Anzeigen) */
 function zaehleHoch(el, ziel, format, dauer = 900) {
-  if (!isFinite(ziel) || bewegungReduziert()) { el.textContent = format(ziel); return; }
+  if (!isFinite(ziel) || !animationenAktiv()) { el.textContent = format(ziel); return; }
   const start = performance.now();
   const von = ziel * 0.6;
   el.textContent = format(von);
@@ -1463,6 +1566,10 @@ const WIEDERHOLBAR = new Set(['check', 'list', 'delete', 'restore', 'setPlayer',
 const api = {
   demo: null,
   pin: null,
+  /** Wird von der App gesetzt: reagiert zentral auf einen falschen oder fehlenden PIN */
+  beiPinFehler: null,
+  /** Wird von der App gesetzt: bekommt den Versuch (1, 2, 3) mit, wenn wiederholt wird */
+  beiWiederholung: null,
 
   async aufruf(action, felder = {}) {
     if (this.demo) return this.demo(action, felder);
@@ -1477,8 +1584,11 @@ const api = {
         return await this._einmal(body);
       } catch (err) {
         letzterFehler = err;
-        const nochmal = versuch < maxVersuche && (err.code === 'netzwerk' || err.code === 'zeit' || err.code === 'busy' || (err.code === 'http' && err.info.status >= 500));
+        if ((err.code === 'wrong_pin' || err.code === 'pin_required') && this.beiPinFehler) this.beiPinFehler(err);
+        // keine_json: Google liefert bei kurzen Störungen eine HTML-Seite mit Status 200
+        const nochmal = versuch < maxVersuche && (err.code === 'netzwerk' || err.code === 'zeit' || err.code === 'busy' || err.code === 'keine_json' || (err.code === 'http' && err.info.status >= 500));
         if (!nochmal) throw err;
+        if (this.beiWiederholung) this.beiWiederholung(versuch + 1, err);
         await warte(700 * versuch);
       }
     }
@@ -1487,8 +1597,10 @@ const api = {
 
   async _einmal(body) {
     const steuerung = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    // Der Timeout gilt für die ganze Antwort, auch für das Lesen des Textes: Bricht die
+    // Verbindung nach den Kopfzeilen ab, würde antwort.text() sonst endlos hängen
     const timer = setTimeout(() => steuerung && steuerung.abort(), ANFRAGE_TIMEOUT_MS);
-    let antwort;
+    let antwort, text;
     try {
       antwort = await fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1499,16 +1611,17 @@ const api = {
         cache: 'no-store',
         signal: steuerung ? steuerung.signal : undefined
       });
+      if (!antwort.ok) throw new ApiFehler('http', { status: antwort.status });
+      text = await antwort.text();
     } catch (err) {
-      clearTimeout(timer);
+      if (err instanceof ApiFehler) throw err;
       if (err && err.name === 'AbortError') throw new ApiFehler('zeit');
       throw new ApiFehler('netzwerk', { offline: typeof navigator !== 'undefined' && navigator.onLine === false });
+    } finally {
+      clearTimeout(timer);
     }
-    clearTimeout(timer);
-    if (!antwort.ok) throw new ApiFehler('http', { status: antwort.status });
-    const text = await antwort.text();
     let json;
-    try { json = JSON.parse(text); } catch (e) { throw new ApiFehler('keine_json'); }
+    try { json = JSON.parse(text); } catch (e) { throw new ApiFehler('keine_json', { html: /^\s*</.test(text || '') }); }
     if (!json || typeof json !== 'object') throw new ApiFehler('keine_json');
     if (!json.ok) throw new ApiFehler(json.error || 'unbekannt', json);
     return json.data;
@@ -1529,10 +1642,12 @@ function fehlerText(err) {
     case 'http': return info.status === 404
       ? 'Das Script wurde unter der eingebauten Adresse nicht gefunden (Fehler 404). Die Bereitstellung fehlt oder wurde gelöscht.'
       : 'Das Script hat mit Fehler ' + info.status + ' geantwortet. Versuche es später noch einmal.';
-    case 'keine_json': return 'Das Script liefert keine Daten. Meist ist die Bereitstellung nicht auf „Ausführen als: Ich“ und „Zugriff: Jeder“ gestellt.';
+    case 'keine_json': return 'Das Script hat keine Daten geliefert. Entweder eine kurze Störung bei Google (gleich noch einmal versuchen) oder die Bereitstellung steht nicht auf „Ausführen als: Ich“ und „Zugriff: Jeder“.';
+    case 'post_only': return 'Die Anfrage kam als GET an. Die Seite ruft das Script nur per POST auf; bitte die Seite neu laden.';
     case 'pin_required': return 'Bitte gib den PIN ein.';
+    case 'pin_geaendert': return 'Der PIN wurde geändert oder ist nicht mehr gültig. Bitte den aktuellen PIN eingeben.';
     case 'wrong_pin': return 'Der PIN stimmt nicht.' + (info.remaining !== undefined ? ' Noch ' + mehrzahl(info.remaining, 'Versuch', 'Versuche') + ' bis zur Sperre.' : '');
-    case 'locked': return 'Zu viele Fehlversuche. Die Anmeldung ist für alle kurz gesperrt.';
+    case 'locked': return 'Zu viele Fehlversuche. Die Anmeldung ist für alle gesperrt' + (info.retryAfter ? ', noch etwa ' + mehrzahl(Math.max(1, Math.ceil(Number(info.retryAfter) / 60)), 'Minute', 'Minuten') : ' (etwa 15 Minuten)') + '.';
     case 'busy': return 'Gerade speichert jemand anderes. Bitte kurz warten und noch einmal versuchen.';
     case 'server_config': return 'Im Script fehlt eine Einstellung' + (detail ? ' (' + detail + ')' : '') + '. Siehe Anleitung.';
     case 'unknown_action': return 'Das Script ist veraltet. Bitte Version ' + BENOETIGTE_SCRIPT_VERSION + ' einspielen und neu bereitstellen (siehe Anleitung).';
@@ -1550,7 +1665,7 @@ function fehlerText(err) {
     case 'invalid_name': return 'Der Name ist ungültig (1 bis 40 Zeichen).';
     case 'invalid_min_max': return 'Spielerzahl ungültig: mindestens 2, höchstens 12, und Minimum nicht größer als Maximum.';
     case 'game_exists': return 'Ein Spiel mit diesem Namen gibt es schon.';
-    case 'invalid_kuerzel': return 'Das Kürzel ist ungültig: 1 bis 12 Zeichen, Buchstaben und Ziffern, keine Leerzeichen.';
+    case 'invalid_kuerzel': return 'Das Kürzel ist ungültig: 1 bis 12 Zeichen, Buchstaben, Ziffern, Punkt, Unterstrich oder Bindestrich, keine Leerzeichen.';
     case 'player_exists': return 'Dieses Kürzel gibt es schon.';
     case 'invalid_value': return 'Ungültiger Wert.';
     case 'bad_request': return 'Die Anfrage war unvollständig. Lade die Seite neu und versuche es erneut.';
@@ -1645,7 +1760,8 @@ function baueModell(roh) {
       datumText: erste.datum,
       spiel,
       erstellt: erste.erstellt || null,
-      erstelltMs: Date.parse(erste.erstellt) || 0,
+      // Nur ein ISO-Zeitstempel zählt; deutsch getippte Werte („05.03.2026 18:00“) würde der Browser als US-Datum lesen
+      erstelltMs: /^\d{4}-\d{2}-\d{2}T/.test(String(erste.erstellt || '')) ? (Date.parse(erste.erstellt) || 0) : 0,
       geloescht: geloeschtZeile ? geloeschtZeile.geloescht : null,
       ergebnisse,
       n: ergebnisse.length
@@ -1657,12 +1773,19 @@ function baueModell(roh) {
     modell.partien.push(partie);
   }
 
+  // Reihenfolge: Datum, dann Partie-ID (das Script vergibt sie fortlaufend, das ist auch bei
+  // Handeinträgen ohne Zeitstempel verlässlich), dann Zeitstempel, dann Text der ID
   modell.partien.sort((a, b) =>
     (a.tag === null ? 1e9 : a.tag) - (b.tag === null ? 1e9 : b.tag) ||
-    a.erstelltMs - b.erstelltMs || a.nummer - b.nummer || a.id.localeCompare(b.id));
+    a.nummer - b.nummer || a.erstelltMs - b.erstelltMs || a.id.localeCompare(b.id));
 
   verteileSpielThemen(modell.spiele);
   verteileSpielerFarben(modell.spieler);
+  macheSlugsEindeutig(modell.spiele);
+  macheSlugsEindeutig(modell.spieler);
+  vergibKurznamen(modell.spieler);
+  modell.unbekannteSpieler = modell.spieler.filter((p) => !p.bekannt);
+  modell.unbekannteSpiele = modell.spiele.filter((sp) => !sp.bekannt);
 
   for (const p of modell.partien) {
     if (p.geloescht) modell.geloeschtePartien.push(p);
@@ -1673,6 +1796,33 @@ function baueModell(roh) {
 
   berechneEloVerlauf(modell);
   return modell;
+}
+
+/** Gleiche Slugs (z. B. „JÖRG“ und „JOERG“) bekommen eine Nummer, damit jeder Link eindeutig ist */
+function macheSlugsEindeutig(liste) {
+  const gesehen = new Map();
+  for (const x of liste) {
+    const n = gesehen.get(x.slug) || 0;
+    gesehen.set(x.slug, n + 1);
+    if (n > 0) x.slug = x.slug + '-' + (n + 1);
+  }
+}
+
+/**
+ * Kurzname fürs Abzeichen: bis 4 Zeichen das ganze Kürzel, sonst die ersten drei.
+ * Kollidieren zwei Kurznamen (MARTIN/MARKUS → MAR), bekommt der zweite die ersten
+ * zwei Zeichen plus das letzte (MAS), notfalls eine Ziffer.
+ */
+function vergibKurznamen(spieler) {
+  const belegt = new Set();
+  for (const p of spieler) {
+    const k = p.kuerzel;
+    const kandidaten = k.length > 4 ? [k.slice(0, 3), k.slice(0, 2) + k.slice(-1), k.slice(0, 1) + k.slice(-2)] : [k];
+    let kurz = kandidaten.find((x) => !belegt.has(x.toLowerCase()));
+    if (!kurz) { let i = 2; while (belegt.has((k.slice(0, 2) + i).toLowerCase())) i++; kurz = k.slice(0, 2) + i; }
+    belegt.add(kurz.toLowerCase());
+    p.kurz = kurz;
+  }
 }
 
 /** Prüft eine Partie auf Widersprüche (z. B. nach Handarbeit in der Tabelle) */
@@ -1784,13 +1934,15 @@ function berechneEloVerlauf(modell) {
       zaehler.set(e.key, e.nrSpiel);
     });
 
-    // Favorit: eindeutig höchste Spiel-Elo vor der Partie
+    // Favorit: höchste Spiel-Elo vor der Partie, aber nur mit klarem Vorsprung
+    // (FAVORIT_VORSPRUNG) und mindestens MIN_PARTIEN im Spiel; ein Neuling mit
+    // Startwert 1000 ist also nie automatisch Favorit
     let bester = -1, zweiter = -Infinity, besterWert = -Infinity;
     tn.forEach((e, i) => {
       if (e.spielEloVor > besterWert) { zweiter = besterWert; besterWert = e.spielEloVor; bester = i; }
       else if (e.spielEloVor > zweiter) zweiter = e.spielEloVor;
     });
-    if (bester >= 0 && besterWert - zweiter > 0.5) {
+    if (bester >= 0 && besterWert - zweiter >= FAVORIT_VORSPRUNG && tn[bester].nrSpiel > MIN_PARTIEN) {
       p.favorit = tn[bester];
     } else {
       p.favorit = null;
@@ -1814,7 +1966,7 @@ function zeitraumSchluessel(zr) {
 function leereKennzahlen() {
   return {
     partien: 0, siege: 0, siegAnteilSumme: 0, erwartetSumme: 0, platzSumme: 0,
-    scores: [], quoteSumme: 0, treppchenSumme: 0, letzte: 0,
+    scores: [], quoteSumme: 0, treppchenSumme: 0,
     platzVerteilung: [0, 0, 0, 0, 0], liste: []
   };
 }
@@ -1828,7 +1980,6 @@ function kennzahlHinzufuegen(k, p, e) {
   k.scores.push(e.score);
   k.quoteSumme += e.treppchenQuote;
   k.treppchenSumme += e.treppchen;
-  if (e.letzter) k.letzte++;
   k.platzVerteilung[Math.min(e.platz, 5) - 1]++;
   k.liste.push({ p, e });
 }
@@ -1838,7 +1989,9 @@ function kennzahlAbschliessen(k) {
   k.gewertet = n >= MIN_PARTIEN;
   k.siegquote = n ? k.siege / n : null;
   k.erwartet = n ? k.erwartetSumme / n : null;
-  k.ueberErwartung = n ? (k.siegAnteilSumme - k.erwartetSumme) / n : null;
+  // Über Erwartung = Siegquote minus Zufallserwartung (1/Spielerzahl je Partie);
+  // ein geteilter erster Platz zählt hier wie in der Siegquote als voller Sieg
+  k.ueberErwartung = n ? (k.siege - k.erwartetSumme) / n : null;
   k.platzSchnitt = n ? k.platzSumme / n : null;
   k.score = n ? mittel(k.scores) : null;
   k.treppchenIndex = n ? (k.quoteSumme / n) * 100 : null;
@@ -1872,7 +2025,13 @@ function auswerten(modell, zr) {
   zr = zr || {};
   if (!modell._cache) modell._cache = new Map();
   const schluessel = zeitraumSchluessel(zr);
-  if (modell._cache.has(schluessel)) return modell._cache.get(schluessel);
+  if (modell._cache.has(schluessel)) {
+    // Zuletzt genutzten Eintrag nach hinten stellen (die Map merkt sich die Einfügereihenfolge)
+    const A = modell._cache.get(schluessel);
+    modell._cache.delete(schluessel);
+    modell._cache.set(schluessel, A);
+    return A;
+  }
 
   const bisTag = zr.bis !== null && zr.bis !== undefined ? zr.bis : Infinity;
   const vonTag = zr.von !== null && zr.von !== undefined ? zr.von : -Infinity;
@@ -1979,13 +2138,12 @@ function auswerten(modell, zr) {
     for (const SG of S.proSpiel.values()) {
       kennzahlAbschliessen(SG);
       SG.gewertetElo = SG.partienGesamt >= MIN_PARTIEN;
-      SG.eloVorZeitraum = START_ELO;
-      for (const v of SG.verlauf) if (v.tag < vonTag) SG.eloVorZeitraum = v.elo;
       const werte = SG.punkte.map((x) => x.wert);
       SG.punkteSchnitt = werte.length ? mittel(werte) : null;
       SG.bestwert = werte.length ? Math.max(...werte) : null;
       SG.punkteSortiert = werte.slice().sort((a, b) => a - b);
-      SG.punkteTrend = SG.punkte.length >= 3 ? regression(SG.punkte.map((x) => x.lfd), werte) : null;
+      // Trend je eigener Partie (x = 1, 2, 3 …), unabhängig davon, wie viel die anderen spielen
+      SG.punkteTrend = SG.punkte.length >= 3 ? regression(SG.punkte.map((x, i) => i + 1), werte) : null;
     }
     S.gewertetElo = S.partienGesamt >= MIN_PARTIEN;
     S.stufe = S.gewertetElo ? stufeFuer(S.elo) : null;
@@ -2116,6 +2274,8 @@ function auswerten(modell, zr) {
   A.erfolge = berechneErfolge(modell, bisPartien, A.quartale);
 
   modell._cache.set(schluessel, A);
+  // Nur die letzten Stände behalten (Zeitreise erzeugt je Stichtag einen Eintrag)
+  while (modell._cache.size > CACHE_STAENDE) modell._cache.delete(modell._cache.keys().next().value);
   return A;
 }
 
@@ -2124,7 +2284,6 @@ function berechneRangVerlauf(bisPartien, vonTag, teilnehmerKeys) {
   const elo = new Map();
   const anzahl = new Map();
   const schnappschuesse = [];
-  const abendEnden = [];
   for (let i = 0; i < bisPartien.length; i++) {
     const p = bisPartien[i];
     for (const e of p.ergebnisse) { elo.set(e.key, e.eloNach); anzahl.set(e.key, e.nrGesamt); }
@@ -2136,7 +2295,6 @@ function berechneRangVerlauf(bisPartien, vonTag, teilnehmerKeys) {
         const plaetze = new Map(rangliste.map((k, idx) => [k, idx + 1]));
         schnappschuesse.push({ tag: p.tag, plaetze, elo: new Map(rangliste.map((k) => [k, elo.get(k)])) });
       }
-      abendEnden.push(p.tag);
     }
   }
   let punkte = schnappschuesse;
@@ -2151,7 +2309,12 @@ function berechneRangVerlauf(bisPartien, vonTag, teilnehmerKeys) {
   return { punkte, modus };
 }
 
-/** Spieler des Quartals: mindestens die Hälfte der Partien dabei, dann bester Treppchen-Index */
+/**
+ * Spieler des Quartals: Wer an mindestens der Hälfte der Spieleabende des
+ * Quartals dabei war (und QUARTAL_MIN_PARTIEN Partien hat), ist wertbar;
+ * es gewinnt der beste Treppchen-Index, dann Platz-Score, dann Siegquote.
+ * Abende statt Partien, damit parallele Tische niemanden benachteiligen.
+ */
 function berechneQuartale(bisPartien, bisTag) {
   const gruppen = new Map();
   for (const p of bisPartien) {
@@ -2159,32 +2322,40 @@ function berechneQuartale(bisPartien, bisTag) {
     if (!gruppen.has(k)) gruppen.set(k, []);
     gruppen.get(k).push(p);
   }
-  const bezug = isFinite(bisTag) ? Math.min(bisTag, heuteTag()) : heuteTag();
+  const heute = heuteTag();
+  const stichtag = isFinite(bisTag) ? Math.min(bisTag, heute) : heute;
   const ergebnis = [];
   for (const [k, partien] of gruppen) {
     const { jahr, q } = quartalAusSchluessel(k);
     const gesamt = partien.length;
+    const abendeTage = new Set(partien.map((p) => p.tag));
+    const abende = abendeTage.size;
     const jeSpieler = new Map();
     for (const p of partien) for (const e of p.ergebnisse) {
-      const x = jeSpieler.get(e.key) || { person: e.person, partien: 0, quoteSumme: 0, scoreSumme: 0, siege: 0 };
+      const x = jeSpieler.get(e.key) || { person: e.person, partien: 0, abende: new Set(), quoteSumme: 0, scoreSumme: 0, siege: 0 };
       x.partien++;
+      x.abende.add(p.tag);
       x.quoteSumme += e.treppchenQuote;
       x.scoreSumme += e.score;
       if (e.sieg) x.siege++;
       jeSpieler.set(e.key, x);
     }
-    const noetig = Math.max(QUARTAL_MIN_PARTIEN, gesamt * QUARTAL_TEILNAHME);
+    const noetigeAbende = Math.max(1, Math.ceil(abende * QUARTAL_TEILNAHME_ABENDE - 1e-9));
     const kandidaten = [...jeSpieler.values()].map((x) => ({
-      person: x.person, partien: x.partien,
+      person: x.person, partien: x.partien, abende: x.abende.size,
       index: (x.quoteSumme / x.partien) * 100,
       score: x.scoreSumme / x.partien,
       siegquote: x.siege / x.partien,
-      berechtigt: x.partien >= noetig - 1e-9
+      berechtigt: x.abende.size >= noetigeAbende && x.partien >= QUARTAL_MIN_PARTIEN
     })).sort((a, b) => (b.berechtigt - a.berechtigt) || (b.index - a.index) || (b.score - a.score) || (b.siegquote - a.siegquote));
     const sieger = kandidaten.length && kandidaten[0].berechtigt ? kandidaten[0] : null;
+    // Laufend: Das Quartal ist am Stichtag noch nicht zu Ende. Endet der Zeitraum genau am
+    // Quartalsende (Ansicht „Letztes Quartal“), gilt es als abgeschlossen; nur beim echten
+    // Heute ist der letzte Tag des Quartals noch offen (an dem Abend kann noch gespielt werden).
+    const ende = quartalEnde(jahr, q);
+    const laufend = stichtag < heute ? ende > stichtag : ende >= heute;
     ergebnis.push({
-      schluessel: k, jahr, q, gesamt, noetig: Math.ceil(noetig - 1e-9), kandidaten, sieger,
-      laufend: quartalEnde(jahr, q) >= bezug
+      schluessel: k, jahr, q, gesamt, abende, noetigeAbende, noetig: QUARTAL_MIN_PARTIEN, kandidaten, sieger, laufend
     });
   }
   return ergebnis.sort((a, b) => b.schluessel - a.schluessel);
@@ -2195,13 +2366,13 @@ const ERFOLGE = [
   { id: 'hattrick', name: 'Hattrick', symbol: 'flamme', text: 'Drei eigene Partien in Folge gewonnen.' },
   { id: 'serie', name: 'Siegesserie', symbol: 'blitz', text: 'Fünf eigene Partien in Folge gewonnen.' },
   { id: 'comeback', name: 'Comeback', symbol: 'trend', text: 'Sieg nach mindestens fünf Partien ohne Sieg.' },
-  { id: 'ueberraschung', name: 'Überraschungssieg', symbol: 'wuerfel', text: 'Gewonnen, obwohl die Siegchance vorher unter 20 % lag.' },
+  { id: 'ueberraschung', name: 'Überraschungssieg', symbol: 'wuerfel', text: 'Gewonnen mit einer Siegchance unter 20 % und deutlich unter dem Zufall (drei Viertel des Zufallswerts der Tischgröße).' },
   { id: 'treppchenAbo', name: 'Treppchen-Abo', symbol: 'treppchen', text: 'Fünf eigene Partien in Folge mit Treppchen-Punkten.' },
   { id: 'perfekterAbend', name: 'Perfekter Abend', symbol: 'mond', text: 'Alle eigenen Partien eines Abends gewonnen, mindestens zwei.' },
-  { id: 'spezialist', name: 'Spezialist', symbol: 'krone', text: 'Platz 1 in der Elo-Rangliste eines Spiels.' },
+  { id: 'spezialist', name: 'Spezialist', symbol: 'krone', text: 'Platz 1 in der Elo-Rangliste eines Spiels (unter den aktiven Spielern mit mindestens ' + MIN_PARTIEN + ' Partien).' },
   { id: 'doppelspitze', name: 'Doppelspitze', symbol: 'medaille', text: 'Gleichzeitig Platz 1 in zwei Spielen.' },
-  { id: 'rekord', name: 'Rekordhalter', symbol: 'rueckblick', text: 'Neue Bestpunktzahl in einem Spiel aufgestellt.' },
-  { id: 'allrounder', name: 'Allrounder', symbol: 'kompass', text: 'Jedes aktive Spiel mindestens einmal gewonnen.' },
+  { id: 'rekord', name: 'Rekordhalter', symbol: 'rueckblick', text: 'Die bisherige Bestpunktzahl eines Spiels überboten (ab der vierten Partie mit Punkten in diesem Spiel).' },
+  { id: 'allrounder', name: 'Allrounder', symbol: 'kompass', text: 'In jedem Spiel mit mindestens ' + MIN_PARTIEN + ' Partien mindestens einmal gewonnen, sobald es ' + ALLROUNDER_MIN_SPIELE + ' solche Spiele gibt. Einmal erreicht, bleibt der Erfolg.' },
   { id: 'quartal', name: 'Spieler des Quartals', symbol: 'pokal', text: 'Einmal Spieler des Quartals geworden.' }
 ];
 
@@ -2222,6 +2393,7 @@ function berechneErfolge(modell, bisPartien, quartale) {
   const anfuehrer = new Map();
   const rekorde = new Map();
   const ersteSiegeJeSpiel = new Map();
+  const partienJeSpiel = new Map();
 
   for (let i = 0; i < bisPartien.length; i++) {
     const p = bisPartien[i];
@@ -2262,10 +2434,22 @@ function berechneErfolge(modell, bisPartien, quartale) {
       const max = Math.max(...mitPunkten.map((e) => e.punkte));
       rek.wert = rek.wert === null ? max : Math.max(rek.wert, max);
     }
-    // Anführer dieses Spiels nach der Partie
+    // Spitzenreiter dieses Spiels nach der Partie: wie in der Rangliste nur aktive Spieler
+    // mit MIN_PARTIEN, sonst würde jemand, der die Runde verlassen hat, den Erfolg dauerhaft blockieren
     let fuehrend = null, besteElo = -Infinity;
     for (const [k, wert] of pool) {
-      if ((zaehl.get(k) || 0) >= MIN_PARTIEN && wert > besteElo) { besteElo = wert; fuehrend = k; }
+      const person = modell.spielerNach.get(k);
+      if (person && person.aktiv && (zaehl.get(k) || 0) >= MIN_PARTIEN && wert > besteElo) { besteElo = wert; fuehrend = k; }
+    }
+    // Allrounder: nach jeder Partie prüfen, ob die Person in jedem Spiel mit genug Partien
+    // schon gewonnen hat; einmal erreicht, bleibt der Erfolg (wie alle anderen Erfolge)
+    partienJeSpiel.set(p.spiel.key, (partienJeSpiel.get(p.spiel.key) || 0) + 1);
+    const reifeSpiele = [...partienJeSpiel.entries()].filter(([, n]) => n >= MIN_PARTIEN).map(([k]) => k);
+    if (reifeSpiele.length >= ALLROUNDER_MIN_SPIELE) {
+      // Alle Spieler prüfen: Ein Spiel kann auch durch eine Partie anderer „reif“ werden
+      for (const [key, erste] of ersteSiegeJeSpiel) {
+        if (reifeSpiele.every((k) => erste.has(k))) freischalten(key, 'allrounder', p.tag, p);
+      }
     }
     if (fuehrend) {
       anfuehrer.set(p.spiel.key, fuehrend);
@@ -2290,24 +2474,16 @@ function berechneErfolge(modell, bisPartien, quartale) {
     }
   }
 
-  // Allrounder: jedes aktive, schon gespielte Spiel mindestens einmal gewonnen
-  const pflichtSpiele = modell.spiele.filter((sp) => sp.aktiv && bisPartien.some((p) => p.spiel === sp));
-  if (pflichtSpiele.length >= 2) {
-    for (const [key, erste] of ersteSiegeJeSpiel) {
-      if (pflichtSpiele.every((sp) => erste.has(sp.key))) {
-        freischalten(key, 'allrounder', Math.max(...pflichtSpiele.map((sp) => erste.get(sp.key))), null);
-      }
-    }
-  }
   // Spieler des Quartals (nur abgeschlossene Quartale)
   for (const q of quartale.slice().reverse()) {
     if (!q.laufend && q.sieger) freischalten(q.sieger.person.key, 'quartal', quartalEnde(q.jahr, q.q), null);
   }
-  // Fortschritt für den Allrounder
+  // Fortschritt für den Allrounder: gegen den heutigen Bestand an Spielen mit genug Partien
+  const pflichtSpiele = modell.spiele.filter((sp) => (partienJeSpiel.get(sp.key) || 0) >= MIN_PARTIEN);
   const fortschritt = new Map();
   for (const sp of modell.spieler) {
     const erste = ersteSiegeJeSpiel.get(sp.key) || new Map();
-    fortschritt.set(sp.key, { allrounder: { erreicht: pflichtSpiele.filter((g) => erste.has(g.key)).length, noetig: pflichtSpiele.length } });
+    fortschritt.set(sp.key, { allrounder: { erreicht: pflichtSpiele.filter((g) => erste.has(g.key)).length, noetig: Math.max(pflichtSpiele.length, ALLROUNDER_MIN_SPIELE) } });
   }
   return { jeSpieler: erfolge, fortschritt };
 }
@@ -2325,7 +2501,7 @@ let tooltipBesitzer = null;
 
 function holeTooltip() {
   if (!tooltipEl) {
-    tooltipEl = h('div', { class: 'tooltip', role: 'status', 'aria-live': 'polite' });
+    tooltipEl = h('div', { class: 'tooltip', 'aria-hidden': 'true' });
     document.body.appendChild(tooltipEl);
     document.addEventListener('pointerdown', (ev) => {
       if (tooltipBesitzer && !tooltipBesitzer.contains(ev.target)) versteckeTooltip();
@@ -2379,7 +2555,7 @@ function diagrammBehaelter(zeichne, klasse = '') {
     if (!breite || breite === letzteBreite) return;
     letzteBreite = breite;
     leeren(el);
-    zeichne(el, breite, erste && !bewegungReduziert());
+    zeichne(el, breite, erste && animationenAktiv());
     erste = false;
   };
   if (typeof ResizeObserver !== 'undefined') {
@@ -2691,7 +2867,7 @@ function balkenListe(zeilen, optionen = {}) {
   const min = o.min !== undefined ? o.min : (o.divergierend ? Math.min(bezug, ...werte) : 0);
   const spanne = max - min || 1;
   const pos = (v) => ((v - min) / spanne) * 100;
-  const animieren = !bewegungReduziert();
+  const animieren = animationenAktiv();
   zeilen.forEach((z, i) => {
     const hatWert = z.wert !== null && isFinite(z.wert);
     const von = o.divergierend ? pos(Math.min(bezug, z.wert)) : 0;
@@ -2838,7 +3014,7 @@ function matrixDiagramm(zeilen, spalten, zelle, optionen = {}) {
   const raster = h('div', { class: 'matrix', style: { gridTemplateColumns: 'minmax(32px, auto) repeat(' + spalten.length + ', minmax(' + (optionen.zellBreite || 46) + 'px, 1fr))' } });
   raster.appendChild(h('div', { class: 'matrix-ecke' }, optionen.ecke || ''));
   for (const sp of spalten) raster.appendChild(h('div', { class: 'matrix-kopf', title: sp.name }, sp.kopf));
-  const animieren = !bewegungReduziert();
+  const animieren = animationenAktiv();
   zeilen.forEach((z, i) => {
     raster.appendChild(h('div', { class: 'matrix-zeilenkopf' }, z.kopf));
     spalten.forEach((sp, j) => {
@@ -2974,7 +3150,8 @@ function verteilungsDiagramm(zeilen, optionen = {}) {
 // ---------------------------------------------------------------------------
 
 function punkteVerlaufDiagramm(reihen, optionen = {}) {
-  const sichtbar = new Set(reihen.map((r) => r.id));
+  // optionen.anfangsSichtbar: nur diese Reihen zu Beginn eingeblendet (die anderen per Legende zuschaltbar)
+  const sichtbar = new Set(optionen.anfangsSichtbar ? reihen.filter((r) => optionen.anfangsSichtbar.has(r.id)).map((r) => r.id) : reihen.map((r) => r.id));
   const wrap = h('div', { class: 'stapel eng' });
   let behaelter;
   if (reihen.length > 1) wrap.appendChild(legendeMitSchaltern(reihen, sichtbar, () => behaelter.neuZeichnen()));
@@ -3046,21 +3223,31 @@ function netzDiagramm(achsen, reihen) {
   if (reihen.length > 1) wrap.appendChild(h('div', { class: 'legende' }, reihen.map((r) => h('span', { class: 'legende-eintrag' }, h('span', { class: 'schluessel-linie', style: { '--farbe': r.farbe } }), r.name))));
   wrap.appendChild(diagrammBehaelter((el, breite, animieren) => {
     if (achsen.length < 3) { el.appendChild(h('p', { class: 'text-3 klein' }, 'Für das Netzdiagramm braucht es mindestens drei Spiele mit Partien.')); return; }
+    // Beschriftungen: am Handy kurze Namen; der Rand richtet sich nach der breitesten Beschriftung,
+    // damit rechts und links nichts aus der Karte läuft
+    const namen = achsen.map((a) => (breite < 420 && a.kurz ? a.kurz : a.name.length > 16 ? a.name.slice(0, 15) + '…' : a.name));
+    const breitesteBeschriftung = Math.max(40, ...namen.map((n) => textBreite(n, 12)));
     const groesse = Math.min(breite, 380);
-    const r = groesse / 2 - 54;
     const cx = breite / 2, cy = groesse / 2;
+    const r = Math.max(60, Math.min(groesse / 2 - 30, breite / 2 - breitesteBeschriftung - 20));
     const svg = s('svg', { width: breite, height: groesse, role: 'img', 'aria-label': 'Netzdiagramm' });
     const winkel = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / achsen.length;
     for (const stufe of [0.25, 0.5, 0.75, 1]) {
       const pts = achsen.map((_, i) => (cx + Math.cos(winkel(i)) * r * stufe).toFixed(1) + ',' + (cy + Math.sin(winkel(i)) * r * stufe).toFixed(1)).join(' ');
       svg.appendChild(s('polygon', { points: pts, fill: 'none', class: 'gitter' }));
     }
+    // Skala: 50 % und 100 % am oberen Strahl beschriften
+    for (const stufe of [0.5, 1]) {
+      svg.appendChild(s('text', { class: 'beschriftung', x: cx + 5, y: cy - r * stufe + (stufe === 1 ? 12 : 4), 'text-anchor': 'start', style: { fontSize: '10.5px', opacity: 0.8 } }, fmtProzent(stufe)));
+    }
     achsen.forEach((a, i) => {
       const x = cx + Math.cos(winkel(i)) * r, y = cy + Math.sin(winkel(i)) * r;
       svg.appendChild(s('line', { class: 'gitter', x1: cx, y1: cy, x2: x, y2: y }));
-      const lx = cx + Math.cos(winkel(i)) * (r + 16), ly = cy + Math.sin(winkel(i)) * (r + 16);
+      const lx = cx + Math.cos(winkel(i)) * (r + 14), ly = cy + Math.sin(winkel(i)) * (r + 14);
       const anker = Math.abs(Math.cos(winkel(i))) < 0.2 ? 'middle' : Math.cos(winkel(i)) > 0 ? 'start' : 'end';
-      svg.appendChild(s('text', { class: 'beschriftung', x: lx, y: ly + 4, 'text-anchor': anker }, a.name.length > 16 ? a.name.slice(0, 15) + '…' : a.name));
+      const text = s('text', { class: 'beschriftung', x: lx, y: ly + 4, 'text-anchor': anker }, namen[i]);
+      text.appendChild(s('title', {}, a.name));
+      svg.appendChild(text);
     });
     for (const reihe of reihen) {
       const pts = reihe.werte.map((v, i) => {
@@ -3193,9 +3380,28 @@ function beobachteRollen(rahmen) {
 // UI-Bausteine: Abzeichen, Karten, Bereiche, Kacheln, Blätter, Meldungen
 // ===========================================================================
 
+/** Kurzname fürs Abzeichen (eindeutig vergeben in vergibKurznamen) */
 function kurzname(person) {
+  if (person.kurz) return person.kurz;
   const k = person.kuerzel;
   return k.length > 4 ? k.slice(0, 3) : k;
+}
+
+/**
+ * Kurzer Spielname für enge Stellen: Artikel und Zusätze am Anfang überspringen
+ * („Die Siedler von Catan“ → „Siedler“, „7 Wonders“ → „7 Wonders“), höchstens zwei Wörter.
+ */
+function kurzerSpielname(spiel, maxZeichen = 12) {
+  const name = spiel.name;
+  if (name.length <= maxZeichen) return name;
+  const woerter = name.split(' ').filter(Boolean);
+  const artikel = /^(der|die|das|the|ein|eine|les|le|la|el|los|las|il|a|an)$/i;
+  while (woerter.length > 1 && artikel.test(woerter[0])) woerter.shift();
+  let kurz = woerter[0] || name;
+  // Ein zweites Wort nur, wenn es kein Bindewort ist („Vale of“ wäre unschön) und passt
+  const bindewort = /^(of|von|der|die|das|the|de|del|und|and|&|to|à|im|am|auf)$/i;
+  if (woerter[1] && !bindewort.test(woerter[1]) && (kurz + ' ' + woerter[1]).length <= maxZeichen) kurz += ' ' + woerter[1];
+  return kurz.length > maxZeichen + 2 ? kurz.slice(0, maxZeichen) + '…' : kurz;
 }
 
 function abzeichen(person, groesse = '') {
@@ -3232,7 +3438,7 @@ function spielMarke(spiel, alsLink = true) {
 /** Schlichte Spielbeschriftung (Symbol + Name, als Link) für Balkenbeschriftungen */
 function spielLabel(spiel) {
   return setzeSpielFarben(h('a', { class: 'spiel-label', href: '#spiel~' + spiel.slug, title: spiel.name },
-    h('span', { class: 'spiel-punkt' }, symbol(spiel.symbol, 13)), h('span', { class: 'abgeschnitten' }, spiel.name)), spiel);
+    h('span', { class: 'spiel-punkt' }, symbol(spiel.symbol, 13)), h('span', { class: 'abgeschnitten spiel-label-lang' }, spiel.name), h('span', { class: 'abgeschnitten spiel-label-kurz' }, kurzerSpielname(spiel, 10))), spiel);
 }
 
 function stufenMarke(stufe) {
@@ -3277,24 +3483,24 @@ const ERKLAERUNGEN = {
     tabelle: true
   },
   platzscore: {
-    titel: 'Platzierungs-Score',
-    text: ['Anteil der geschlagenen Mitspieler je Partie: 100 % heißt immer Erster, 0 % immer Letzter, 50 % genau in der Mitte. Anders als der Durchschnittsplatz ist der Score über verschiedene Tischgrößen vergleichbar.']
+    titel: 'Platz-Score',
+    text: ['Anteil der Mitspieler, die man je Partie hinter sich gelassen hat: 100 % heißt immer Erster, 0 % immer Letzter, 50 % genau in der Mitte. Anders als der Durchschnittsplatz ist der Platz-Score über verschiedene Tischgrößen vergleichbar.']
   },
   ueberErwartung: {
     titel: 'Siege über Erwartung',
-    text: ['Vergleicht die eigene Siegquote mit der Quote, die man bei den gespielten Tischgrößen durch Zufall hätte (bei zwei Spielern 50 %, bei vier 25 %). +10 P. heißt: zehn Prozentpunkte öfter gewonnen als der Zufall erwarten lässt.']
+    text: ['Siegquote minus die Quote, die man bei den gespielten Tischgrößen durch Zufall hätte (bei zwei Spielern 50 %, bei vier 25 %, bei sechs 17 %). +10 P. heißt: zehn Prozentpunkte öfter gewonnen als der Zufall erwarten lässt. Ein geteilter erster Platz zählt als Sieg.']
   },
   konstanz: {
     titel: 'Konstanz',
-    text: ['Wie stark schwanken die Platzierungen? Verglichen wird mit der Schwankung, die reiner Zufall bei denselben Tischgrößen hätte. 50 % entspricht dem Zufall, höhere Werte bedeuten beständigere Ergebnisse, niedrigere ein Auf und Ab.']
+    text: ['Wie stark schwanken die eigenen Platzierungen? Verglichen wird mit der Schwankung, die reiner Zufall bei denselben Tischgrößen hätte. 50 % entspricht dem Zufall, höhere Werte bedeuten beständigere Ergebnisse, niedrigere ein Auf und Ab. Konstanz sagt nichts darüber, ob die Ergebnisse gut oder schlecht sind: Wer immer Letzter wird, ist auch beständig.']
   },
   planbarkeit: {
     titel: 'Glück oder Können?',
-    text: ['Gezählt werden Partien, in denen es einen klaren Favoriten gab (höchste Spiel-Elo am Tisch). Gewinnt der Favorit deutlich öfter, als der Zufall erwarten ließe, entscheidet eher Können. Gewinnt er kaum öfter als zufällig, entscheidet eher Glück. Ab ' + MIN_PARTIEN_PLANBARKEIT + ' solchen Partien gibt es eine Einschätzung.']
+    text: ['Gezählt werden Partien mit klarem Favoriten: höchste Spiel-Elo am Tisch mit mindestens ' + FAVORIT_VORSPRUNG + ' Punkten Vorsprung und mindestens ' + MIN_PARTIEN + ' Partien in diesem Spiel. Gewinnt der Favorit deutlich öfter, als der Zufall erwarten ließe, entscheidet eher Können. Gewinnt er kaum öfter als zufällig, entscheidet eher Glück. Ab ' + MIN_PARTIEN_PLANBARKEIT + ' solchen Partien gibt es eine Einschätzung.']
   },
   quartal: {
     titel: 'Spieler des Quartals',
-    text: ['Teilnehmen kann, wer bei mindestens der Hälfte aller Partien des Quartals dabei war (und mindestens ' + QUARTAL_MIN_PARTIEN + ' Partien hat). Unter diesen gewinnt der beste Treppchen-Index, bei Gleichstand der bessere Platzierungs-Score. Das laufende Quartal zeigt einen vorläufigen Stand.']
+    text: ['Teilnehmen kann, wer an mindestens der Hälfte der Spieleabende des Quartals dabei war und mindestens ' + QUARTAL_MIN_PARTIEN + ' Partien hat. Gezählt werden Abende, nicht Partien, damit parallele Tische niemanden benachteiligen. Unter den Teilnehmern gewinnt der beste Treppchen-Index, bei Gleichstand der bessere Platz-Score. Das laufende Quartal zeigt einen vorläufigen Stand.']
   },
   stufen: {
     titel: 'Rang-Stufen',
@@ -3471,6 +3677,23 @@ function leerZustand(sym, titel, text, aktion) {
 
 let offeneBlaetter = [];
 
+/** Alles, was per Tastatur erreichbar ist, innerhalb eines Elements */
+function fokussierbare(el) {
+  return [...el.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    .filter((x) => x.offsetParent !== null || x === document.activeElement);
+}
+
+/** Hintergrund für Tastatur und Screenreader sperren, solange ein Blatt offen ist */
+function sperreHintergrund(sperren) {
+  const app = document.querySelector('.app');
+  const tabs = document.querySelector('.tableiste');
+  for (const el of [app, tabs]) {
+    if (!el) continue;
+    if ('inert' in el) el.inert = sperren; else el.setAttribute('aria-hidden', sperren ? 'true' : 'false');
+  }
+  document.body.classList.toggle('blatt-offen', sperren);
+}
+
 function zeigeBlatt({ titel, inhalt, aktionen, beimSchliessen }) {
   const vorherFokus = document.activeElement;
   const schleier = h('div', { class: 'schleier' });
@@ -3487,10 +3710,22 @@ function zeigeBlatt({ titel, inhalt, aktionen, beimSchliessen }) {
     blatt.remove();
     offeneBlaetter = offeneBlaetter.filter((b) => b !== eintrag);
     document.removeEventListener('keydown', taste);
+    if (!offeneBlaetter.length) sperreHintergrund(false);
     if (vorherFokus && vorherFokus.focus) { try { vorherFokus.focus({ preventScroll: true }); } catch (e) { /* egal */ } }
     if (beimSchliessen) beimSchliessen();
   };
-  const taste = (ev) => { if (ev.key === 'Escape' && offeneBlaetter[offeneBlaetter.length - 1] === eintrag) schliessen(); };
+  const taste = (ev) => {
+    if (offeneBlaetter[offeneBlaetter.length - 1] !== eintrag) return;
+    if (ev.key === 'Escape') { schliessen(); return; }
+    // Tab bleibt im Blatt (Fokusfang)
+    if (ev.key === 'Tab') {
+      const liste = fokussierbare(blatt);
+      if (!liste.length) { ev.preventDefault(); blatt.focus(); return; }
+      const erstes = liste[0], letztes = liste[liste.length - 1];
+      if (ev.shiftKey && (document.activeElement === erstes || document.activeElement === blatt)) { ev.preventDefault(); letztes.focus(); }
+      else if (!ev.shiftKey && document.activeElement === letztes) { ev.preventDefault(); erstes.focus(); }
+    }
+  };
   const eintrag = { schliessen };
   schleier.addEventListener('click', schliessen);
   schliessenKnopf.addEventListener('click', schliessen);
@@ -3498,6 +3733,7 @@ function zeigeBlatt({ titel, inhalt, aktionen, beimSchliessen }) {
   document.body.appendChild(schleier);
   document.body.appendChild(blatt);
   offeneBlaetter.push(eintrag);
+  sperreHintergrund(true);
   requestAnimationFrame(() => { try { blatt.focus({ preventScroll: true }); } catch (e) { /* egal */ } });
   return schliessen;
 }
@@ -3536,7 +3772,7 @@ function meldung(text, optionen = {}) {
     symbol(art === 'fehler' ? 'warnung' : 'check', 19),
     h('div', { class: 'wachsen' }, text),
     optionen.aktion ? h('button', { type: 'button', class: 'knopf klein', onclick: () => { entfernen(); optionen.aktion.fn(); } }, optionen.aktion.text) : null,
-    h('button', { type: 'button', class: 'symbol-knopf', 'aria-label': 'Meldung schließen', style: { width: '32px', height: '32px' }, onclick: () => entfernen() }, symbol('schliessen', 16)));
+    h('button', { type: 'button', class: 'symbol-knopf', 'aria-label': 'Meldung schließen', style: { width: '40px', height: '40px' }, onclick: () => entfernen() }, symbol('schliessen', 16)));
   const entfernen = () => el.remove();
   box.appendChild(el);
   setTimeout(entfernen, optionen.dauer || (art === 'fehler' ? 8000 : 4500));
@@ -3548,25 +3784,34 @@ function meldung(text, optionen = {}) {
 // App: Zustand, Grundgerüst, Navigation, Laden, Anmeldung, Zeitraum
 // ===========================================================================
 
+const istTagOderNull = (v) => v === null || (Number.isInteger(v) && v > 0 && v < 200000);
 const zustand = {
   modell: null,
   roh: null,
   demo: false,
   ansicht: 'gesamt',
   parameter: null,
-  zeitraumArt: speicher.lies('zeitraum', 'gesamt'),
-  eigenerZeitraum: speicher.lies('eigenerZeitraum', null),
+  zeitraumArt: speicher.lies('zeitraum', 'gesamt', (v) => ['gesamt', 'jahr', 'vorjahr', 'quartal', 'vorquartal', '3monate', 'eigen'].includes(v)),
+  eigenerZeitraum: speicher.lies('eigenerZeitraum', null, (v) => v && typeof v === 'object' && istTagOderNull(v.von === undefined ? null : v.von) && istTagOderNull(v.bis === undefined ? null : v.bis)),
   zeitreise: null,
   zeitreiseOffen: false,
   abspielen: null,
-  rangModus: speicher.lies('rangModus', 'elo'),
-  achse: speicher.lies('achse', 'datum'),
+  rangModus: speicher.lies('rangModus', 'elo', (v) => v === 'elo' || v === 'treppchen'),
+  achse: speicher.lies('achse', 'datum', (v) => v === 'datum' || v === 'index'),
   spielSortierung: 'elo',
-  vergleich: speicher.lies('vergleich', []),
+  vergleich: speicher.lies('vergleich', [], (v) => Array.isArray(v) && v.every((k) => typeof k === 'string')),
   eintragen: null,
   laedt: false,
+  inPlaceRender: false,   // true, während eine Ansicht an Ort und Stelle neu gezeichnet wird (dann keine Einblend-Animationen)
+  ausCache: false,        // Daten stammen vom letzten Besuch (Sofortstart), noch nicht vom Script bestätigt
+  standHinweis: null,     // Text über der Ansicht, z. B. „Stand von 19:32, offline“
   partienFilter: { suche: '', spiel: '', spieler: '', geloeschte: false, anzahl: 12 }
 };
+
+/** Einblend-Animationen nur beim ersten Aufbau einer Ansicht und wenn das System Bewegung erlaubt */
+function animationenAktiv() {
+  return !bewegungReduziert() && !zustand.inPlaceRender && !zustand.abspielen;
+}
 
 const ZEITRAEUME = [
   { art: 'gesamt', text: 'Gesamt' },
@@ -3590,10 +3835,7 @@ function zeitraumGrenzen(art) {
       const v = quartalAusSchluessel(q.jahr * 4 + q.q - 2);
       return { von: quartalStart(v.jahr, v.q), bis: quartalEnde(v.jahr, v.q) };
     }
-    case '3monate': {
-      const t = teileAusTag(heute);
-      return { von: Math.round(Date.UTC(t.jahr, t.monat - 4, t.tag) / MS_TAG), bis: null };
-    }
+    case '3monate': return { von: monateZurueck(heute, 3) + 1, bis: null };
     case 'eigen': return zustand.eigenerZeitraum || { von: null, bis: null };
     default: return { von: null, bis: null };
   }
@@ -3726,6 +3968,7 @@ function beiAnkerwechsel() {
   const wechsel = ziel.ansicht !== zustand.ansicht || ziel.parameter !== zustand.parameter;
   zustand.ansicht = ziel.ansicht;
   zustand.parameter = ziel.parameter;
+  if (wechsel && zustand.abspielen) { stoppeAbspielen(); zustand.zeitreise = null; } // Zeitreise läuft nicht in eine andere Ansicht hinein
   schliesseAlleBlaetter();
   versteckeTooltip();
   zeigeAnsicht();
@@ -3753,8 +3996,17 @@ function zeigeAnsicht() {
     setzeKopf('Fehler');
     inhalt = karte({ titel: 'Diese Ansicht konnte nicht angezeigt werden' }, h('p', { class: 'text-2' }, 'Bitte lade die Seite neu. Wenn der Fehler bleibt, schreib an ' + (kontaktEmail() || 'den Betreiber') + '.'), h('p', { class: 'text-3 sehr-klein' }, String(err && err.message ? err.message : err)));
   }
-  ersetzeInhalt(elemente.inhalt, inhalt);
+  // „frisch“: Einblend-Animationen nur, wenn die Ansicht neu betreten wird, nicht beim Neuzeichnen an Ort und Stelle
+  elemente.inhalt.classList.toggle('frisch', animationenAktiv());
+  ersetzeInhalt(elemente.inhalt, standHinweisElement(), inhalt);
   elemente.inhalt.classList.remove('laedt-neu');
+}
+
+/** Hinweisleiste über der Ansicht (Sofortstart: alter Stand, offline) */
+function standHinweisElement() {
+  if (!zustand.standHinweis) return null;
+  return h('div', { class: 'stand-hinweis', role: 'status' }, symbol('uhr', 15), h('span', {}, zustand.standHinweis),
+    h('button', { type: 'button', class: 'knopf klein leise', onclick: () => ladeDaten() }, 'Neu laden'));
 }
 
 // ---------------------------------------------------------------------------
@@ -3763,57 +4015,182 @@ function zeigeAnsicht() {
 
 function zeigeLadebildschirm(text = 'Lade die Spieleabende …') {
   setzeKopf(null);
+  elemente.ladeText = h('p', { class: 'text-2' }, text);
   ersetzeInhalt(elemente.inhalt, h('div', { class: 'laden-voll', role: 'status' },
-    h('div', {}, h('div', { class: 'wuerfel-lader' }, h('i'), h('i'), h('i')), h('p', { class: 'text-2' }, text))));
+    h('div', {}, h('div', { class: 'wuerfel-lader' }, h('i'), h('i'), h('i')), elemente.ladeText, h('p', { class: 'sehr-klein text-3', id: 'lade-hinweis' }))));
 }
 
+function setzeLadeHinweis(text) {
+  const el = document.getElementById('lade-hinweis');
+  if (el) el.textContent = text;
+}
+
+let ladeHinweisTimer = null;
+
+/**
+ * Lädt alle Rohdaten vom Script.
+ * optionen.nachAnmeldung: Aufruf aus dem PIN-Formular (Fehler werden dort gezeigt)
+ * optionen.leise: Aktualisierung im Hintergrund (Sofortstart, Rückkehr in die App), Ansicht bleibt stehen
+ */
 async function ladeDaten(optionen = {}) {
   if (zustand.laedt) return;
   zustand.laedt = true;
+  stoppeAbspielen();
   elemente.neuLaden.classList.add('dreht');
-  if (!zustand.modell) zeigeLadebildschirm();
-  else elemente.inhalt.classList.add('laedt-neu');
+  const hattePin = !!api.pin;
+  if (!zustand.modell) {
+    zeigeLadebildschirm();
+    clearTimeout(ladeHinweisTimer);
+    ladeHinweisTimer = setTimeout(() => setzeLadeHinweis('Das Script antwortet langsam, das dauert gerade länger als üblich …'), LADE_HINWEIS_MS);
+  } else {
+    elemente.inhalt.classList.add('laedt-neu');
+  }
+  api.beiWiederholung = (versuch) => setzeLadeHinweis(versuch === 2 ? 'Zweiter Versuch …' : 'Dritter Versuch …');
   try {
     const roh = await api.aufruf('list');
     uebernehmeRohdaten(roh);
-    if (optionen.nachAnmeldung && api.pin) speicher.schreib('pin', api.pin);
-    zeigeAnsicht();
-    if (optionen.meldung) meldung(optionen.meldung);
+    zustand.ausCache = false;
+    zustand.standHinweis = null;
+    merkeDaten(roh);
+    let hinweis = optionen.meldung;
+    if (optionen.nachAnmeldung && api.pin && !speicher.schreib('pin', api.pin)) {
+      hinweis = 'Angemeldet. Der PIN konnte auf diesem Gerät nicht gespeichert werden (privater Modus oder voller Speicher), beim nächsten Öffnen musst du ihn neu eingeben.';
+    }
+    if (optionen.leise) zeigeAnsichtBehalteScroll(); else zeigeAnsicht();
+    if (hinweis) meldung(hinweis, optionen.nachAnmeldung && hinweis !== optionen.meldung ? { art: 'fehler', dauer: 10000 } : {});
     pruefeScriptVersion();
   } catch (err) {
     elemente.inhalt.classList.remove('laedt-neu');
     if (err.code === 'wrong_pin' || err.code === 'pin_required') {
-      speicher.loesch('pin');
-      api.pin = null;
-      zeigeAnmeldung(optionen.nachAnmeldung ? err : null);
+      // Beim Anmelden: Fehler im Formular zeigen. Sonst wurde der PIN im Script geändert:
+      // gespeicherten PIN vergessen und mit Hinweis zur Anmeldung
+      behandlePinFehler(optionen.nachAnmeldung ? err : (hattePin ? { code: 'pin_geaendert', info: err.info } : null));
     } else if (err.code === 'locked') {
-      zeigeAnmeldung(err);
+      if (zustand.modell) meldung(fehlerText(err), { art: 'fehler', dauer: 10000 });
+      else if (hattePin && !optionen.nachAnmeldung) zeigeSperrWartezeit(err);
+      else behandlePinFehler(err, true);
     } else if (!zustand.modell) {
       zeigeVerbindungsfehler(err);
+    } else if (zustand.ausCache) {
+      zustand.standHinweis = 'Stand vom letzten Besuch (' + fmtZeitpunktKurz(zustand.modell.geladenUm) + '), das Script ist gerade nicht erreichbar.';
+      zeigeAnsichtBehalteScroll();
     } else {
       meldung(fehlerText(err), { art: 'fehler' });
     }
     if (optionen.nachAnmeldung) throw err;
   } finally {
+    clearTimeout(ladeHinweisTimer);
+    api.beiWiederholung = null;
     zustand.laedt = false;
     elemente.neuLaden.classList.remove('dreht');
   }
 }
 
-function uebernehmeRohdaten(roh) {
+/** Falscher oder geänderter PIN: alles vergessen und zur Anmeldung (zentral, auch für Speichern und Löschen) */
+function behandlePinFehler(anzeigen, pinBehalten = false) {
+  stoppeAbspielen();
+  zustand.zeitreise = null;
+  zustand.zeitreiseOffen = false;
+  clearTimeout(ladeHinweisTimer);
+  if (!pinBehalten) { speicher.loesch('pin'); api.pin = null; }
+  zustand.modell = null;
+  zustand.roh = null;
+  zustand.ausCache = false;
+  zustand.standHinweis = null;
+  vergissDaten();
+  schliesseAlleBlaetter();
+  zeigeAnmeldung(anzeigen || null);
+}
+
+// Schreibaktionen (Speichern, Löschen, Verwalten) melden einen falschen PIN hierher; das Laden behandelt ihn selbst
+api.beiPinFehler = (err) => {
+  if (zustand.demo || zustand.laedt || !zustand.modell) return;
+  err.behandelt = true; // die Aufrufer zeigen dann keine zweite Meldung
+  behandlePinFehler({ code: 'pin_geaendert', info: err.info });
+};
+
+/** Fehler einer Aktion als Meldung zeigen, außer er wurde schon zentral behandelt (PIN) */
+function meldeFehler(err) {
+  if (err && err.behandelt) return;
+  meldung(fehlerText(err), { art: 'fehler' });
+}
+
+/** Sperre beim Öffnen mit gespeichertem PIN: Restzeit zeigen, danach automatisch weiter */
+function zeigeSperrWartezeit(err) {
+  setzeKopf(null);
+  clearInterval(sperrTimer);
+  let rest = Math.max(1, Number(err.info && err.info.retryAfter) || 15 * 60);
+  const text = h('strong', {});
+  const tick = () => {
+    text.textContent = Math.floor(rest / 60) + ':' + String(rest % 60).padStart(2, '0') + ' Minuten';
+    if (rest <= 0) { clearInterval(sperrTimer); ladeDaten(); return; }
+    rest--;
+  };
+  ersetzeInhalt(elemente.inhalt, h('div', { class: 'laden-voll' },
+    karte({ klasse: 'fehler-karte', titel: 'Anmeldung vorübergehend gesperrt' },
+      h('p', { class: 'text-2' }, 'Jemand hat zu oft einen falschen PIN eingegeben. Die Sperre gilt für alle. Dein gespeicherter PIN bleibt erhalten, es geht automatisch weiter in ', text, '.'),
+      h('div', { class: 'zeile umbruch' },
+        h('button', { type: 'button', class: 'knopf gold', onclick: () => { clearInterval(sperrTimer); ladeDaten(); } }, symbol('aktualisieren', 18), 'Jetzt versuchen'),
+        h('button', { type: 'button', class: 'knopf leise', onclick: () => abmelden(false) }, 'PIN neu eingeben')))));
+  tick();
+  sperrTimer = setInterval(tick, 1000);
+}
+
+// ---------------------------------------------------------------------------
+// Sofortstart: Daten des letzten Besuchs auf dem Gerät
+// ---------------------------------------------------------------------------
+
+function merkeDaten(roh) {
+  if (!DATEN_MERKEN || zustand.demo) return;
+  speicher.schreib('daten', { um: Date.now(), roh });
+}
+
+function vergissDaten() {
+  speicher.loesch('daten');
+}
+
+/** Gespeicherte Daten des letzten Besuchs, falls vorhanden und plausibel */
+function gemerkteDaten() {
+  if (!DATEN_MERKEN) return null;
+  return speicher.lies('daten', null, (v) => v && typeof v === 'object' && typeof v.um === 'number' && v.roh && typeof v.roh === 'object' && Array.isArray(v.roh.partien) && Array.isArray(v.roh.spiele) && Array.isArray(v.roh.spieler));
+}
+
+function fmtZeitpunktKurz(ms) {
+  const d = new Date(ms);
+  const heute = new Date();
+  const gleicherTag = d.getFullYear() === heute.getFullYear() && d.getMonth() === heute.getMonth() && d.getDate() === heute.getDate();
+  const uhr = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  return gleicherTag ? uhr + ' Uhr' : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + uhr + ' Uhr';
+}
+
+/** Beim Zurückkehren in die App (Handy-App bleibt tagelang offen): nachladen, wenn der Stand älter ist */
+function beiRueckkehr() {
+  if (document.visibilityState !== 'visible' || zustand.demo || zustand.laedt || !zustand.modell || !api.pin) return;
+  if (Date.now() - zustand.modell.geladenUm < NACHLADEN_NACH_MS) return;
+  const e = zustand.eintragen;
+  if (e && (e.speichert || e.reihenfolge.length)) return; // nicht mitten in einer Eingabe
+  if (offeneBlaetter.length) return;
+  ladeDaten({ leise: true });
+}
+
+function uebernehmeRohdaten(roh, geladenUm) {
   zustand.roh = roh;
   zustand.modell = baueModell(roh);
+  if (geladenUm) zustand.modell.geladenUm = geladenUm;
 }
 
 /** Nach einer Änderung: Rohdaten anpassen und Modell neu bauen (ohne Netz) */
 function aktualisiereRohdaten(aenderung) {
   aenderung(zustand.roh);
+  const geladenUm = zustand.modell ? zustand.modell.geladenUm : null;
   zustand.modell = baueModell(zustand.roh);
+  if (geladenUm) zustand.modell.geladenUm = geladenUm; // Zeitpunkt des letzten Ladens vom Script bleibt
+  merkeDaten(zustand.roh);
 }
 
 function pruefeScriptVersion() {
   const v = zustand.modell && zustand.modell.version;
-  if (!zustand.demo && v && v < BENOETIGTE_SCRIPT_VERSION && !zustand.versionGewarnt) {
+  if (!zustand.demo && v && !versionMindestens(v, BENOETIGTE_SCRIPT_VERSION) && !zustand.versionGewarnt) {
     zustand.versionGewarnt = true;
     meldung('Das Script hat Version ' + v + '. Für „Spieler anlegen“ und „Spiele bearbeiten“ bitte Version ' + BENOETIGTE_SCRIPT_VERSION + ' einspielen (siehe Anleitung).', { art: 'fehler', dauer: 12000 });
   }
@@ -3869,7 +4246,7 @@ function zeigeAnmeldung(fehler) {
       ersetzeInhalt(hinweis, h('div', { class: 'hinweis fehler' }, symbol('schloss', 18), h('div', {}, 'Zu viele Fehlversuche. Die Anmeldung ist für alle gesperrt. Noch ', text, '.')));
       const tick = () => {
         text.textContent = Math.floor(rest / 60) + ':' + String(rest % 60).padStart(2, '0') + ' Minuten';
-        if (rest <= 0) { clearInterval(sperrTimer); knopf.disabled = false; leeren(hinweis); }
+        if (rest <= 0) { clearInterval(sperrTimer); knopf.disabled = false; leeren(hinweis); if (eingabe.value.trim()) formular.requestSubmit ? formular.requestSubmit() : knopf.click(); }
         rest--;
       };
       tick();
@@ -3898,7 +4275,7 @@ function zeigeAnmeldung(fehler) {
       h('div', { class: 'anmelde-wuerfel', 'aria-hidden': 'true' },
         ['#3987e5', '#d95926', '#f3c35b', '#9085e9'].map((f) => h('span', { style: { background: f } }))),
       h('h1', { class: 'wortmarke' }, SEITENTITEL),
-      h('p', { class: 'text-2' }, 'Wer labert, macht bald fertig'),
+      h('p', { class: 'text-2 startspruch' }, STARTSPRUCH),
       formular,
       kontakt ? h('p', { class: 'anmelde-kontakt' }, 'Kontakt: ', h('a', { class: 'kontakt', href: 'mailto:' + kontakt }, kontakt)) : null)));
   zeigeFehler(fehler);
@@ -3910,10 +4287,16 @@ async function abmelden(nachfragen = true) {
     const ok = await bestaetigen({ titel: 'Abmelden?', text: 'Dieses Gerät vergisst den PIN. Beim nächsten Öffnen musst du ihn neu eingeben.', ja: 'Abmelden' });
     if (!ok) return;
   }
+  stoppeAbspielen();
+  zustand.zeitreise = null;
+  zustand.zeitreiseOffen = false;
   speicher.loesch('pin');
   api.pin = null;
   zustand.modell = null;
   zustand.roh = null;
+  zustand.ausCache = false;
+  zustand.standHinweis = null;
+  vergissDaten();
   schliesseAlleBlaetter();
   zeigeAnmeldung();
 }
@@ -3955,7 +4338,10 @@ function zeitreisePanel(tage) {
     anzeige.textContent = fmtDatumLang(tage[i]);
     if (neuZeichnen) zeigeAnsichtBehalteScroll();
   };
-  regler.addEventListener('input', entprellen(() => setze(Number(regler.value)), 120));
+  // Beim Ziehen wandert nur das Datum mit; die Auswertung folgt beim Loslassen (change),
+  // sonst würde der Regler unter dem Finger durch das Neuzeichnen ersetzt
+  regler.addEventListener('input', () => { anzeige.textContent = fmtDatumLang(tage[Number(regler.value)]); });
+  regler.addEventListener('change', () => setze(Number(regler.value)));
   const spielKnopf = h('button', { type: 'button', class: 'knopf klein', 'aria-label': zustand.abspielen ? 'Anhalten' : 'Abspielen' },
     symbol(zustand.abspielen ? 'pause' : 'play', 16), zustand.abspielen ? 'Anhalten' : 'Abspielen');
   spielKnopf.addEventListener('click', () => {
@@ -3984,7 +4370,8 @@ function stoppeAbspielen() {
 
 function zeigeAnsichtBehalteScroll() {
   const y = window.scrollY;
-  zeigeAnsicht();
+  zustand.inPlaceRender = true;
+  try { zeigeAnsicht(); } finally { zustand.inPlaceRender = false; }
   window.scrollTo(0, y);
 }
 
@@ -4053,7 +4440,7 @@ function podium(eintraege) {
 
 function wertMitZaehlen(wert, format) {
   const el = h('span', {});
-  if (zustand.abspielen) el.textContent = format(wert); else zaehleHoch(el, wert, format);
+  zaehleHoch(el, wert, format); // zählt nur beim ersten Aufbau hoch (animationenAktiv)
   return el;
 }
 
@@ -4164,7 +4551,7 @@ function karteQuartal(A) {
       fuehrend ? h('div', { class: 'zeile zwischen' }, spielerLink(fuehrend.person, { groesse: 'gross' }),
         h('div', { class: 'stapel eng', style: { alignItems: 'flex-end' } }, h('strong', { style: { fontSize: '22px' } }, fmtZahl(fuehrend.index)), h('span', { class: 'sehr-klein text-3' }, 'Treppchen-Index')))
         : h('p', { class: 'text-3 klein' }, 'Noch hat niemand genug Partien.'),
-      h('p', { class: 'sehr-klein text-3' }, 'Teilnahme ab ' + mehrzahl(aktuell.noetig, 'Partie', 'Partien') + ' (Hälfte von ' + aktuell.gesamt + ').')));
+      h('p', { class: 'sehr-klein text-3' }, 'Wertbar ab ' + mehrzahl(aktuell.noetigeAbende, 'Abend', 'Abenden') + ' von ' + aktuell.abende + ' und ' + mehrzahl(aktuell.noetig, 'Partie', 'Partien') + '.')));
   }
   if (letztes) {
     teile.push(h('div', { class: 'zeile zwischen', style: { borderTop: aktuell ? '1px solid var(--linie)' : '0', paddingTop: aktuell ? '10px' : '0' } },
@@ -4199,11 +4586,11 @@ function kennzahlenTabelle(A, optionen = {}) {
   const spalten = [
     { id: 'name', titel: 'Spieler', links: true },
     { id: 'partien', titel: 'Partien', wert: (S) => S.gesamt.partien, text: (S) => fmtZahl(S.gesamt.partien) },
-    { id: 'siegquote', titel: 'Siege', wert: (S) => S.gesamt.siegquote, text: (S) => fmtProzent(S.gesamt.siegquote) + ' (' + S.gesamt.siege + ')' },
+    { id: 'siegquote', titel: 'Siegquote', wert: (S) => S.gesamt.siegquote, text: (S) => fmtProzent(S.gesamt.siegquote) + ' (' + S.gesamt.siege + ')' },
     { id: 'ueber', titel: 'Über Erw.', info: 'ueberErwartung', wert: (S) => S.gesamt.ueberErwartung, text: (S) => fmtPP(S.gesamt.ueberErwartung) },
     { id: 'score', titel: 'Platz-Score', info: 'platzscore', wert: (S) => S.gesamt.score, text: (S) => fmtProzent(S.gesamt.score) },
     { id: 'platz', titel: 'Ø Platz', wert: (S) => (S.gesamt.platzSchnitt === null ? null : -S.gesamt.platzSchnitt), text: (S) => fmtKurz(S.gesamt.platzSchnitt, 2) },
-    { id: 'treppchen', titel: 'Treppchen', info: 'treppchen', wert: (S) => S.gesamt.treppchenIndex, text: (S) => fmtZahl(S.gesamt.treppchenIndex) },
+    { id: 'treppchen', titel: 'Treppchen-Index', info: 'treppchen', wert: (S) => S.gesamt.treppchenIndex, text: (S) => fmtZahl(S.gesamt.treppchenIndex) },
     { id: 'konstanz', titel: 'Konstanz', info: 'konstanz', wert: (S) => S.gesamt.konstanz, text: (S) => fmtProzent(S.gesamt.konstanz) },
     { id: 'elo', titel: 'Elo', info: 'elo', wert: (S) => S.elo, text: (S) => fmtElo(S.elo) + ' ' + (S.eloDeltaZeitraum && zustand.zeitraumArt !== 'gesamt' ? '(' + fmtDelta(S.eloDeltaZeitraum) + ')' : '') }
   ];
@@ -4220,19 +4607,21 @@ function kennzahlenTabelle(A, optionen = {}) {
       const d = typeof va === 'string' ? va.localeCompare(vb) : vb - va;
       return absteigend ? d : -d;
     });
-    const kopf = h('tr', {}, spalten.map((s2) => h('th', {
+    // Die Sortierspalte rückt direkt neben den Namen, damit sie am Handy ohne Wischen sichtbar ist
+    const reihenfolge = [spalten[0]].concat(spalten.filter((x) => x.id === sortierung && x.id !== 'name'), spalten.filter((x) => x.id !== 'name' && x.id !== sortierung));
+    const kopf = h('tr', {}, reihenfolge.map((s2) => h('th', {
       class: s2.links ? 'links' : '', scope: 'col', 'aria-sort': s2.id === sortierung ? (absteigend ? 'descending' : 'ascending') : null
     }, h('button', { type: 'button', onclick: () => { if (sortierung === s2.id) absteigend = !absteigend; else { sortierung = s2.id; absteigend = true; } zeichne(); } },
       s2.titel, s2.id === sortierung ? (absteigend ? '↓' : '↑') : ''))));
-    const koerper = zeilen.map((S) => h('tr', { class: S.gesamt.gewertet ? '' : 'gedimmt' }, spalten.map((s2) => h('td', { class: s2.links ? 'links' : '' },
+    const koerper = zeilen.map((S) => h('tr', { class: S.gesamt.gewertet ? '' : 'gedimmt' }, reihenfolge.map((s2) => h('td', { class: s2.links ? 'links' : '' },
       s2.id === 'name' ? spielerLink(S.person, { groesse: 'klein' }) : s2.text(S)))));
     ersetzeInhalt(rahmen, beobachteRollen(h('div', { class: 'tabellen-rahmen' }, h('table', { class: 'daten' }, h('thead', {}, kopf), h('tbody', {}, koerper)))));
   };
   zeichne();
   return h('div', { class: 'stapel' }, rahmen,
-    h('p', { class: 'sehr-klein text-3' }, 'Spaltenkopf antippen zum Sortieren. Ausgegraut: weniger als ' + MIN_PARTIEN + ' Partien im Zeitraum. So wird gerechnet:'),
+    h('p', { class: 'sehr-klein text-3' }, 'Spaltenkopf antippen zum Sortieren, die Sortierspalte steht immer vorn; nach rechts wischen zeigt die übrigen Spalten. Ausgegraut: weniger als ' + MIN_PARTIEN + ' Partien im Zeitraum. So wird gerechnet:'),
     h('div', { class: 'zeile umbruch', style: { gap: '6px' } }, ['platzscore', 'ueberErwartung', 'treppchen', 'konstanz'].map((k) => h('button', {
-      type: 'button', class: 'chip', style: { minHeight: '30px', fontSize: '12.5px', padding: '0 10px' }, onclick: () => zeigeBlatt({ titel: ERKLAERUNGEN[k].titel, inhalt: h('div', { class: 'stapel' }, erklaerungsInhalt(k)) })
+      type: 'button', class: 'chip klein', onclick: () => zeigeBlatt({ titel: ERKLAERUNGEN[k].titel, inhalt: h('div', { class: 'stapel' }, erklaerungsInhalt(k)) })
     }, symbol('info', 14), ERKLAERUNGEN[k].titel))));
 }
 
@@ -4309,10 +4698,10 @@ function personenMitPartien(A) {
 
 function staerkenMatrix(A) {
   const spiele = zustand.modell.spiele.filter((sp) => A.spiele.get(sp.key).alle.length);
-  const zeilen = A.teilnehmer.map((S) => ({ key: S.key, S, name: S.person.kuerzel, kopf: spielerLink(S.person, { ohneName: true }) }));
+  const zeilen = A.teilnehmer.map((S) => ({ key: S.key, S, name: S.person.kuerzel, kopf: spielerLink(S.person, { ohneName: true, inaktivZeigen: false }) }));
   const spalten = spiele.map((sp) => ({
     key: sp.key, sp, name: sp.name,
-    kopf: setzeSpielFarben(h('span', { class: 'stapel eng', style: { alignItems: 'center', gap: '2px' } }, h('span', { class: 'spielmarke', style: { padding: '3px' } }, h('span', { class: 'spiel-punkt' }, symbol(sp.symbol, 14))), h('span', {}, sp.name.split(' ')[0])), sp)
+    kopf: setzeSpielFarben(h('span', { class: 'stapel eng', style: { alignItems: 'center', gap: '2px' } }, h('span', { class: 'spielmarke', style: { padding: '3px' } }, h('span', { class: 'spiel-punkt' }, symbol(sp.symbol, 14))), h('span', {}, kurzerSpielname(sp, 10))), sp)
   }));
   const matrix = matrixDiagramm(zeilen, spalten, (z, sp) => {
     const SG = z.S.proSpiel.get(sp.key);
@@ -4339,8 +4728,8 @@ function treppchenInhalt(A) {
   })), { bezug: 100, min: 0, max: Math.max(200, ...gewertet.map((S) => S.gesamt.treppchenIndex || 0)) });
   const spiele = zustand.modell.spiele.filter((sp) => A.spiele.get(sp.key).anzahl);
   const matrix = matrixDiagramm(
-    A.rangTreppchen.filter((S) => S.gesamt.partien > 0).map((S) => ({ key: S.key, S, name: S.person.kuerzel, kopf: spielerLink(S.person, { ohneName: true }) })),
-    spiele.map((sp) => ({ key: sp.key, sp, name: sp.name, kopf: h('span', {}, sp.name.split(' ')[0]) })),
+    A.rangTreppchen.filter((S) => S.gesamt.partien > 0).map((S) => ({ key: S.key, S, name: S.person.kuerzel, kopf: spielerLink(S.person, { ohneName: true, inaktivZeigen: false }) })),
+    spiele.map((sp) => ({ key: sp.key, sp, name: sp.name, kopf: h('span', { title: sp.name }, kurzerSpielname(sp, 10)) })),
     (z, sp) => {
       const SG = z.S.proSpiel.get(sp.key);
       if (!SG || !SG.partien) return null;
@@ -4364,11 +4753,11 @@ function quartalsTafel(A) {
     return h('div', { class: 'karte flach', style: { padding: '14px' } },
       h('div', { class: 'zeile zwischen umbruch' },
         h('div', { class: 'zeile' }, symbol(q.laufend ? 'uhr' : 'pokal', 20, q.laufend ? 'text-3' : 'gold'), h('strong', {}, fmtQuartal(q.jahr, q.q)), q.laufend ? h('span', { class: 'etikett' }, 'läuft, vorläufig') : null),
-        h('span', { class: 'sehr-klein text-3' }, mehrzahl(q.gesamt, 'Partie', 'Partien') + ' · Teilnahme ab ' + q.noetig)),
+        h('span', { class: 'sehr-klein text-3' }, mehrzahl(q.gesamt, 'Partie', 'Partien') + ' an ' + mehrzahl(q.abende, 'Abend', 'Abenden') + ' · wertbar ab ' + q.noetigeAbende + (q.noetigeAbende === 1 ? ' Abend' : ' Abenden'))),
       berechtigte.length ? h('div', { class: 'stapel eng', style: { marginTop: '10px' } }, berechtigte.slice(0, 3).map((k, i) => h('div', { class: 'zeile zwischen' },
         h('span', { class: 'zeile' }, h('span', { class: 'rang text-3', style: { width: '18px' } }, (i + 1) + '.'), spielerLink(k.person, { groesse: 'klein' })),
-        h('span', { class: 'klein' }, h('strong', {}, fmtZahl(k.index)), h('span', { class: 'text-3' }, ' · ' + mehrzahl(k.partien, 'Partie', 'Partien')))))) : h('p', { class: 'klein text-3', style: { marginTop: '8px' } }, 'Niemand war bei der Hälfte der Partien dabei, deshalb kein Titel.'),
-      andere.length ? h('p', { class: 'sehr-klein text-3', style: { marginTop: '8px' } }, 'Zu selten dabei: ' + andere.map((k) => k.person.kuerzel + ' (' + k.partien + ')').join(', ')) : null);
+        h('span', { class: 'klein' }, h('strong', {}, fmtZahl(k.index)), h('span', { class: 'text-3' }, ' · ' + mehrzahl(k.abende, 'Abend', 'Abende') + ', ' + mehrzahl(k.partien, 'Partie', 'Partien')))))) : h('p', { class: 'klein text-3', style: { marginTop: '8px' } }, 'Niemand war an der Hälfte der Abende dabei, deshalb kein Titel.'),
+      andere.length ? h('p', { class: 'sehr-klein text-3', style: { marginTop: '8px' } }, 'Zu selten dabei: ' + andere.map((k) => k.person.kuerzel + ' (' + mehrzahl(k.abende, 'Abend', 'Abende') + ')').join(', ')) : null);
   }));
 }
 
@@ -4446,6 +4835,21 @@ function jahresrueckblickBanner(A) {
     symbol('weiter', 20, 'text-3'));
 }
 
+/** Leiste mit Chips, die zu einem Bereich springen und ihn aufklappen (die Startseite ist am Handy sehr lang) */
+function sprungleiste(eintraege) {
+  return h('div', { class: 'sprungleiste', role: 'navigation', 'aria-label': 'Bereiche auf dieser Seite' },
+    h('span', { class: 'sehr-klein text-3', style: { flex: '0 0 auto' } }, 'Springe zu'),
+    eintraege.map((e) => h('button', { type: 'button', class: 'chip klein', onclick: () => {
+      const details = document.getElementById('bereich-' + e.id);
+      if (!details) return;
+      if (!details.open) { details.open = true; details.dispatchEvent(new Event('toggle')); }
+      const oben = details.getBoundingClientRect().top + window.scrollY - (document.querySelector('.kopf') ? document.querySelector('.kopf').offsetHeight : 0) - 8;
+      window.scrollTo({ top: oben, behavior: bewegungReduziert() ? 'auto' : 'smooth' });
+      const summary = details.querySelector('summary');
+      if (summary) { try { summary.focus({ preventScroll: true }); } catch (err) { /* egal */ } }
+    } }, e.text)));
+}
+
 function ansichtGesamt() {
   setzeKopf(null);
   const A = aktuelleAuswertung();
@@ -4464,6 +4868,11 @@ function ansichtGesamt() {
   wurzel.appendChild(h('div', { class: 'raster zwei', style: { alignItems: 'start' } }, karteForm(A), jahresrueckblickBanner(A)));
   wurzel.appendChild(spieleSchnellzugriff(A));
   const bereiche = h('div', {});
+  wurzel.appendChild(sprungleiste([
+    { id: 'kennzahlen', text: 'Kennzahlen' }, { id: 'eloverlauf', text: 'Elo-Verlauf' }, { id: 'rangverlauf', text: 'Rangverlauf' },
+    { id: 'staerken', text: 'Stärken' }, { id: 'treppchen', text: 'Treppchen' }, { id: 'quartale', text: 'Quartale' },
+    { id: 'aktivitaet', text: 'Aktivität' }, { id: 'spielvergleich', text: 'Spiele' }
+  ]));
   bereiche.appendChild(bereich('kennzahlen', { titel: 'Kennzahlen', text: 'Siegquote, Platz-Score, Treppchen, Konstanz', symbol: 'tabelle', offen: true }, () => kennzahlenTabelle(A)));
   bereiche.appendChild(bereich('eloverlauf', { titel: 'Elo-Verlauf', text: 'Entwicklung aller Spieler', symbol: 'trend', offen: true, info: 'elo' }, () => eloVerlaufInhalt(A, null)));
   bereiche.appendChild(bereich('rangverlauf', { titel: 'Rangverlauf', text: 'Wer stand wann auf welchem Platz', symbol: 'treppchen', info: 'rangverlauf' }, () => bumpDiagramm(A.rangVerlauf, personenMitPartien(A).filter((p) => p.aktiv))));
@@ -4585,11 +4994,14 @@ function punkteInhalt(G) {
     person: z.S.person,
     werte: z.SG.punkte.map((x) => ({ wert: x.wert, titel: fmtDatum(x.tag), zusatz: 'Platz ' + x.platz }))
   })));
+  // Zu Beginn nur die drei Spieler mit den meisten Punkte-Partien, sonst überdecken sich sieben Punktwolken;
+  // alle anderen lassen sich über die Legende zuschalten
+  const aktivste = new Set(zeilen.slice().sort((a, b) => b.SG.punkte.length - a.SG.punkte.length).slice(0, 3).map((z) => z.S.key));
   const verlauf = punkteVerlaufDiagramm(zeilen.map((z) => ({
     id: z.S.key, name: z.S.person.kuerzel, farbe: z.S.person.farbe,
     punkte: z.SG.punkte.map((x) => ({ x: x.tag, y: x.wert, zusatz: 'Platz ' + x.platz }))
-  })));
-  const tabelle = datenTabelle([{ titel: 'Spieler', links: true }, { titel: 'Ergebnisse' }, { titel: 'Ø' }, { titel: 'Median' }, { titel: 'Bestwert' }, { titel: 'Trend je Partie' }],
+  })), { anfangsSichtbar: zeilen.length > 4 ? aktivste : null });
+  const tabelle = datenTabelle([{ titel: 'Spieler', links: true }, { titel: 'Ergebnisse' }, { titel: 'Ø' }, { titel: 'Median' }, { titel: 'Bestwert' }, { titel: 'Trend je eigener Partie' }],
     zeilen.map((z) => {
       const werte = z.SG.punkte.map((x) => x.wert);
       const trend = z.SG.punkteTrend;
@@ -4597,7 +5009,7 @@ function punkteInhalt(G) {
     }));
   return h('div', { class: 'stapel weit' },
     h('div', { class: 'stapel eng' }, h('span', { class: 'augenbraue' }, 'Verteilung je Spieler'), verteilung),
-    h('div', { class: 'stapel eng' }, h('span', { class: 'augenbraue' }, 'Punkte über die Zeit mit Trendlinie'), verlauf),
+    h('div', { class: 'stapel eng' }, h('span', { class: 'augenbraue' }, 'Punkte über die Zeit mit Trendlinie'), zeilen.length > 4 ? h('p', { class: 'sehr-klein text-3' }, 'Eingeblendet sind die drei Spieler mit den meisten Punkte-Partien. Weitere über die Legende zuschalten.') : null, verlauf),
     tabelle,
     h('p', { class: 'sehr-klein text-3' }, 'Punkte sind freiwillig. Statistiken zählen nur Partien, in denen Punkte eingetragen wurden.'));
 }
@@ -4613,14 +5025,14 @@ function nachSpielerzahlInhalt(G) {
     if (!x) return '–';
     // schmales Leerzeichen vor % spart Platz in der kleinen Zeile
     const score = fmtProzent(mittel(x.scores)).replace(NBSP, '\u202F');
-    return h('span', { class: 'zelle-stapel', title: 'Siegquote ' + fmtProzent(x.siege / x.partien) + ', Platzierungs-Score ' + fmtProzent(mittel(x.scores)) + ', ' + mehrzahl(x.partien, 'Partie', 'Partien') },
+    return h('span', { class: 'zelle-stapel', title: 'Siegquote ' + fmtProzent(x.siege / x.partien) + ', Platz-Score ' + fmtProzent(mittel(x.scores)) + ', ' + mehrzahl(x.partien, 'Partie', 'Partien') },
       h('strong', {}, fmtProzent(x.siege / x.partien)), h('span', { class: 'sehr-klein text-3' }, score + ' (' + x.partien + ')'));
   })));
   const zusammenfassung = [h('strong', {}, 'Partien')].concat(zahlen.map((n) => fmtZahl(G.nachSpielerzahl.get(n).partien)));
   const punkteZeile = G.hatPunkte ? [h('strong', {}, 'Ø Pkt.')].concat(zahlen.map((n) => { const w = G.nachSpielerzahl.get(n).punkte; return w.length ? fmtKurz(mittel(w), 1) : '–'; })) : null;
   return h('div', { class: 'stapel' },
     datenTabelle(spalten, [zusammenfassung].concat(punkteZeile ? [punkteZeile] : [], zeilen), { kompakt: true }),
-    h('p', { class: 'sehr-klein text-3' }, 'Je Feld oben die Siegquote, darunter Platzierungs-Score und in Klammern die Anzahl Partien. Zufall wäre bei 2 Spielern 50 %, bei 4 Spielern 25 %, bei 6 Spielern 17 % Siegquote.'));
+    h('p', { class: 'sehr-klein text-3' }, 'Je Feld oben die Siegquote, darunter Platz-Score und in Klammern die Anzahl Partien. Zufall wäre bei 2 Spielern 50 %, bei 4 Spielern 25 %, bei 6 Spielern 17 % Siegquote.'));
 }
 
 function spezialistenInhalt(G) {
@@ -4684,8 +5096,9 @@ function neuerEintrag(spielKey) {
     spielKey: spielKey || null,
     datum: textAusTag(spieleabendTag()),
     reihenfolge: [],
-    punkte: {},
+    punkte: Object.create(null), // ohne Prototyp, damit Kürzel wie CONSTRUCTOR keine geerbten Werte treffen
     anfrageId: null,
+    anfrageInhalt: null,
     fehler: null,
     speichert: false,
     zuletzt: (zustand.eintragen && zustand.eintragen.zuletzt) || []
@@ -4830,17 +5243,19 @@ function ansichtEintragen() {
       'aria-label': 'Punkte von ' + person.kuerzel + ' (freiwillig)', value: e.punkte[r.key] || '', autocomplete: 'off'
     });
     punkteFeld.addEventListener('input', () => { e.punkte[r.key] = punkteFeld.value; aktualisiereHinweise(); });
+    // Bereiche im Raster (siehe .platzzeile in styles.css): breit in einer Zeile,
+    // am Handy zweizeilig, damit der gleichauf-Knopf nicht vom Punktefeld verdeckt wird
     return h('div', { class: 'platzzeile' + (plaetze[i] === 1 ? ' p1' : '') },
       h('span', { class: 'platz-nr', 'aria-label': 'Platz ' + plaetze[i] }, plaetze[i] + '.'),
       abzeichen(person),
-      h('div', { class: 'stapel eng', style: { gap: '4px' } },
-        h('strong', {}, person.kuerzel),
-        i > 0 ? h('button', {
-          type: 'button', class: 'gleichauf-knopf', 'aria-pressed': r.gleichauf ? 'true' : 'false',
-          onclick: () => { r.gleichauf = !r.gleichauf; neuZeichnen(); }
-        }, r.gleichauf ? '= gleichauf' : 'gleichauf?') : h('span', { class: 'sehr-klein text-3' }, 'Sieger')),
+      h('strong', { class: 'platz-name abgeschnitten' }, person.kuerzel),
+      h('div', { class: 'gleichauf-zelle' }, i > 0 ? h('button', {
+        type: 'button', class: 'gleichauf-knopf', 'aria-pressed': r.gleichauf ? 'true' : 'false',
+        'aria-label': r.gleichauf ? person.kuerzel + ' gleichauf mit dem Vorherigen (antippen zum Aufheben)' : person.kuerzel + ' gleichauf mit dem Vorherigen setzen',
+        onclick: () => { r.gleichauf = !r.gleichauf; neuZeichnen(); }
+      }, r.gleichauf ? '= gleichauf' : 'gleichauf?') : h('span', { class: 'sehr-klein text-3' }, 'Sieger')),
       punkteFeld,
-      h('button', { type: 'button', class: 'symbol-knopf', 'aria-label': person.kuerzel + ' entfernen', onclick: () => { e.reihenfolge.splice(i, 1); if (e.reihenfolge[0]) e.reihenfolge[0].gleichauf = false; neuZeichnen(); } }, symbol('schliessen', 18)));
+      h('button', { type: 'button', class: 'symbol-knopf entfernen-knopf', 'aria-label': person.kuerzel + ' entfernen', onclick: () => { e.reihenfolge.splice(i, 1); if (e.reihenfolge[0]) e.reihenfolge[0].gleichauf = false; neuZeichnen(); } }, symbol('schliessen', 18)));
   }));
 
   const hinweisBox = h('div', { class: 'stapel eng' });
@@ -4882,7 +5297,7 @@ function ansichtEintragen() {
     schritt(3, 'Reihenfolge', h('p', { class: 'klein text-2' }, 'Tippe die Spieler in der Reihenfolge ihrer Platzierung an, zuerst den Sieger. Bei Gleichstand „gleichauf“ antippen. Punkte sind freiwillig.'),
       e.reihenfolge.length ? reihen : null,
       auswahl,
-      e.reihenfolge.length ? h('button', { type: 'button', class: 'knopf klein leise', style: { alignSelf: 'flex-start' }, onclick: () => { e.reihenfolge = []; e.punkte = {}; neuZeichnen(); } }, symbol('wiederherstellen', 16), 'Reihenfolge zurücksetzen') : null),
+      e.reihenfolge.length ? h('button', { type: 'button', class: 'knopf klein leise', style: { alignSelf: 'flex-start' }, onclick: () => { e.reihenfolge = []; e.punkte = Object.create(null); neuZeichnen(); } }, symbol('wiederherstellen', 16), 'Reihenfolge zurücksetzen') : null),
     spiel && e.reihenfolge.length >= 2 ? siegchancenKarte(spiel, e.reihenfolge.map((r) => modell.spielerNach.get(r.key)), 'Siegchancen vor der Partie', tagAusText(e.datum)) : null,
     hinweisBox,
     h('div', { class: 'speicherleiste' }, h('div', { class: 'karte speicher-karte' }, zusammenfassung, speichernKnopf)));
@@ -4912,7 +5327,6 @@ async function speicherePartie() {
   const spiel = e.spielKey ? modell.spielNach.get(e.spielKey) : null;
   const probleme = pruefeEintrag(e, spiel);
   if (probleme.length || e.speichert) return;
-  if (!e.anfrageId) e.anfrageId = neueAnfrageId();
   e.speichert = true;
   e.fehler = null;
   zeigeAnsichtBehalteScroll();
@@ -4922,10 +5336,16 @@ async function speicherePartie() {
     punkte: leseEingabePunkte(e.punkte[r.key]).wert,
     platz: plaetze[i]
   }));
+  // Die Anfrage-ID schützt vor Doppeleinträgen bei Wiederholungen. Sie gehört zum Inhalt:
+  // Wurde nach einem Fehlversuch etwas geändert, bekommt die Partie eine neue ID, sonst
+  // würde das Script die alte, bereits gespeicherte Partie aus dem Zwischenspeicher liefern.
+  const inhalt = JSON.stringify({ datum: e.datum, spiel: spiel.name, ergebnisse });
+  if (!e.anfrageId || e.anfrageInhalt !== inhalt) { e.anfrageId = neueAnfrageId(); e.anfrageInhalt = inhalt; }
   const vorher = auswerten(modell, {});
   try {
     const antwort = await api.aufruf('add', { datum: e.datum, spiel: spiel.name, ergebnisse, anfrageId: e.anfrageId });
-    aktualisiereRohdaten((roh) => { roh.partien.push(...antwort.partien); });
+    // Falls die Partie durch ein zwischenzeitliches „Neu laden“ schon da ist, nicht doppelt anhängen
+    aktualisiereRohdaten((roh) => { roh.partien = roh.partien.filter((z) => z.id !== antwort.id); roh.partien.push(...antwort.partien); });
     const nachher = auswerten(zustand.modell, {});
     const partie = zustand.modell.aktivePartien.find((p) => p.id === antwort.id);
     const neueErfolge = [];
@@ -4939,8 +5359,9 @@ async function speicherePartie() {
     if (partie) zeigeErgebnis(partie, neueErfolge);
     else meldung('Gespeichert.');
   } catch (err) {
-    e.fehler = fehlerText(err);
     e.speichert = false;
+    if (err && err.behandelt) return; // PIN-Fehler: die Anmeldung ist schon zu sehen
+    e.fehler = fehlerText(err);
     zeigeAnsichtBehalteScroll();
     meldung(e.fehler, { art: 'fehler' });
     return;
@@ -4951,7 +5372,7 @@ function zeigeErgebnis(partie, neueErfolge) {
   const zeilen = partie.ergebnisse.map((e) => h('div', { class: 'ergebnis', style: { gridTemplateColumns: '24px auto minmax(0,1fr) auto auto' } },
     h('span', { class: 'platz' + (e.platz === 1 ? ' p1' : '') }, e.platz + '.'),
     abzeichen(e.person, 'klein'),
-    h('span', { class: 'stapel', style: { gap: 0 } }, h('strong', {}, e.person.kuerzel), h('span', { class: 'sehr-klein text-3' }, (e.punkte !== null ? fmtKurz(e.punkte, 1) + ' Punkte · ' : '') + fmtKurz(e.treppchen, 1) + ' Treppchen')),
+    h('span', { class: 'stapel', style: { gap: 0 } }, h('strong', {}, e.person.kuerzel), h('span', { class: 'sehr-klein text-3' }, (e.punkte !== null ? fmtKurz(e.punkte, 1) + ' Punkte · ' : '') + fmtKurz(e.treppchen, 1) + ' Treppchen-Punkte')),
     h('span', { class: 'stapel', style: { gap: 0, alignItems: 'flex-end' } }, deltaAnzeige(e.eloDelta, 1), h('span', { class: 'sehr-klein text-3' }, 'gesamt')),
     h('span', { class: 'stapel', style: { gap: 0, alignItems: 'flex-end' } }, deltaAnzeige(e.spielEloDelta, 1), h('span', { class: 'sehr-klein text-3' }, 'im Spiel'))));
   const erfolge = neueErfolge.length ? h('div', { class: 'stapel eng', style: { marginTop: '6px' } },
@@ -5151,7 +5572,7 @@ function ansichtProfil() {
     kachel('Partien', g.partien, zustand.zeitraumArt === 'gesamt' ? mehrzahl(S.abende, 'Abend', 'Abende') : 'im Zeitraum', { format: (v) => fmtZahl(v) }),
     kachel('Siegquote', fmtProzent(g.siegquote), fmtPP(g.ueberErwartung) + ' über Erwartung', { info: 'ueberErwartung' }),
     kachel('Platz-Score', fmtProzent(g.score), 'Ø Platz ' + fmtKurz(g.platzSchnitt, 2), { info: 'platzscore' }),
-    kachel('Treppchen', fmtZahl(g.treppchenIndex), fmtKurz(g.treppchenSumme, 1) + ' Punkte gesamt', { info: 'treppchen' }),
+    kachel('Treppchen-Index', fmtZahl(g.treppchenIndex), fmtKurz(g.treppchenSumme, 1) + ' Treppchen-Punkte gesamt', { info: 'treppchen' }),
     kachel('Konstanz', g.konstanz === null ? '–' : fmtProzent(g.konstanz), g.konstanz === null ? 'ab ' + MIN_PARTIEN + ' Partien' : konstanzText(g.konstanz), { info: 'konstanz' })));
   const bereiche = h('div', {});
   bereiche.appendChild(bereich('profil-form', { titel: 'Form und Serien', text: 'Letzte fünf Partien und Serien', symbol: 'flamme', offen: true, info: 'form' }, () => formInhalt(S)));
@@ -5233,8 +5654,8 @@ function rivalitaeten(S) {
   const highlights = h('div', { class: 'raster zwei' },
     S.angstgegner ? h('div', { class: 'kachel' }, h('span', { class: 'augenbraue' }, 'Angstgegner'), h('div', { class: 'zeile', style: { marginTop: '6px' } }, spielerLink(S.angstgegner.person), h('span', { class: 'schlecht', style: { marginLeft: 'auto', fontWeight: 750 } }, fmtProzent(S.angstgegner.quote))), h('div', { class: 'unter' }, S.angstgegner.siege + ' : ' + S.angstgegner.niederlagen + ' in ' + mehrzahl(S.angstgegner.gemeinsam, 'Partie', 'Partien'))) : null,
     S.lieblingsgegner ? h('div', { class: 'kachel' }, h('span', { class: 'augenbraue' }, 'Lieblingsgegner'), h('div', { class: 'zeile', style: { marginTop: '6px' } }, spielerLink(S.lieblingsgegner.person), h('span', { class: 'gut', style: { marginLeft: 'auto', fontWeight: 750 } }, fmtProzent(S.lieblingsgegner.quote))), h('div', { class: 'unter' }, S.lieblingsgegner.siege + ' : ' + S.lieblingsgegner.niederlagen + ' in ' + mehrzahl(S.lieblingsgegner.gemeinsam, 'Partie', 'Partien'))) : null);
-  const tabelle = datenTabelle([{ titel: 'Gegner', links: true }, { titel: 'Gemeinsam' }, { titel: 'Bilanz' }, { titel: 'Duell-Quote' }],
-    gegner.map((x) => ({ gedimmt: x.gemeinsam < MIN_PARTIEN, zellen: [spielerLink(x.person, { groesse: 'klein' }), fmtZahl(x.gemeinsam), x.siege + ' : ' + x.niederlagen + (x.remis ? ' (' + x.remis + ' gleich)' : ''), fmtProzent(x.quote)] })));
+  const tabelle = datenTabelle([{ titel: 'Gegner', links: true }, { titel: 'Partien' }, { titel: 'Bilanz' }, { titel: 'Quote' }],
+    gegner.map((x) => ({ gedimmt: x.gemeinsam < MIN_PARTIEN, zellen: [spielerLink(x.person, { groesse: 'klein', inaktivZeigen: false }), fmtZahl(x.gemeinsam), h('span', { class: 'zelle-stapel' }, h('strong', {}, x.siege + ' : ' + x.niederlagen), x.remis ? h('span', { class: 'sehr-klein text-3' }, x.remis + ' gleich') : null), fmtProzent(x.quote)] })), { kompakt: true });
   return h('div', { class: 'stapel' }, highlights.children.length ? highlights : null, tabelle,
     h('p', { class: 'sehr-klein text-3' }, 'Duell-Quote: Anteil der Partien, in denen man vor diesem Gegner lag (gleicher Platz zählt halb). Angst- und Lieblingsgegner ab ' + MIN_PARTIEN + ' gemeinsamen Partien.'));
 }
@@ -5244,8 +5665,9 @@ function bestwerte(S) {
   const karten = h('div', { class: 'raster zwei' },
     S.paradespiel ? h('div', { class: 'kachel' }, h('span', { class: 'augenbraue' }, 'Paradespiel'), h('div', { style: { marginTop: '8px' } }, spielMarke(S.paradespiel.spiel)), h('div', { class: 'unter' }, 'Höchste Spiel-Elo: ' + fmtElo(S.paradespiel.elo))) : h('div', { class: 'kachel' }, h('span', { class: 'augenbraue' }, 'Paradespiel'), h('div', { class: 'unter' }, 'ab ' + MIN_PARTIEN + ' Partien in einem Spiel')),
     S.lieblingsspiel ? h('div', { class: 'kachel' }, h('span', { class: 'augenbraue' }, 'Lieblingsspiel'), h('div', { style: { marginTop: '8px' } }, spielMarke(S.lieblingsspiel.spiel)), h('div', { class: 'unter' }, 'am häufigsten gespielt: ' + mehrzahl(S.lieblingsspiel.partien, 'Partie', 'Partien'))) : null);
+  // Erste Spalte schmal (Symbol + kurzer Name), damit am Handy Platz für die Zahlen bleibt
   const tabelle = datenTabelle([{ titel: 'Spiel', links: true }, { titel: 'Partien' }, { titel: 'Beste Elo' }, { titel: 'Bestpunktzahl' }, { titel: 'Ø Punkte' }, { titel: 'Längste Serie' }],
-    spiele.map((SG) => [spielMarke(SG.spiel), fmtZahl(SG.partienGesamt), fmtElo(Math.max(...SG.verlauf.map((v) => v.elo))), SG.bestwert !== null ? fmtKurz(SG.bestwert, 1) : '–', SG.punkteSchnitt !== null ? fmtKurz(SG.punkteSchnitt, 1) : '–', mehrzahl(laengsteSiegesserie(SG.liste), 'Sieg', 'Siege')]));
+    spiele.map((SG) => [spielLabel(SG.spiel), fmtZahl(SG.partienGesamt), fmtElo(Math.max(...SG.verlauf.map((v) => v.elo))), SG.bestwert !== null ? fmtKurz(SG.bestwert, 1) : '–', SG.punkteSchnitt !== null ? fmtKurz(SG.punkteSchnitt, 1) : '–', fmtZahl(laengsteSiegesserie(SG.liste))]), { kompakt: true });
   return h('div', { class: 'stapel' }, karten, tabelle, h('p', { class: 'sehr-klein text-3' }, 'Punkte-Werte gelten für den gewählten Zeitraum, Elo-Werte für die ganze Zeit bis zum Stichtag.'));
 }
 
@@ -5305,12 +5727,15 @@ function ansichtVergleich() {
   wurzel.appendChild(kennzahlVergleich(A, gewaehlt));
   const spiele = zustand.modell.spiele.filter((sp) => gewaehlt.some((S) => { const SG = S.proSpiel.get(sp.key); return SG && SG.partien; }));
   wurzel.appendChild(karte({ augenbraue: 'Stärken je Spiel', titel: 'Netzdiagramm', info: 'platzscore' },
-    netzDiagramm(spiele.map((sp) => ({ name: sp.name })), gewaehlt.map((S) => ({
+    netzDiagramm(spiele.map((sp) => ({ name: sp.name, kurz: kurzerSpielname(sp, 10) })), gewaehlt.map((S) => ({
       id: S.key, name: S.person.kuerzel, farbe: S.person.farbe,
       werte: spiele.map((sp) => { const SG = S.proSpiel.get(sp.key); return SG && SG.partien ? SG.score : null; }),
       texte: spiele.map((sp) => { const SG = S.proSpiel.get(sp.key); return SG && SG.partien ? 'Platz-Score ' + fmtProzent(SG.score) + ' (' + SG.partien + ')' : 'keine Partie'; })
     }))),
-    h('p', { class: 'sehr-klein text-3' }, 'Je weiter außen, desto besser platziert in diesem Spiel (Platzierungs-Score im Zeitraum).')));
+    h('p', { class: 'sehr-klein text-3' }, 'Je weiter außen, desto besser platziert in diesem Spiel (Platz-Score im Zeitraum).'),
+    // Werte als Tabelle (lesbar ohne Grafik)
+    datenTabelle([{ titel: 'Spiel', links: true }].concat(gewaehlt.map((S) => ({ titel: S.person.kuerzel }))),
+      spiele.map((sp) => [spielLabel(sp)].concat(gewaehlt.map((S) => { const SG = S.proSpiel.get(sp.key); return SG && SG.partien ? fmtProzent(SG.score) + ' (' + SG.partien + ')' : '–'; }))), { kompakt: true })));
   wurzel.appendChild(fusszeile());
   return wurzel;
 }
@@ -5320,14 +5745,17 @@ function kennzahlVergleich(A, liste) {
   // Partien werden bewusst nicht hervorgehoben (viel mitspielen ist kein Verdienst).
   const zeile = (titel, text, wert) => {
     const zahlen = wert ? liste.map((S) => wert(S)) : [];
+    const texte = liste.map((S) => text(S));
     const gueltig = zahlen.filter((v) => v !== null && v !== undefined && isFinite(v));
     const bestes = gueltig.length > 1 ? Math.max(...gueltig) : null;
+    const bestText = bestes !== null ? texte[zahlen.indexOf(bestes)] : null;
     return [h('strong', { style: { whiteSpace: 'normal' } }, titel)].concat(liste.map((S, i) => {
-      const spitze = bestes !== null && zahlen[i] === bestes && gueltig.some((v) => v !== bestes);
-      return spitze ? h('span', { class: 'bester-wert', title: 'bester Wert' }, text(S)) : text(S);
+      // Hervorheben nur, wenn der Wert auch in der angezeigten Rundung vorn liegt
+      const spitze = bestes !== null && zahlen[i] === bestes && texte.some((tx, j) => j !== i && tx !== bestText);
+      return spitze ? h('span', { class: 'bester-wert', title: 'bester Wert' }, texte[i]) : texte[i];
     }));
   };
-  const kurzname = (sp) => h('span', { title: sp.name }, sp.name.split(' ')[0]);
+  const kurzname = (sp) => h('span', { title: sp.name }, kurzerSpielname(sp));
   return karte({ augenbraue: 'Kennzahlen', titel: 'Nebeneinander' },
     datenTabelle([{ titel: '', links: true }].concat(liste.map((S) => ({ titel: S.person.kuerzel }))), [
       zeile('Elo', (S) => fmtElo(S.elo), (S) => S.elo),
@@ -5336,7 +5764,7 @@ function kennzahlVergleich(A, liste) {
       zeile('Siegquote', (S) => fmtProzent(S.gesamt.siegquote), (S) => S.gesamt.siegquote),
       zeile('Über Erwartung', (S) => fmtPP(S.gesamt.ueberErwartung), (S) => S.gesamt.ueberErwartung),
       zeile('Platz-Score', (S) => fmtProzent(S.gesamt.score), (S) => S.gesamt.score),
-      zeile('Treppchen', (S) => fmtZahl(S.gesamt.treppchenIndex), (S) => S.gesamt.treppchenIndex),
+      zeile('Treppchen-Index', (S) => fmtZahl(S.gesamt.treppchenIndex), (S) => S.gesamt.treppchenIndex),
       zeile('Konstanz', (S) => fmtProzent(S.gesamt.konstanz), (S) => S.gesamt.konstanz),
       zeile('Paradespiel', (S) => (S.paradespiel ? kurzname(S.paradespiel.spiel) : '–'))
     ]),
@@ -5357,10 +5785,11 @@ function zweierVergleich(A, S1, S2) {
     if (ea.platz < eb.platz) x.a++; else if (ea.platz > eb.platz) x.b++; else x.gleich++;
     jeSpiel.set(p.spiel.key, x);
   }
-  const kopf = h('div', { class: 'zeile', style: { justifyContent: 'center', gap: '18px', flexWrap: 'wrap' } },
-    h('div', { class: 'stapel eng', style: { alignItems: 'center' } }, abzeichen(a, 'gross'), h('strong', {}, a.kuerzel)),
-    h('div', { class: 'stapel eng', style: { alignItems: 'center' } }, h('span', { class: 'heldenzahl', style: { fontSize: '44px' } }, siegeA + ' : ' + siegeB), h('span', { class: 'sehr-klein text-3' }, rec ? mehrzahl(rec.gemeinsam, 'gemeinsame Partie', 'gemeinsame Partien') + (rec.remis ? ', ' + rec.remis + ' gleichauf' : '') : 'noch keine gemeinsame Partie')),
-    h('div', { class: 'stapel eng', style: { alignItems: 'center' } }, abzeichen(b, 'gross'), h('strong', {}, b.kuerzel)));
+  // Drei feste Spalten (Person, Spielstand, Person), damit am Handy nichts umbricht
+  const kopf = h('div', { class: 'duell-kopf' },
+    h('div', { class: 'stapel eng', style: { alignItems: 'center', minWidth: 0 } }, abzeichen(a, 'gross'), h('strong', { class: 'abgeschnitten', style: { maxWidth: '100%' } }, a.kuerzel)),
+    h('div', { class: 'stapel eng', style: { alignItems: 'center', minWidth: 0 } }, h('span', { class: 'heldenzahl', style: { fontSize: 'clamp(28px, 9vw, 44px)', whiteSpace: 'nowrap' } }, siegeA + ' : ' + siegeB), h('span', { class: 'sehr-klein text-3', style: { textAlign: 'center' } }, rec ? mehrzahl(rec.gemeinsam, 'gemeinsame Partie', 'gemeinsame Partien') + (rec.remis ? ', ' + rec.remis + ' gleichauf' : '') : 'noch keine gemeinsame Partie')),
+    h('div', { class: 'stapel eng', style: { alignItems: 'center', minWidth: 0 } }, abzeichen(b, 'gross'), h('strong', { class: 'abgeschnitten', style: { maxWidth: '100%' } }, b.kuerzel)));
   // Bilanz je Spiel als geteilter Balken: links Siege der ersten Person, Mitte gleich platziert, rechts Siege der zweiten
   const GLEICH_FARBE = '#4a5263';
   const spielZeilen = [...jeSpiel.values()].sort((m, n) => (n.a + n.b + n.gleich) - (m.a + m.b + m.gleich));
@@ -5393,14 +5822,15 @@ function partieKarte(p, optionen = {}) {
     h('span', { class: 'sehr-klein text-3' }, mehrzahl(p.n, 'Spieler', 'Spieler')),
     h('span', { class: 'sehr-klein text-3', style: { marginLeft: 'auto' } }, p.id),
     p.geloescht ? h('span', { class: 'etikett' }, 'gelöscht') : null,
-    p.problem ? h('span', { class: 'etikett warn' }, symbol('warnung', 13), p.problem) : null);
+    p.problem ? h('span', { class: 'etikett warn' }, symbol('warnung', 13), p.problem) : null,
+    p.spiel && !p.spiel.bekannt ? h('span', { class: 'etikett warn', title: 'Dieses Spiel steht nicht im Blatt „Spiele“' }, 'Spiel unbekannt') : null);
   const gewertet = p.gueltig && !p.geloescht && p.ergebnisse[0] && p.ergebnisse[0].eloDelta !== undefined;
   const zeilen = h('div', { class: 'partie-ergebnisse' }, p.ergebnisse.map((e) => h('div', {
     class: 'ergebnis', style: optionen.hervorheben && !optionen.hervorheben.includes(e.key) ? { opacity: '0.5' } : null
   },
     h('span', { class: 'platz' + (e.platz === 1 ? ' p1' : '') }, e.platz !== null ? e.platz + '.' : '?'),
     e.person ? abzeichen(e.person, 'klein') : h('span', {}),
-    e.person ? h('a', { href: '#spieler~' + e.person.slug, class: 'abgeschnitten', style: { color: 'inherit', fontWeight: 650 } }, e.person.kuerzel) : h('span', { class: 'text-3' }, 'unbekannt'),
+    e.person ? h('a', { href: '#spieler~' + e.person.slug, class: 'abgeschnitten', style: { color: 'inherit', fontWeight: 650 }, title: e.person.bekannt ? null : 'Dieses Kürzel steht nicht im Blatt „Spieler“' }, e.person.kuerzel, e.person.bekannt ? null : h('span', { class: 'etikett warn', style: { marginLeft: '6px' } }, 'nicht im Spieler-Blatt')) : h('span', { class: 'text-3' }, 'unbekannt'),
     h('span', { class: 'punkte' }, e.punkte !== null ? fmtKurz(e.punkte, 1) + ' P.' : ''),
     gewertet ? deltaAnzeige(e.eloDelta, 1, 'Elo-Veränderung gesamt') : h('span', {}))));
   const teile = [kopf, zeilen];
@@ -5421,7 +5851,7 @@ async function loeschePartie(p) {
     zeigeAnsichtBehalteScroll();
     meldung('Partie ' + p.id + ' gelöscht.', { aktion: { text: 'Rückgängig', fn: () => stellePartieWiederHer(p.id) } });
   } catch (err) {
-    meldung(fehlerText(err), { art: 'fehler' });
+    meldeFehler(err);
   }
 }
 
@@ -5432,7 +5862,7 @@ async function stellePartieWiederHer(id) {
     zeigeAnsichtBehalteScroll();
     meldung('Partie ' + id + ' wiederhergestellt.');
   } catch (err) {
-    meldung(fehlerText(err), { art: 'fehler' });
+    meldeFehler(err);
   }
 }
 
@@ -5442,23 +5872,12 @@ function ansichtPartien() {
   const f = zustand.partienFilter;
   const zr = aktuellerZeitraum();
   const imZeitraum = (p) => p.tag === null || ((zr.von === null || p.tag >= zr.von) && (zr.bis === null || p.tag <= zr.bis));
-  const suchtext = normSchluessel(f.suche);
-  const passt = (p) => {
-    if (!imZeitraum(p)) return false;
-    if (f.spiel && (!p.spiel || p.spiel.key !== f.spiel)) return false;
-    if (f.spieler && !p.ergebnisse.some((e) => e.key === f.spieler)) return false;
-    if (suchtext) {
-      const heuhaufen = normSchluessel([p.id, p.spiel ? p.spiel.name : '', fmtDatum(p.tag)].concat(p.ergebnisse.map((e) => e.key)).join(' '));
-      if (!heuhaufen.includes(suchtext)) return false;
-    }
-    return true;
-  };
-  const liste = modell.partien.filter((p) => (f.geloeschte || !p.geloescht) && p.gueltig && passt(p));
   const fehlerhaft = modell.fehlerhaftePartien.filter((p) => !p.geloescht);
 
   // Filter
   const suche = h('input', { class: 'eingabe', type: 'search', id: 'partien-suche', placeholder: 'Suche nach Spieler, Spiel, Datum oder ID', value: f.suche, 'aria-label': 'Partien durchsuchen' });
-  suche.addEventListener('input', entprellen(() => { f.suche = suche.value; f.anzahl = 12; zeigeAnsichtBehalteScroll(); const neu = document.getElementById('partien-suche'); if (neu) { neu.focus(); neu.setSelectionRange(neu.value.length, neu.value.length); } }, 300));
+  // Nur die Liste neu aufbauen, damit das Suchfeld samt Tastatur stehen bleibt
+  suche.addEventListener('input', entprellen(() => { f.suche = suche.value; f.anzahl = 12; zeichneListe(); }, 250));
   const spielWahl = h('select', { class: 'auswahl', id: 'partien-spiel', 'aria-label': 'Spiel filtern' },
     h('option', { value: '' }, 'Alle Spiele'), modell.spiele.map((sp) => h('option', { value: sp.key, selected: sp.key === f.spiel }, sp.name)));
   spielWahl.addEventListener('change', () => { f.spiel = spielWahl.value; f.anzahl = 12; zeigeAnsichtBehalteScroll(); });
@@ -5474,39 +5893,67 @@ function ansichtPartien() {
       h('span', { class: 'schalter' }, geloeschtSchalter, h('span', { class: 'spur' })),
       h('span', { class: 'klein text-2' }, 'Gelöschte Partien zeigen (' + modell.geloeschtePartien.length + ')')));
 
-  // Nach Abenden gruppieren, neueste zuerst
-  const abende = new Map();
-  for (const p of liste.slice().reverse()) {
-    if (!abende.has(p.tag)) abende.set(p.tag, []);
-    abende.get(p.tag).push(p);
-  }
-  const abendListe = [...abende.entries()];
-  const sichtbar = abendListe.slice(0, f.anzahl);
+  // Liste nach Abenden gruppiert, neueste zuerst; wird bei Suche und „Weitere Abende“ allein neu gezeichnet
+  const zaehlZeile = h('p', { class: 'klein text-3' });
   const listenBox = h('div', {});
-  for (const [tag, partien] of sichtbar) {
-    listenBox.appendChild(h('div', { class: 'abend-kopf' }, h('h3', {}, fmtDatumLang(tag)), h('span', { class: 'sehr-klein text-3' }, mehrzahl(partien.length, 'Partie', 'Partien'))));
-    for (const p of partien.slice().reverse()) {
-      const aktion = p.geloescht
-        ? h('button', { type: 'button', class: 'knopf klein', onclick: () => stellePartieWiederHer(p.id) }, symbol('wiederherstellen', 16), 'Wiederherstellen')
-        : h('button', { type: 'button', class: 'knopf klein leise', onclick: () => loeschePartie(p), 'aria-label': 'Partie ' + p.id + ' löschen' }, symbol('papierkorb', 16), 'Löschen');
-      const teilen = !p.geloescht ? h('button', { type: 'button', class: 'knopf klein leise', onclick: () => teilePartie(p), 'aria-label': 'Partie ' + p.id + ' als Bild teilen' }, symbol('teilen', 16), 'Teilen') : null;
-      listenBox.appendChild(partieKarte(p, { aktionen: [teilen, aktion] }));
+  const mehrBox = h('div', {});
+  const zeichneListe = () => {
+    const suchtext = normSchluessel(f.suche);
+    const passt = (p) => {
+      if (!imZeitraum(p)) return false;
+      if (f.spiel && (!p.spiel || p.spiel.key !== f.spiel)) return false;
+      if (f.spieler && !p.ergebnisse.some((e) => e.key === f.spieler)) return false;
+      if (suchtext) {
+        const heuhaufen = normSchluessel([p.id, p.spiel ? p.spiel.name : '', fmtDatum(p.tag)].concat(p.ergebnisse.map((e) => e.key)).join(' '));
+        if (!heuhaufen.includes(suchtext)) return false;
+      }
+      return true;
+    };
+    const liste = modell.partien.filter((p) => (f.geloeschte || !p.geloescht) && p.gueltig && passt(p));
+    const abende = new Map();
+    for (const p of liste.slice().reverse()) {
+      if (!abende.has(p.tag)) abende.set(p.tag, []);
+      abende.get(p.tag).push(p);
     }
-  }
-  if (!sichtbar.length) listenBox.appendChild(karte({}, leerZustand('partien', 'Keine Partien gefunden', 'Ändere die Suche oder den Zeitraum.')));
-  const mehr = abendListe.length > f.anzahl
-    ? h('button', { type: 'button', class: 'knopf breit', style: { marginTop: '16px' }, onclick: () => { f.anzahl += 12; zeigeAnsichtBehalteScroll(); } }, 'Weitere Abende laden (' + (abendListe.length - f.anzahl) + ' übrig)')
+    const abendListe = [...abende.entries()];
+    const sichtbar = abendListe.slice(0, f.anzahl);
+    const teile = [];
+    for (const [tag, partien] of sichtbar) {
+      teile.push(h('div', { class: 'abend-kopf' }, h('h3', {}, fmtDatumLang(tag)), h('span', { class: 'sehr-klein text-3' }, mehrzahl(partien.length, 'Partie', 'Partien'))));
+      for (const p of partien.slice().reverse()) {
+        const aktion = p.geloescht
+          ? h('button', { type: 'button', class: 'knopf klein', onclick: () => stellePartieWiederHer(p.id) }, symbol('wiederherstellen', 16), 'Wiederherstellen')
+          : h('button', { type: 'button', class: 'knopf klein leise', onclick: () => loeschePartie(p), 'aria-label': 'Partie ' + p.id + ' löschen' }, symbol('papierkorb', 16), 'Löschen');
+        const teilen = !p.geloescht ? h('button', { type: 'button', class: 'knopf klein leise', onclick: () => teilePartie(p), 'aria-label': 'Partie ' + p.id + ' als Bild teilen' }, symbol('teilen', 16), 'Teilen') : null;
+        teile.push(partieKarte(p, { aktionen: [teilen, aktion] }));
+      }
+    }
+    if (!sichtbar.length) teile.push(karte({}, leerZustand('partien', 'Keine Partien gefunden', 'Ändere die Suche oder den Zeitraum.')));
+    ersetzeInhalt(listenBox, teile);
+    ersetzeInhalt(mehrBox, abendListe.length > f.anzahl
+      ? h('button', { type: 'button', class: 'knopf breit', style: { marginTop: '16px' }, onclick: () => { f.anzahl += 12; zeichneListe(); } }, 'Weitere Abende laden (' + (abendListe.length - f.anzahl) + ' übrig)')
+      : null);
+    zaehlZeile.textContent = mehrzahl(liste.length, 'Partie', 'Partien') + ' an ' + mehrzahl(abendListe.length, 'Abend', 'Abenden') + (f.suche || f.spiel || f.spieler ? ' (gefiltert)' : '');
+  };
+  zeichneListe();
+
+  const unbekannt = modell.unbekannteSpieler.length || modell.unbekannteSpiele.length
+    ? karte({ klasse: 'fehler-karte', augenbraue: 'Bitte prüfen', titel: 'Einträge, die nicht angelegt sind' },
+      h('p', { class: 'klein text-2' }, 'In der Tabelle stehen Kürzel oder Spiele, die im Blatt „Spieler“ bzw. „Spiele“ fehlen, vermutlich ein Tippfehler bei einem Handeintrag. Sie werden als eigene Person bzw. eigenes Spiel gewertet, bis die Schreibweise in der Tabelle korrigiert ist.'),
+      modell.unbekannteSpieler.length ? h('p', { class: 'klein' }, h('strong', {}, 'Kürzel: '), modell.unbekannteSpieler.map((p) => p.kuerzel).join(', ')) : null,
+      modell.unbekannteSpiele.length ? h('p', { class: 'klein' }, h('strong', {}, 'Spiele: '), modell.unbekannteSpiele.map((sp) => sp.name).join(', ')) : null)
     : null;
 
   return h('div', { class: 'stapel' },
     filterZeile(),
     filterKarte,
+    unbekannt,
     fehlerhaft.length ? karte({ klasse: 'fehler-karte', augenbraue: 'Bitte prüfen', titel: mehrzahl(fehlerhaft.length, 'Partie wird', 'Partien werden') + ' nicht gewertet' },
       h('p', { class: 'klein text-2' }, 'Diese Zeilen wurden vermutlich von Hand in der Tabelle geändert und passen nicht zusammen. Korrigiere sie in der Tabelle oder lösche sie hier.'),
       fehlerhaft.map((p) => partieKarte(p, { mitDatum: true, aktionen: [h('button', { type: 'button', class: 'knopf klein leise', onclick: () => loeschePartie(p) }, symbol('papierkorb', 16), 'Löschen')] }))) : null,
-    h('p', { class: 'klein text-3' }, mehrzahl(liste.length, 'Partie', 'Partien') + ' an ' + mehrzahl(abendListe.length, 'Abend', 'Abenden') + (f.suche || f.spiel || f.spieler ? ' (gefiltert)' : '')),
+    zaehlZeile,
     listenBox,
-    mehr,
+    mehrBox,
     fusszeile());
 }
 
@@ -5516,7 +5963,7 @@ function ansichtPartien() {
 // ===========================================================================
 
 function scriptVersionOk() {
-  return zustand.demo || !zustand.modell || !zustand.modell.version || zustand.modell.version >= BENOETIGTE_SCRIPT_VERSION;
+  return zustand.demo || !zustand.modell || !zustand.modell.version || versionMindestens(zustand.modell.version, BENOETIGTE_SCRIPT_VERSION);
 }
 
 function versionsHinweis() {
@@ -5544,7 +5991,7 @@ function zeigeEinstellungen() {
           zeigeAnsichtBehalteScroll();
         } catch (err) {
           schalter.checked = !schalter.checked;
-          meldung(fehlerText(err), { art: 'fehler' });
+          meldeFehler(err);
         } finally { schalter.disabled = false; }
       });
       return h('div', { class: 'zeile zwischen', style: { padding: '6px 0' } },
@@ -5564,7 +6011,7 @@ function zeigeEinstellungen() {
           zeigeAnsichtBehalteScroll();
         } catch (err) {
           schalter.checked = !schalter.checked;
-          meldung(fehlerText(err), { art: 'fehler' });
+          meldeFehler(err);
         } finally { schalter.disabled = false; }
       });
       return h('div', { class: 'zeile zwischen', style: { padding: '4px 0' } },
@@ -5659,6 +6106,7 @@ function zeigeSpielerFormular() {
     aktionen: [speichern]
   });
   const absenden = async () => {
+    if (speichern.disabled) return; // Doppel-Enter oder Doppelklick
     const kuerzel = feld.value.trim();
     if (!/^[A-Za-z0-9ÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß._-]{0,11}$/.test(kuerzel)) { ersetzeInhalt(fehler, h('div', { class: 'hinweis fehler' }, fehlerText({ code: 'invalid_kuerzel' }))); return; }
     if (zustand.modell.spielerNach.has(normSchluessel(kuerzel))) { ersetzeInhalt(fehler, h('div', { class: 'hinweis fehler' }, fehlerText({ code: 'player_exists' }))); return; }
@@ -5697,10 +6145,10 @@ function rueckblickDaten(jahr) {
   d.mitPunkten = partien.filter((p) => p.hatPunkte).length;
   // Elo-Spitze am Jahresende
   d.spitze = A.teilnehmer.filter((S) => S.gewertetElo).sort((a, b) => b.elo - a.elo).slice(0, 3);
-  // Bester Treppchen-Index mit mindestens der Hälfte der Partien
-  const noetig = Math.max(QUARTAL_MIN_PARTIEN, partien.length * QUARTAL_TEILNAHME);
-  d.treppchen = A.teilnehmer.filter((S) => S.gesamt.partien >= noetig - 1e-9).sort((a, b) => b.gesamt.treppchenIndex - a.gesamt.treppchenIndex)[0] || null;
-  d.treppchenNoetig = Math.ceil(noetig - 1e-9);
+  // Bester Treppchen-Index: mindestens die Hälfte der Abende des Jahres dabei
+  const noetigeAbende = Math.max(1, Math.ceil(A.abende.length * QUARTAL_TEILNAHME_ABENDE - 1e-9));
+  d.treppchen = A.teilnehmer.filter((S) => S.abende >= noetigeAbende && S.gesamt.partien >= QUARTAL_MIN_PARTIEN).sort((a, b) => b.gesamt.treppchenIndex - a.gesamt.treppchenIndex)[0] || null;
+  d.treppchenNoetig = noetigeAbende;
   // Längste Siegesserie im Jahr
   let serie = null;
   for (const S of A.teilnehmer) if (!serie || S.gesamt.serie.laengsteSieg > serie.laenge) serie = { S, laenge: S.gesamt.serie.laengsteSieg };
@@ -5759,7 +6207,7 @@ function zeigeJahresrueckblick(jahr) {
       abzeichen(d.treppchen.person, 'riesig'),
       h('h2', {}, d.treppchen.person.kuerzel),
       h('div', { class: 'riesenzahl', style: { fontSize: 'clamp(56px, 18vw, 96px)' } }, fmtZahl(d.treppchen.gesamt.treppchenIndex)),
-      h('p', {}, 'Gewertet alle mit mindestens ' + mehrzahl(d.treppchenNoetig, 'Partie', 'Partien') + ' (Hälfte des Jahres). 100 ist Durchschnitt.')));
+      h('p', {}, 'Gewertet alle, die an mindestens ' + mehrzahl(d.treppchenNoetig, 'Abend', 'Abenden') + ' dabei waren (Hälfte des Jahres). 100 ist Durchschnitt.')));
     if (d.serie) liste.push(() => h('div', { class: 'geschichte-karte' },
       h('span', { class: 'augenbraue' }, 'Längste Siegesserie'),
       h('div', { class: 'gold' }, symbol('flamme', 90)),
@@ -5785,7 +6233,7 @@ function zeigeJahresrueckblick(jahr) {
       h('span', { class: 'augenbraue' }, 'Spieler der Quartale'),
       h('div', { class: 'stapel', style: { width: '100%', maxWidth: '360px' } }, d.quartale.map((q) => h('div', { class: 'zeile zwischen', style: { padding: '8px 12px', borderRadius: '12px', background: 'var(--flaeche-2)' } },
         h('strong', {}, 'Q' + q.q), q.sieger ? h('span', { class: 'zeile', style: { gap: '8px' } }, abzeichen(q.sieger.person, 'klein'), q.sieger.person.kuerzel, q.laufend ? h('span', { class: 'etikett' }, 'läuft') : null) : h('span', { class: 'text-3' }, 'kein Titel')))),
-      h('p', {}, 'Teilnahme: mindestens die Hälfte der Partien, dann entscheidet der Treppchen-Index.')));
+      h('p', {}, 'Wertbar ab der Hälfte der Spieleabende, dann entscheidet der Treppchen-Index.')));
     liste.push(() => h('div', { class: 'geschichte-karte' },
       h('div', { class: 'gold' }, symbol('rueckblick', 80)),
       h('h2', {}, 'Auf das nächste Spieljahr'),
@@ -5794,28 +6242,39 @@ function zeigeJahresrueckblick(jahr) {
     return liste;
   };
   let liste = karten();
-  const fortschritt = h('div', { class: 'geschichte-fortschritt' });
+  const fortschritt = h('div', { class: 'geschichte-fortschritt', role: 'tablist', 'aria-label': 'Karten' });
   const buehne = h('div', { class: 'geschichte-buehne' });
   const schliessenKnopf = h('button', { type: 'button', class: 'symbol-knopf', 'aria-label': 'Rückblick schließen' }, symbol('schliessen', 22));
+  // Sichtbare Knöpfe im Fuß (zusätzlich zu Tippflächen, Wischen und Pfeiltasten)
+  const zurueckKnopf = h('button', { type: 'button', class: 'knopf leise', 'aria-label': 'Vorherige Karte' }, symbol('zurueck', 18), 'Zurück');
+  const weiterKnopf = h('button', { type: 'button', class: 'knopf gold', 'aria-label': 'Nächste Karte' }, 'Weiter', symbol('weiter', 18));
+  const zaehler = h('span', { class: 'sehr-klein text-3', 'aria-live': 'polite' });
+  const fuss = h('div', { class: 'geschichte-fuss' }, zurueckKnopf, zaehler, weiterKnopf);
   const ueberlagerung = h('div', { class: 'geschichte', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Jahresrückblick', tabindex: '-1' },
     fortschritt,
     h('div', { class: 'geschichte-kopf' }, h('span', { class: 'wortmarke', style: { fontSize: '15px' } }, SEITENTITEL), schliessenKnopf),
-    buehne);
+    buehne, fuss);
   const zeige = () => {
     liste = karten();
     index = klemme(index, 0, liste.length - 1);
-    ersetzeInhalt(fortschritt, liste.map((_, i) => h('i', { class: i < index ? 'fertig' : i === index ? 'laeuft' : '' })));
+    // Fortschrittsbalken sind antippbar und springen zur Karte
+    ersetzeInhalt(fortschritt, liste.map((_, i) => h('button', { type: 'button', class: i < index ? 'fertig' : i === index ? 'laeuft' : '', role: 'tab', 'aria-selected': i === index ? 'true' : 'false', 'aria-label': 'Karte ' + (i + 1) + ' von ' + liste.length, onclick: () => { index = i; zeige(); } })));
     ersetzeInhalt(buehne,
       h('div', { class: 'geschichte-tipp links', 'aria-hidden': 'true', onclick: () => { if (index > 0) { index--; zeige(); } } }),
       h('div', { class: 'geschichte-tipp rechts', 'aria-hidden': 'true', onclick: () => { if (index < liste.length - 1) { index++; zeige(); } } }),
       liste[index]());
     const karte2 = buehne.querySelector('.geschichte-karte');
     if (karte2) { karte2.style.position = 'relative'; karte2.style.zIndex = '2'; karte2.style.pointerEvents = 'none'; karte2.querySelectorAll('button, a').forEach((b) => { b.style.pointerEvents = 'auto'; }); }
+    zurueckKnopf.disabled = index === 0;
+    weiterKnopf.disabled = index >= liste.length - 1;
+    zaehler.textContent = (index + 1) + ' / ' + liste.length;
   };
+  zurueckKnopf.addEventListener('click', () => { if (index > 0) { index--; zeige(); } });
+  weiterKnopf.addEventListener('click', () => { if (index < liste.length - 1) { index++; zeige(); } });
   const taste = (ev) => {
     if (ev.key === 'ArrowRight') { index = Math.min(liste.length - 1, index + 1); zeige(); }
     else if (ev.key === 'ArrowLeft') { index = Math.max(0, index - 1); zeige(); }
-    else if (ev.key === 'Escape') schliessen();
+    else if (ev.key === 'Escape' && offeneBlaetter[offeneBlaetter.length - 1] === eintrag) schliessen();
   };
   let startX = null;
   ueberlagerung.addEventListener('touchstart', (ev) => { startX = ev.touches[0].clientX; }, { passive: true });
@@ -5825,11 +6284,19 @@ function zeigeJahresrueckblick(jahr) {
     if (Math.abs(dx) > 50) { index = klemme(index + (dx < 0 ? 1 : -1), 0, liste.length - 1); zeige(); }
     startX = null;
   });
-  const schliessen = () => { ueberlagerung.remove(); document.removeEventListener('keydown', taste); document.body.style.overflow = ''; };
+  // Als Blatt registriert: Escape, Anker-Wechsel und Abmelden schließen den Rückblick mit
+  const eintrag = { schliessen: () => schliessen() };
+  const schliessen = () => {
+    ueberlagerung.remove();
+    document.removeEventListener('keydown', taste);
+    offeneBlaetter = offeneBlaetter.filter((b) => b !== eintrag);
+    if (!offeneBlaetter.length) sperreHintergrund(false);
+  };
   schliessenKnopf.addEventListener('click', schliessen);
   document.addEventListener('keydown', taste);
   document.body.appendChild(ueberlagerung);
-  document.body.style.overflow = 'hidden';
+  offeneBlaetter.push(eintrag);
+  sperreHintergrund(true);
   zeige();
   requestAnimationFrame(() => ueberlagerung.focus());
 }
@@ -6053,23 +6520,24 @@ function erstelleDemoBackend() {
 
 const BILD_B = 1080, BILD_H = 1350;
 
-async function bildLeinwand() {
+/** Leinwand im Hochformat; hoehe optional (Partie-Bilder wachsen mit der Spielerzahl) */
+async function bildLeinwand(hoehe = BILD_H) {
   try { if (document.fonts && document.fonts.load) await document.fonts.load('600 64px "Cinzel Spieleabend"'); } catch (e) { /* Ersatzschrift */ }
   const c = document.createElement('canvas');
   c.width = BILD_B;
-  c.height = BILD_H;
+  c.height = hoehe;
   const x = c.getContext('2d');
-  const verlauf = x.createLinearGradient(0, 0, 0, BILD_H);
+  const verlauf = x.createLinearGradient(0, 0, 0, hoehe);
   verlauf.addColorStop(0, '#0d1220');
   verlauf.addColorStop(1, '#05070b');
   x.fillStyle = verlauf;
-  x.fillRect(0, 0, BILD_B, BILD_H);
+  x.fillRect(0, 0, BILD_B, hoehe);
   const leuchten = (cx, cy, r, farbe) => {
     const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
     g.addColorStop(0, farbe);
     g.addColorStop(1, 'rgba(0,0,0,0)');
     x.fillStyle = g;
-    x.fillRect(0, 0, BILD_B, BILD_H);
+    x.fillRect(0, 0, BILD_B, hoehe);
   };
   leuchten(120, -80, 700, 'rgba(243,195,91,0.20)');
   leuchten(1100, 260, 600, 'rgba(95,212,196,0.10)');
@@ -6084,11 +6552,17 @@ async function bildLeinwand() {
   return { c, x, gold };
 }
 
-function bildText(x, text, px, py, groesse, farbe, gewicht = 600, ausrichtung = 'left', schrift = 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif') {
+function bildText(x, text, px, py, groesse, farbe, gewicht = 600, ausrichtung = 'left', schrift = 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif', maxBreite = null) {
   x.font = gewicht + ' ' + groesse + 'px ' + schrift;
   x.fillStyle = farbe;
   x.textAlign = ausrichtung;
-  x.fillText(text, px, py);
+  // Lange Namen werden auf die verfügbare Breite gestaucht statt über den Rand zu laufen
+  const grenze = maxBreite !== null ? maxBreite : (ausrichtung === 'center' ? Math.min(px, BILD_B - px) * 2 - 60 : ausrichtung === 'right' ? px - 60 : BILD_B - px - 60);
+  if (grenze > 0) x.fillText(text, px, py, grenze); else x.fillText(text, px, py);
+}
+
+function bildFuss(x, text, hoehe = BILD_H) {
+  bildText(x, text, BILD_B / 2, hoehe - 50, 26, '#7d8699', 500, 'center');
 }
 
 function bildAbzeichen(x, person, cx, cy, r) {
@@ -6118,10 +6592,6 @@ function bildRundRechteck(x, px, py, b, hh, r, fuellung) {
   x.closePath();
   x.fillStyle = fuellung;
   x.fill();
-}
-
-function bildFuss(x, text) {
-  bildText(x, text, BILD_B / 2, BILD_H - 50, 26, '#7d8699', 500, 'center');
 }
 
 async function teileBild(c, dateiname, titel) {
@@ -6169,7 +6639,7 @@ async function teileRangliste(A, istElo) {
     if (!S) continue;
     const cy = boden - pos.hoehe - 170;
     bildAbzeichen(x, S.person, pos.cx, cy, pos.nr === 1 ? 70 : 58);
-    bildText(x, S.person.kuerzel, pos.cx, cy + 112, 36, '#eef1f7', 700, 'center');
+    bildText(x, S.person.kuerzel, pos.cx, cy + 112, 36, '#eef1f7', 700, 'center', undefined, 260);
     bildText(x, istElo ? fmtElo(S.elo) : fmtZahl(S.gesamt.treppchenIndex), pos.cx, cy + 152, pos.nr === 1 ? 40 : 34, pos.nr === 1 ? '#f8dc97' : '#c9d2de', 800, 'center');
   }
   // Weitere Plätze
@@ -6178,7 +6648,7 @@ async function teileRangliste(A, istElo) {
     bildRundRechteck(x, 120, y - 50, 840, 78, 18, 'rgba(255,255,255,0.05)');
     bildText(x, (i + 4) + '.', 170, y + 2, 32, '#7d8699', 700, 'center');
     bildAbzeichen(x, S.person, 240, y - 11, 26);
-    bildText(x, S.person.kuerzel, 290, y + 1, 32, '#eef1f7', 700);
+    bildText(x, S.person.kuerzel, 290, y + 1, 32, '#eef1f7', 700, 'left', undefined, 500);
     bildText(x, istElo ? fmtElo(S.elo) : fmtZahl(S.gesamt.treppchenIndex), 920, y + 1, 32, '#eef1f7', 800, 'right');
     y += 92;
   });
@@ -6188,12 +6658,14 @@ async function teileRangliste(A, istElo) {
 }
 
 async function teilePartie(partie) {
-  const { c, x } = await bildLeinwand();
+  // Höhe: Kopf 380, je Spieler 132, Fuß; ab 7 Spielern wird das Bild länger als 1080 × 1350
+  const hoehe = Math.max(BILD_H, 380 + partie.n * 132 + 190);
+  const { c, x } = await bildLeinwand(hoehe);
   const sp = partie.spiel;
   // Spielfarbe als Leuchten und Symbol
   const g = x.createRadialGradient(900, 260, 0, 900, 260, 520);
   g.addColorStop(0, mitAlpha(sp.farbe, 0.32)); g.addColorStop(1, 'rgba(0,0,0,0)');
-  x.fillStyle = g; x.fillRect(0, 0, BILD_B, BILD_H);
+  x.fillStyle = g; x.fillRect(0, 0, BILD_B, hoehe);
   bildText(x, sp.name, BILD_B / 2, 205, 52, '#eef1f7', 600, 'center', '"Cinzel Spieleabend", Georgia, serif');
   bildText(x, fmtDatumLang(partie.tag), BILD_B / 2, 256, 28, '#a9b1c3', 500, 'center');
   let y = 380;
@@ -6202,8 +6674,8 @@ async function teilePartie(partie) {
     bildRundRechteck(x, 110, y - 62, 860, 112, 24, sieger ? 'rgba(243,195,91,0.14)' : 'rgba(255,255,255,0.05)');
     bildText(x, e.platz + '.', 180, y + 12, 46, sieger ? '#f3c35b' : '#7d8699', 600, 'center', '"Cinzel Spieleabend", Georgia, serif');
     bildAbzeichen(x, e.person, 270, y - 6, 36);
-    bildText(x, e.person.kuerzel, 330, y + 6, 40, '#eef1f7', 700);
-    if (e.punkte !== null) bildText(x, fmtKurz(e.punkte, 1) + ' Punkte', 330, y + 40, 24, '#a9b1c3', 500);
+    bildText(x, e.person.kuerzel, 330, y + 6, 40, '#eef1f7', 700, 'left', undefined, 440);
+    if (e.punkte !== null) bildText(x, fmtKurz(e.punkte, 1) + ' Punkte', 330, y + 40, 24, '#a9b1c3', 500, 'left', undefined, 440);
     if (e.eloDelta !== undefined) {
       const d = e.eloDelta;
       bildText(x, (d >= 0 ? '▲ ' : '▼ ') + fmtZahl(Math.abs(d), 1), 930, y + 2, 34, d >= 0 ? '#3ecf6e' : '#ff7a7a', 800, 'right');
@@ -6212,9 +6684,9 @@ async function teilePartie(partie) {
     y += 132;
   }
   if (partie.siegerChance !== null && partie.gewinner.length === 1 && partie.siegerChance < 0.25) {
-    bildText(x, 'Überraschung: nur ' + fmtProzent(partie.siegerChance) + ' Siegchance vorher', BILD_B / 2, Math.min(y + 30, BILD_H - 120), 30, '#5fd4c4', 600, 'center');
+    bildText(x, 'Überraschung: nur ' + fmtProzent(partie.siegerChance) + ' Siegchance vorher', BILD_B / 2, Math.min(y + 30, hoehe - 120), 30, '#5fd4c4', 600, 'center');
   }
-  bildFuss(x, 'Partie ' + partie.id);
+  bildFuss(x, 'Partie ' + partie.id, hoehe);
   await teileBild(c, 'partie-' + partie.id + '.png', sp.name + ' · ' + fmtDatum(partie.tag));
 }
 
@@ -6231,7 +6703,7 @@ async function teileProfil(S, A) {
     ['Partien', fmtZahl(S.gesamt.partien)],
     ['Siegquote', fmtProzent(S.gesamt.siegquote)],
     ['Platz-Score', fmtProzent(S.gesamt.score)],
-    ['Treppchen', fmtZahl(S.gesamt.treppchenIndex)]
+    ['Treppchen-Index', fmtZahl(S.gesamt.treppchenIndex)]
   ];
   werte.forEach(([name, wert], i) => {
     const cx = 150 + (i % 2) * 400, cy = 740 + Math.floor(i / 2) * 190;
@@ -6255,19 +6727,47 @@ const DEMO_ERZWUNGEN = false;
 function start() {
   window.addEventListener('hashchange', beiAnkerwechsel);
   window.addEventListener('unhandledrejection', (ev) => { console.error(ev.reason); });
+  // Beim Zurückkehren in die App (Tab wieder sichtbar, App aus dem Hintergrund) nachladen, wenn der Stand alt ist
+  document.addEventListener('visibilitychange', beiRueckkehr);
+  window.addEventListener('pageshow', beiRueckkehr);
   let demo = DEMO_ERZWUNGEN;
-  try { demo = demo || new URLSearchParams(window.location.search).has('demo'); } catch (e) { /* egal */ }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    demo = demo || params.has('demo');
+    // Für Tests und Fehlersuche: ?debug legt Zustand und Verbindung in der Konsole offen
+    if (params.has('debug')) window.spieleabendDebug = { zustand, api };
+  } catch (e) { /* egal */ }
   const ziel = leseAnker();
   zustand.ansicht = ziel.ansicht;
   zustand.parameter = ziel.parameter;
   if (demo) {
     api.demo = erstelleDemoBackend();
     zustand.demo = true;
-  } else {
-    api.pin = speicher.lies('pin');
-    if (!api.pin) { zeigeAnmeldung(); return; }
+    baueGrundgeruest();
+    ladeDaten();
+    return;
   }
+  api.pin = speicher.lies('pin', null, (v) => typeof v === 'string' && v.length > 0);
+  if (!api.pin) { vergissDaten(); zeigeAnmeldung(); return; }
   baueGrundgeruest();
+  // Sofortstart: Daten des letzten Besuchs sofort zeigen, dann im Hintergrund vom Script aktualisieren
+  const gemerkt = gemerkteDaten();
+  if (gemerkt) {
+    try {
+      uebernehmeRohdaten(gemerkt.roh, gemerkt.um);
+      zustand.ausCache = true;
+      zustand.standHinweis = null;
+      zeigeAnsicht();
+      ladeDaten({ leise: true });
+      return;
+    } catch (e) {
+      console.error(e);
+      vergissDaten();
+      zustand.modell = null;
+      zustand.roh = null;
+      zustand.ausCache = false;
+    }
+  }
   ladeDaten();
 }
 
